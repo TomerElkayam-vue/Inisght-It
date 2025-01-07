@@ -1,0 +1,10 @@
+{
+  "name": "@insight-it/frontend",
+  "version": "0.0.1",
+  "private": true,
+  "nx": {
+    "name": "frontend",
+    "projectType": "application",
+    "sourceRoot": "apps/frontend/src"
+  }
+}
