@@ -1,11 +1,11 @@
-// filepath: /Users/nitzan/Documents/code/colman/Inisght-It/apps/backend/src/app/app.module.ts
-import { Module } from "@nestjs/common";
-import { AppController } from "./app.controller";
-import { AppService } from "./app.service";
-import { AuthModule } from "../auth/auth.module";
+import { Module } from '@nestjs/common';
+import { AppController } from './app.controller.js';
+import { AppService } from './app.service.js';
+import { GitHubModule } from './github/github.module.js';
+import { AuthModule } from "../auth/auth.module.js";
 
 @Module({
-  imports: [AuthModule],
+  imports: [AuthModule, GitHubModule],
   controllers: [AppController],
   providers: [AppService],
 })
