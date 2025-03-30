@@ -1,6 +1,7 @@
 import { RouteObject } from 'react-router-dom';
 import LoginPage from '../components/Login';
 import { StatsPage } from '../components/stats/StatsPage';
+import { TeamInsights } from '../components/insights/TeamInsights';
 import { AuthGuard } from '../components/auth/AuthGuard';
 import { PublicRoute } from '../components/auth/PublicRoute';
 import { Navigate } from 'react-router-dom';
@@ -28,6 +29,10 @@ export const routes: RouteObject[] = [
       {
         path: '/stats',
         element: <StatsPage />,
+      },
+      {
+        path: '/insights',
+        element: <TeamInsights />,
       },
       {
         path: '/tasks',
