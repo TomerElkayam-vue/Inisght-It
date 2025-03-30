@@ -31,6 +31,12 @@ export const Navbar = () => {
               סטטיסטיקות
             </Link>
             <Link 
+              to="/insights" 
+              className={`text-white px-4 py-2 rounded-lg transition-colors ${isActive('/insights')}`}
+            >
+              תובנות צוותיות
+            </Link>
+            <Link 
               to="/tasks" 
               className={`text-white px-4 py-2 rounded-lg transition-colors ${isActive('/tasks')}`}
             >
