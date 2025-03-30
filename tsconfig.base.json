@@ -9,6 +9,7 @@
     "emitDecoratorMetadata": false,
     "esModuleInterop": true,
     "experimentalDecorators": false,
+    "strictPropertyInitialization": false,
     "forceConsistentCasingInFileNames": true,
     "importHelpers": true,
     "incremental": true,
