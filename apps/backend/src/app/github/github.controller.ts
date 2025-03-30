@@ -32,4 +32,38 @@ export class GitHubController {
   ) {
     return this.githubService.getRepositoryStats(owner, repo);
   }
+
+  @Get('review-stats')
+  async getReviewStatsByUser(
+    @Query('owner') owner: string,
+    @Query('repo') repo: string,
+    @Query('username') username: string,
+  ) {
+    return this.githubService.getReviewStatsByUser(owner, repo, username);
+  }
+
+  @Get('all-review-stats')
+  async getAllReviewStats(
+    @Query('owner') owner: string,
+    @Query('repo') repo: string,
+  ) {
+    return this.githubService.getAllReviewStats(owner, repo);
+  }
+
+  @Get('user-metadata')
+  async getUserMetadata(
+    @Query('owner') owner: string,
+    @Query('repo') repo: string,
+    @Query('username') username: string,
+  ) {
+    return this.githubService.getUserMetadata(owner, repo, username);
+  }
+
+  @Get('repo-users-metadata')
+  async getRepositoryUserMetadata(
+    @Query('owner') owner: string,
+    @Query('repo') repo: string,
+  ) {
+    return this.githubService.getRepositoryUserMetadata(owner, repo);
+  }
 } 
