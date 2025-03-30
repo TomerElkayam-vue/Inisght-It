@@ -1,20 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import type { Octokit } from '@octokit/rest';
 
-interface CommentStats {
+export interface CommentStats {
   totalComments: number;
   issueComments: number;
   reviewComments: number;
 }
 
-interface UserCommentStats extends CommentStats {
+export interface UserCommentStats extends CommentStats {
   username: string;
   avatarUrl: string;
 }
 
 @Injectable()
 export class GitHubService {
-  private octokit: Octokit;
+  private octokit!: Octokit;
 
   constructor() {
     this.initOctokit();
@@ -199,7 +199,7 @@ export class GitHubService {
         state: 'all',
       });
 
-      const userPRs = pullRequests.filter(pr => pr.user.login === username);
+      const userPRs = pullRequests.filter(pr => pr.user?.login === username);
 
       return {
         totalPRs: userPRs.length,
@@ -215,7 +215,8 @@ export class GitHubService {
         })),
       };
     } catch (error) {
-      throw new Error(`Failed to fetch pull requests: ${error.message}`);
+      const err = error as Error;
+      throw new Error(`Failed to fetch pull requests: ${err.message}`);
     }
   }
 

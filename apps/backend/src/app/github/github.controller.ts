@@ -1,5 +1,5 @@
 import { Controller, Get, Query, ParseIntPipe, DefaultValuePipe } from '@nestjs/common';
-import { GitHubService } from './github.service';
+import { GitHubService } from './github.service.js';
 
 @Controller('github')
 export class GitHubController {

@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { GitHubController } from './github.controller';
-import { GitHubService } from './github.service';
+import { GitHubController } from './github.controller.js';
+import { GitHubService } from './github.service.js';
 
 @Module({
   controllers: [GitHubController],
