@@ -16,7 +16,7 @@ export class JiraService {
     issues.forEach((issue) => {
       const assignee: string =
         issue.fields.assignee?.displayName || 'Unassigned';
-      issueCounts[assignee] = (issueCounts[assignee] || 0) + 1;
+      issueCounts[assignee] = (issueCounts[assignee] ?? 0) + 1;
     });
 
     return issueCounts;

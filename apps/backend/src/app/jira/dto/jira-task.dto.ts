@@ -1,6 +1,6 @@
 import { JiraUserDto } from './jira-user.dto';
 
-export interface JiraTaskDto {
+export type JiraTaskDto = {
   expand: string;
   id: string;
   self: string;
@@ -8,4 +8,4 @@ export interface JiraTaskDto {
   fields: {
     assignee: JiraUserDto;
   };
-}
+};

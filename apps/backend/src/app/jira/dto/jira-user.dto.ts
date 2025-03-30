@@ -1,11 +1,11 @@
-export interface JiraAvatarUrls {
+export type JiraAvatarUrls = {
   '48x48': string;
   '24x24': string;
   '16x16': string;
   '32x32': string;
-}
+};
 
-export interface JiraUserDto {
+export type JiraUserDto = {
   self: string;
   accountId: string;
   avatarUrls: JiraAvatarUrls;
@@ -13,4 +13,4 @@ export interface JiraUserDto {
   active: boolean;
   timeZone: string;
   accountType: string;
-}
+};
