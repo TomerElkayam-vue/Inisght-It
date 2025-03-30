@@ -6,12 +6,18 @@ import { AuthModule } from './auth/auth.module';
 import { JiraModule } from './jira/jira.module';
 import { ConfigModule } from '@nestjs/config';
 import { jiraConfig } from '../config/jira-config';
+import { GithubModule } from './github/github.module';
+import { githubConfig } from '../config/github-config';
 
 @Module({
   imports: [
     JiraModule,
+    GithubModule,
     AuthModule,
-    ConfigModule.forRoot({ load: [jiraConfig], isGlobal: true }),
+    ConfigModule.forRoot({ 
+      load: [jiraConfig, githubConfig], 
+      isGlobal: true 
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],
