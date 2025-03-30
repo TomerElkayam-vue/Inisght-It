@@ -13,7 +13,6 @@ async function bootstrap() {
   // Enable CORS for frontend application
   app.enableCors({
     origin: "http://localhost:4201", // Frontend URL (default NX port)
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],
   });

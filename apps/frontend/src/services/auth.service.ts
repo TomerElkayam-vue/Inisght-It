@@ -1,4 +1,5 @@
 import axios from "axios";
+import { api } from "./api.config";
 
 interface LoginResponse {
   access_token: string;
@@ -8,14 +9,6 @@ interface LoginCredentials {
   username: string;
   password: string;
 }
-
-const api = axios.create({
-  baseURL: "http://localhost:3000/api",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  withCredentials: true, // Important for CORS with credentials
-});
 
 export const login = async (credentials: LoginCredentials): Promise<string> => {
   try {
