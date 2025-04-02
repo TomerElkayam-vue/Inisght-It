@@ -4,13 +4,11 @@ import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { 
   GitHubPullRequest, 
-  GitHubReview, 
   GitHubComment, 
   UserCommentsStats,
   UserSpecificStats,
   UserPullRequestStats,
-  RepositoryUser,
-  GitHubUser
+  RepositoryContributor
 } from './types/github.types';
 
 @Injectable()
@@ -143,24 +141,6 @@ export class GithubRepository {
     }
   }
 
-  async getPullRequestReviews(owner: string, repo: string, prNumber: number) {
-    try {
-      const url = `${this.baseUrl}/repos/${owner}/${repo}/pulls/${prNumber}/reviews`;
-      const { data } = await firstValueFrom(
-        this.httpService.get<GitHubReview[]>(url, {
-          headers: this.headers,
-        })
-      );
-
-      return data;
-    } catch (error: any) {
-      if (error.response?.status === 401) {
-        throw new UnauthorizedException('Invalid GitHub token');
-      }
-      throw error;
-    }
-  }
-
   async getPullRequestComments(owner: string, repo: string, prNumber: number) {
     try {
       const url = `${this.baseUrl}/repos/${owner}/${repo}/pulls/${prNumber}/comments`;
@@ -179,61 +159,16 @@ export class GithubRepository {
     }
   }
 
-  async getRepositoryUsers(owner: string, repo: string): Promise<RepositoryUser[]> {
+  async getRepositoryContributors(owner: string, repo: string): Promise<RepositoryContributor[]> {
     try {
-      // Get all pull requests
-      const pullRequests = await this.getPullRequests(owner, repo, 'all');
-      
-      // Get unique usernames from all PRs
-      const uniqueUsernames = new Set<string>();
-      pullRequests.forEach(pr => {
-        if (pr.user?.login) {
-          uniqueUsernames.add(pr.user.login);
-        }
-        if (pr.commentsStats) {
-          pr.commentsStats.forEach(stat => {
-            uniqueUsernames.add(stat.login);
-          });
-        }
-      });
-
-      // Get user details from GitHub API
-      const userDetails = await Promise.all(
-        Array.from(uniqueUsernames).map(async (username) => {
-          const url = `${this.baseUrl}/users/${username}`;
-          const { data } = await firstValueFrom(
-            this.httpService.get<GitHubUser>(url, {
-              headers: this.headers,
-            })
-          );
-
-          // Count user's contributions
-          const userPRs = pullRequests.filter(pr => pr.user?.login === username);
-          const userComments = pullRequests.reduce((sum, pr) => {
-            const userStat = pr.commentsStats?.find(stat => stat.login === username);
-            return sum + (userStat?.reviewComments || 0);
-          }, 0);
-
-          const userReviews = await Promise.all(
-            userPRs.map(pr => this.getPullRequestReviews(owner, repo, pr.number))
-          );
-          const totalReviews = userReviews.reduce((sum, reviews) => 
-            sum + reviews.filter(review => review.user?.login === username).length, 0);
-
-          return {
-            login: username,
-            id: data.id || 0,
-            type: data.type || 'User',
-            site_admin: data.site_admin || false,
-            contributions: userPRs.length + userComments + totalReviews,
-            pullRequests: userPRs.length,
-            comments: userComments,
-            reviews: totalReviews
-          };
+      const url = `${this.baseUrl}/repos/${owner}/${repo}/contributors`;
+      const { data } = await firstValueFrom(
+        this.httpService.get<RepositoryContributor[]>(url, {
+          headers: this.headers,
         })
       );
 
-      return userDetails;
+      return data;
     } catch (error: any) {
       if (error.response?.status === 401) {
         throw new UnauthorizedException('Invalid GitHub token');
