@@ -1,7 +1,9 @@
 import React, { useState, FormEvent } from "react";
+import { useNavigate } from "react-router-dom";
 import { login, saveToken } from "../../services/auth.service";
 
 const LoginForm: React.FC = () => {
+  const navigate = useNavigate();
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string>("");
@@ -15,8 +17,7 @@ const LoginForm: React.FC = () => {
     try {
       const response = await login({ username, password });
       saveToken(response);
-      // You can add success handling here
-      console.log('Login successful');
+      navigate('/stats');
     } catch (err) {
       setError("שם משתמש או סיסמא שגויים");
       console.error('Login error:', err);
