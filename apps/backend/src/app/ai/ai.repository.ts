@@ -14,7 +14,7 @@ export class AiRepository {
   model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
   async getWorkerRecommendation(userInfo: UserInfo): Promise<string> {
-    const promt = `Give your recommendation and summery about a worker that have done ${userInfo.amountOfUserStories} Suser stories, and ${userInfo.amountOfCommentsPerReview} comments per review, and ${userInfo.numberOfReviews} reviews. please respond with a json object contains one field called text, which will contain the recommandation`;
+    const promt = `Give your recommendation and summery in the hebrew language about a worker that have done ${userInfo.amountOfUserStories} Suser stories, and ${userInfo.amountOfCommentsPerReview} comments per review, and ${userInfo.numberOfReviews} reviews. please respond with a json object contains one field called text, which will contain the recommandation`;
 
     const result = await this.model.generateContent({
       contents: [{ role: 'user', parts: [{ text: promt }] }],
