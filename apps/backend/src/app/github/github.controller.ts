@@ -5,7 +5,8 @@ import {
   GitHubReview, 
   GitHubComment,
   ProjectCommentsStats,
-  UserSpecificStats
+  UserSpecificStats,
+  RepositoryUser
 } from './types/github.types';
 
 @Controller('github')
@@ -27,6 +28,14 @@ export class GithubController {
     @Param('repo') repo: string
   ): Promise<ProjectCommentsStats> {
     return this.githubService.getProjectStats(owner, repo);
+  }
+
+  @Get(':owner/:repo/users')
+  async getRepositoryUsers(
+    @Param('owner') owner: string,
+    @Param('repo') repo: string
+  ): Promise<RepositoryUser[]> {
+    return this.githubService.getRepositoryUsers(owner, repo);
   }
 
   @Get(':owner/:repo/users/:username/stats')

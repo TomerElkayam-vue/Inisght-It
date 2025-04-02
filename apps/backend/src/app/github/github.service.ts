@@ -5,7 +5,8 @@ import {
   GitHubReview, 
   GitHubComment,
   ProjectCommentsStats,
-  UserSpecificStats
+  UserSpecificStats,
+  RepositoryUser
 } from './types/github.types';
 
 @Injectable()
@@ -30,5 +31,9 @@ export class GithubService {
 
   async getUserStats(owner: string, repo: string, username: string): Promise<UserSpecificStats> {
     return this.githubRepository.getUserStats(owner, repo, username);
+  }
+
+  async getRepositoryUsers(owner: string, repo: string): Promise<RepositoryUser[]> {
+    return this.githubRepository.getRepositoryUsers(owner, repo);
   }
 } 
