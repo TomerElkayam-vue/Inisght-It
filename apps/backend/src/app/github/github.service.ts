@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { GithubRepository } from './github.repository';
 import { 
   GitHubPullRequest, 
@@ -11,16 +10,7 @@ import {
 
 @Injectable()
 export class GithubService {
-  private readonly owner: string;
-  private readonly repo: string;
-
-  constructor(
-    private readonly githubRepository: GithubRepository,
-    private readonly configService: ConfigService,
-  ) {
-    this.owner = this.configService.get<string>('github.owner') || '';
-    this.repo = this.configService.get<string>('github.repo') || '';
-  }
+  constructor(private readonly githubRepository: GithubRepository) {}
 
   async getPullRequests(owner: string, repo: string, state: 'open' | 'closed' | 'all' = 'all'): Promise<GitHubPullRequest[]> {
     return this.githubRepository.getPullRequests(owner, repo, state);
