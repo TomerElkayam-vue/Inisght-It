@@ -13,7 +13,7 @@ import { githubConfig } from '../config/github-config';
   imports: [
     JiraModule,
     GithubModule,
-    AuthModule,
+    // AuthModule,
     ConfigModule.forRoot({ 
       load: [jiraConfig, githubConfig], 
       isGlobal: true 
