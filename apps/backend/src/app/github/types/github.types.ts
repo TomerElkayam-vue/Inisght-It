@@ -39,24 +39,18 @@ export type PullRequestDuration = {
 
 export type UserCommentsStats = {
   login: string;
-  totalComments: number;
   reviewComments: number;
-  issueComments: number;
 };
 
 export type UserPullRequestStats = {
   prNumber: number;
   prTitle: string;
-  comments: number;
   reviewComments: number;
-  issueComments: number;
 };
 
 export type UserSpecificStats = {
   login: string;
-  totalComments: number;
   totalReviewComments: number;
-  totalIssueComments: number;
   pullRequests: UserPullRequestStats[];
   averageCommentsPerPR: number;
 };

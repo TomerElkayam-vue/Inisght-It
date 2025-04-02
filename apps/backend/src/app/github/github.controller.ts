@@ -4,7 +4,6 @@ import {
   GitHubPullRequest, 
   GitHubReview, 
   GitHubComment,
-  ProjectCommentsStats,
   UserSpecificStats,
   RepositoryUser
 } from './types/github.types';

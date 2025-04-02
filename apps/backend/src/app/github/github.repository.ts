@@ -6,9 +6,7 @@ import {
   GitHubPullRequest, 
   GitHubReview, 
   GitHubComment, 
-  PullRequestDuration, 
   UserCommentsStats,
-  ProjectCommentsStats,
   UserSpecificStats,
   UserPullRequestStats,
   RepositoryUser,
@@ -35,36 +33,8 @@ export class GithubRepository {
     };
   }
 
-  private calculatePRDuration(createdAt: string, closedAt?: string): PullRequestDuration {
-    const startDate = new Date(createdAt);
-    const endDate = closedAt ? new Date(closedAt) : new Date();
-    const durationMs = endDate.getTime() - startDate.getTime();
-    
-    const days = Math.floor(durationMs / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((durationMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
-
-    return {
-      days,
-      hours,
-      minutes,
-      isOpen: !closedAt
-    };
-  }
-
-  private async getIssueComments(owner: string, repo: string, prNumber: number): Promise<GitHubComment[]> {
-    const url = `${this.baseUrl}/repos/${owner}/${repo}/issues/${prNumber}/comments`;
-    const { data } = await firstValueFrom(
-      this.httpService.get<GitHubComment[]>(url, {
-        headers: this.headers,
-      })
-    );
-    return data;
-  }
-
   private calculateCommentsStats(
     reviewComments: GitHubComment[],
-    issueComments: GitHubComment[]
   ): UserCommentsStats[] {
     const userStats = new Map<string, UserCommentsStats>();
 
@@ -74,30 +44,11 @@ export class GithubRepository {
       if (!userStats.has(login)) {
         userStats.set(login, {
           login,
-          totalComments: 0,
-          reviewComments: 0,
-          issueComments: 0
+          reviewComments: 0
         });
       }
       const stats = userStats.get(login)!;
       stats.reviewComments++;
-      stats.totalComments++;
-    });
-
-    // Count issue comments
-    issueComments.forEach(comment => {
-      const login = comment.user?.login || 'unknown';
-      if (!userStats.has(login)) {
-        userStats.set(login, {
-          login,
-          totalComments: 0,
-          reviewComments: 0,
-          issueComments: 0
-        });
-      }
-      const stats = userStats.get(login)!;
-      stats.issueComments++;
-      stats.totalComments++;
     });
 
     return Array.from(userStats.values());
@@ -108,9 +59,7 @@ export class GithubRepository {
       // Get all pull requests
       const pullRequests = await this.getPullRequests(owner, repo, 'all');
       
-      let totalComments = 0;
       let totalReviewComments = 0;
-      let totalIssueComments = 0;
       const userPRs: UserPullRequestStats[] = [];
 
       // Process each PR
@@ -121,32 +70,24 @@ export class GithubRepository {
           const otherUsersComments = pr.commentsStats
             .filter(stat => stat.login !== username)
             .reduce((acc, stat) => ({
-              totalComments: acc.totalComments + stat.totalComments,
               reviewComments: acc.reviewComments + stat.reviewComments,
-              issueComments: acc.issueComments + stat.issueComments
-            }), { totalComments: 0, reviewComments: 0, issueComments: 0 });
+            }), { reviewComments: 0});
 
           userPRs.push({
             prNumber: pr.number,
             prTitle: pr.title,
-            comments: otherUsersComments.totalComments,
-            reviewComments: otherUsersComments.reviewComments,
-            issueComments: otherUsersComments.issueComments
+            reviewComments: otherUsersComments.reviewComments
           });
 
-          totalComments += otherUsersComments.totalComments;
           totalReviewComments += otherUsersComments.reviewComments;
-          totalIssueComments += otherUsersComments.issueComments;
         }
       }
 
       return {
         login: username,
-        totalComments,
         totalReviewComments,
-        totalIssueComments,
         pullRequests: userPRs,
-        averageCommentsPerPR: userPRs.length > 0 ? totalComments / userPRs.length : 0
+        averageCommentsPerPR: userPRs.length > 0 ? totalReviewComments / userPRs.length : 0
       };
     } catch (error: any) {
       if (error.response?.status === 401) {
@@ -155,7 +96,7 @@ export class GithubRepository {
       throw error;
     }
   }
-  
+
   async getPullRequests(owner: string, repo: string, state: 'open' | 'closed' | 'all' = 'all') {
     try {
       const url = `${this.baseUrl}/repos/${owner}/${repo}/pulls`;
@@ -172,9 +113,8 @@ export class GithubRepository {
       );
 
       const pullRequestsWithComments = await Promise.all(data.map(async (pr) => {
-        const [reviewComments, issueComments] = await Promise.all([
+        const [reviewComments] = await Promise.all([
           this.getPullRequestComments(owner, repo, pr.number),
-          this.getIssueComments(owner, repo, pr.number)
         ]);
 
         return {
@@ -190,8 +130,7 @@ export class GithubRepository {
           html_url: pr.html_url,
           review_comments_url: pr.review_comments_url,
           comments_url: pr.comments_url,
-          duration: this.calculatePRDuration(pr.created_at, pr.closed_at),
-          commentsStats: this.calculateCommentsStats(reviewComments, issueComments)
+          commentsStats: this.calculateCommentsStats(reviewComments)
         };
       }));
 
@@ -272,7 +211,7 @@ export class GithubRepository {
           const userPRs = pullRequests.filter(pr => pr.user?.login === username);
           const userComments = pullRequests.reduce((sum, pr) => {
             const userStat = pr.commentsStats?.find(stat => stat.login === username);
-            return sum + (userStat?.totalComments || 0);
+            return sum + (userStat?.reviewComments || 0);
           }, 0);
 
           const userReviews = await Promise.all(
