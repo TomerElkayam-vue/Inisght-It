@@ -45,6 +45,7 @@
     }
   },
   "dependencies": {
+    "@nestjs/axios": "^3.0.2",
     "passport-jwt": "^4.0.1"
   },
   "devDependencies": {
