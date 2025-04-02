@@ -8,14 +8,17 @@ import { ConfigModule } from '@nestjs/config';
 import { jiraConfig } from '../config/jira-config';
 import { GithubModule } from './github/github.module';
 import { githubConfig } from '../config/github-config';
+import { AiModule } from './ai/ai.module';
+import { geminiConfig } from '../config/gemini-config';
 
 @Module({
   imports: [
     JiraModule,
     GithubModule,
     AuthModule,
+    AiModule,
     ConfigModule.forRoot({ 
-      load: [jiraConfig, githubConfig], 
+      load: [jiraConfig, githubConfig, geminiConfig], 
       isGlobal: true 
     }),
   ],
