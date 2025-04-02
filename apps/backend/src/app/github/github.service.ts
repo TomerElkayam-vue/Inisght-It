@@ -22,23 +22,23 @@ export class GithubService {
     this.repo = this.configService.get<string>('github.repo') || '';
   }
 
-  async getPullRequests(state: 'open' | 'closed' | 'all' = 'all'): Promise<GitHubPullRequest[]> {
-    return this.githubRepository.getPullRequests(this.owner, this.repo, state);
+  async getPullRequests(owner: string, repo: string, state: 'open' | 'closed' | 'all' = 'all'): Promise<GitHubPullRequest[]> {
+    return this.githubRepository.getPullRequests(owner, repo, state);
   }
 
-  async getPullRequestReviews(prNumber: number): Promise<GitHubReview[]> {
-    return this.githubRepository.getPullRequestReviews(this.owner, this.repo, prNumber);
+  async getPullRequestReviews(owner: string, repo: string, prNumber: number): Promise<GitHubReview[]> {
+    return this.githubRepository.getPullRequestReviews(owner, repo, prNumber);
   }
 
-  async getPullRequestComments(prNumber: number): Promise<GitHubComment[]> {
-    return this.githubRepository.getPullRequestComments(this.owner, this.repo, prNumber);
+  async getPullRequestComments(owner: string, repo: string, prNumber: number): Promise<GitHubComment[]> {
+    return this.githubRepository.getPullRequestComments(owner, repo, prNumber);
   }
 
-  async getProjectStats(): Promise<ProjectCommentsStats> {
-    return this.githubRepository.getProjectCommentsStats(this.owner, this.repo);
+  async getProjectStats(owner: string, repo: string): Promise<ProjectCommentsStats> {
+    return this.githubRepository.getProjectCommentsStats(owner, repo);
   }
 
-  async getUserStats(username: string): Promise<UserSpecificStats> {
-    return this.githubRepository.getUserStats(this.owner, this.repo, username);
+  async getUserStats(owner: string, repo: string, username: string): Promise<UserSpecificStats> {
+    return this.githubRepository.getUserStats(owner, repo, username);
   }
 } 

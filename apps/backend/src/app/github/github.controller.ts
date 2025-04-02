@@ -12,34 +12,47 @@ import {
 export class GithubController {
   constructor(private readonly githubService: GithubService) {}
 
-  @Get('pull-requests')
+  @Get(':owner/:repo/pull-requests')
   async getPullRequests(
+    @Param('owner') owner: string,
+    @Param('repo') repo: string,
     @Query('state') state: 'open' | 'closed' | 'all' = 'all'
   ): Promise<GitHubPullRequest[]> {
-    return this.githubService.getPullRequests(state);
+    return this.githubService.getPullRequests(owner, repo, state);
   }
 
-  @Get('project-stats')
-  async getProjectStats(): Promise<ProjectCommentsStats> {
-    return this.githubService.getProjectStats();
+  @Get(':owner/:repo/project-stats')
+  async getProjectStats(
+    @Param('owner') owner: string,
+    @Param('repo') repo: string
+  ): Promise<ProjectCommentsStats> {
+    return this.githubService.getProjectStats(owner, repo);
   }
 
-  @Get('users/:username/stats')
-  async getUserStats(@Param('username') username: string): Promise<UserSpecificStats> {
-    return this.githubService.getUserStats(username);
+  @Get(':owner/:repo/users/:username/stats')
+  async getUserStats(
+    @Param('owner') owner: string,
+    @Param('repo') repo: string,
+    @Param('username') username: string
+  ): Promise<UserSpecificStats> {
+    return this.githubService.getUserStats(owner, repo, username);
   }
 
-  @Get('pull-requests/:number/reviews')
+  @Get(':owner/:repo/pull-requests/:number/reviews')
   async getPullRequestReviews(
+    @Param('owner') owner: string,
+    @Param('repo') repo: string,
     @Param('number') prNumber: number
   ): Promise<GitHubReview[]> {
-    return this.githubService.getPullRequestReviews(prNumber);
+    return this.githubService.getPullRequestReviews(owner, repo, prNumber);
   }
 
-  @Get('pull-requests/:number/comments')
+  @Get(':owner/:repo/pull-requests/:number/comments')
   async getPullRequestComments(
+    @Param('owner') owner: string,
+    @Param('repo') repo: string,
     @Param('number') prNumber: number
   ): Promise<GitHubComment[]> {
-    return this.githubService.getPullRequestComments(prNumber);
+    return this.githubService.getPullRequestComments(owner, repo, prNumber);
   }
 } 
