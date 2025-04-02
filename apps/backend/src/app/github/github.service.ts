@@ -4,7 +4,6 @@ import {
   GitHubPullRequest, 
   GitHubReview, 
   GitHubComment,
-  ProjectCommentsStats,
   UserSpecificStats,
   RepositoryUser
 } from './types/github.types';
@@ -25,8 +24,9 @@ export class GithubService {
     return this.githubRepository.getPullRequestComments(owner, repo, prNumber);
   }
 
-  async getProjectStats(owner: string, repo: string): Promise<ProjectCommentsStats> {
-    return this.githubRepository.getProjectCommentsStats(owner, repo);
+  async getProjectStats(owner: string, repo: string): Promise<UserSpecificStats[]> {
+    const users = await this.getRepositoryUsers(owner, repo);
+    return await Promise.all(users.map(user => this.getUserStats(owner, repo, user.login)));
   }
 
   async getUserStats(owner: string, repo: string, username: string): Promise<UserSpecificStats> {

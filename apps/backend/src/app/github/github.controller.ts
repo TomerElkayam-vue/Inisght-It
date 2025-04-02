@@ -26,7 +26,7 @@ export class GithubController {
   async getProjectStats(
     @Param('owner') owner: string,
     @Param('repo') repo: string
-  ): Promise<ProjectCommentsStats> {
+  ): Promise<UserSpecificStats[]> {
     return this.githubService.getProjectStats(owner, repo);
   }
 

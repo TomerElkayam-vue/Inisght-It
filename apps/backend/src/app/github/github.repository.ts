@@ -155,58 +155,7 @@ export class GithubRepository {
       throw error;
     }
   }
-
-  async getProjectCommentsStats(owner: string, repo: string): Promise<ProjectCommentsStats> {
-    try {
-      // Get all pull requests (both open and closed)
-      const pullRequests = await this.getPullRequests(owner, repo, 'all');
-      
-      // Get unique usernames from all PRs
-      const uniqueUsernames = new Set<string>();
-      pullRequests.forEach(pr => {
-        if (pr.user?.login) {
-          uniqueUsernames.add(pr.user.login);
-        }
-        if (pr.commentsStats) {
-          pr.commentsStats.forEach(stat => {
-            uniqueUsernames.add(stat.login);
-          });
-        }
-      });
-
-      // Get detailed stats for each user
-      const userStats = await Promise.all(
-        Array.from(uniqueUsernames).map(username => 
-          this.getUserStats(owner, repo, username)
-        )
-      );
-
-      // Calculate total comments
-      const totalComments = userStats.reduce((sum, stat) => sum + stat.totalComments, 0);
-
-      // Find most active reviewer
-      const mostActiveReviewer = userStats.reduce((prev, current) => {
-        return (prev.totalComments > current.totalComments) ? prev : current;
-      }, userStats[0] || { login: 'none', totalComments: 0 });
-
-      return {
-        totalPullRequests: pullRequests.length,
-        totalComments,
-        userStats,
-        averageCommentsPerPR: pullRequests.length > 0 ? totalComments / pullRequests.length : 0,
-        mostActiveReviewer: {
-          login: mostActiveReviewer.login,
-          totalComments: mostActiveReviewer.totalComments
-        }
-      };
-    } catch (error: any) {
-      if (error.response?.status === 401) {
-        throw new UnauthorizedException('Invalid GitHub token');
-      }
-      throw error;
-    }
-  }
-
+  
   async getPullRequests(owner: string, repo: string, state: 'open' | 'closed' | 'all' = 'all') {
     try {
       const url = `${this.baseUrl}/repos/${owner}/${repo}/pulls`;
