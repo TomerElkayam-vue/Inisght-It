@@ -53,6 +53,8 @@ export type UserSpecificStats = {
   totalReviewComments: number;
   pullRequests: UserPullRequestStats[];
   averageCommentsPerPR: number;
+  totalPrTime: number;
+  averagePrTime: number;
 };
 
 export interface ProjectCommentsStats {

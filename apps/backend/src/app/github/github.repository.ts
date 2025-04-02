@@ -58,15 +58,16 @@ export class GithubRepository {
       const pullRequests = await this.getPullRequests(owner, repo, 'all');
       
       let totalReviewComments = 0;
+      let totalPrTime = 0;
       const userPRs: UserPullRequestStats[] = [];
 
       // Process each PR
       for (const pr of pullRequests) {
         // Only process PRs created by the user
         if (pr.user?.login === username && pr.commentsStats) {
-          // Sum up all comments from other users on this PR
-          const otherUsersComments = pr.commentsStats
-            .filter(stat => stat.login !== username)
+            // Sum up all comments from other users on this PR
+            const otherUsersComments = pr.commentsStats
+              .filter(stat => stat.login !== username)
             .reduce((acc, stat) => ({
               reviewComments: acc.reviewComments + stat.reviewComments,
             }), { reviewComments: 0});
@@ -78,14 +79,23 @@ export class GithubRepository {
           });
 
           totalReviewComments += otherUsersComments.reviewComments;
+
+          if(pr.created_at && pr.closed_at) {
+            const createdAt = new Date(pr.created_at);
+            const closedAt = new Date(pr.closed_at);
+            const timeDiff = closedAt.getTime() - createdAt.getTime();
+            totalPrTime += timeDiff; 
+          }
         }
       }
 
       return {
         login: username,
         totalReviewComments,
+        totalPrTime,
         pullRequests: userPRs,
-        averageCommentsPerPR: userPRs.length > 0 ? totalReviewComments / userPRs.length : 0
+        averageCommentsPerPR: userPRs.length > 0 ? totalReviewComments / userPRs.length : 0,
+        averagePrTime: userPRs.length > 0 ? totalPrTime / userPRs.length : 0
       };
     } catch (error: any) {
       if (error.response?.status === 401) {
