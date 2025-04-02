@@ -10,7 +10,6 @@ import { AppModule } from './app/app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Enable CORS for frontend application
   app.enableCors({
     origin: 'http://localhost:4200', // Frontend URL (default NX port)
     credentials: true,

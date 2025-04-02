@@ -30,6 +30,7 @@ export const useUserData = () => {
     return {
       username: 'Tomer Elkayam',
       issuesCount,
+      amountOfPR: userReviewsData?.pullRequests.length,
       averageCommentsPerPR: userReviewsData?.averageCommentsPerPR,
     };
   }, [issuesCount, userReviewsData]);
