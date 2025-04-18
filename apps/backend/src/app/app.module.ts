@@ -17,9 +17,9 @@ import { geminiConfig } from '../config/gemini-config';
     GithubModule,
     AuthModule,
     AiModule,
-    ConfigModule.forRoot({ 
-      load: [jiraConfig, githubConfig, geminiConfig], 
-      isGlobal: true 
+    ConfigModule.forRoot({
+      load: [jiraConfig, githubConfig, geminiConfig],
+      isGlobal: true,
     }),
   ],
   controllers: [AppController],

@@ -22,38 +22,29 @@ export const Navbar = () => {
           <div className="flex items-center">
             <img src={logoDark} alt="Logo" className="h-10 w-auto" />
           </div>
-          
+
           <div className="flex items-center gap-4">
-            <Link 
-              to="/stats" 
-              className={`text-white px-4 py-2 rounded-lg transition-colors ${isActive('/stats')}`}
+            <Link
+              to="/stats"
+              className={`text-white px-4 py-2 rounded-lg transition-colors ${isActive(
+                '/stats'
+              )}`}
             >
               סטטיסטיקות
             </Link>
-            <Link 
-              to="/insights" 
-              className={`text-white px-4 py-2 rounded-lg transition-colors ${isActive('/insights')}`}
+            <Link
+              to="/insights"
+              className={`text-white px-4 py-2 rounded-lg transition-colors ${isActive(
+                '/insights'
+              )}`}
             >
               תובנות צוותיות
-            </Link>
-            <Link 
-              to="/tasks" 
-              className={`text-white px-4 py-2 rounded-lg transition-colors ${isActive('/tasks')}`}
-            >
-              משימות
-            </Link>
-            <Link 
-              to="/team" 
-              className={`text-white px-4 py-2 rounded-lg transition-colors ${isActive('/team')}`}
-            >
-              צוות
             </Link>
           </div>
 
           <div className="flex items-center gap-2">
-            
             <span className="text-white">שלום שחר שמש</span>
-            <button 
+            <button
               className="bg-[#2b3544] text-white px-4 py-2 rounded-lg hover:bg-[#353f4f] transition-colors"
               onClick={handleLogout}
             >
@@ -64,4 +55,4 @@ export const Navbar = () => {
       </div>
     </nav>
   );
-}; 
+};
