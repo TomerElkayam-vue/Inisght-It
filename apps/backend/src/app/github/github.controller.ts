@@ -1,8 +1,6 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, Query, Res } from '@nestjs/common';
 import { GithubService } from './github.service';
-import { 
-  UserSpecificStats,
-} from './types/github.types';
+import { UserSpecificStats } from './types/github.types';
 
 @Controller('github')
 export class GithubController {
@@ -23,4 +21,12 @@ export class GithubController {
   ): Promise<UserSpecificStats> {
     return this.githubService.getUserStats(owner, repo, username);
   }
-} 
+
+  @Get('callback')
+  async githubCallback(@Query('code') code: string, @Res() res: any) {
+    const token = await this.githubService.getUserGithubToken(code);
+
+    // For dev: pass token in URL (insecure for prod)
+    return res.redirect(`http://localhost:4200/github-success?token=${token}`);
+  }
+}
