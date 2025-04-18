@@ -2,14 +2,14 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
-import { 
-  GitHubPullRequest, 
-  GitHubComment, 
+import {
+  GitHubPullRequest,
+  GitHubComment,
   UserCommentsStats,
   UserSpecificStats,
   UserPullRequestStats,
-  RepositoryContributor
-} from './types/github.types';
+  RepositoryContributor,
+} from '@packages/github';
 
 @Injectable()
 export class GithubRepository {
@@ -18,7 +18,7 @@ export class GithubRepository {
 
   constructor(
     private configService: ConfigService,
-    private httpService: HttpService,
+    private httpService: HttpService
   ) {
     const token = this.configService.get<string>('github.token');
     if (!token) {
@@ -26,23 +26,23 @@ export class GithubRepository {
     }
 
     this.headers = {
-      'Authorization': `Bearer ${token}`,
-      'Accept': 'application/vnd.github.v3+json',
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/vnd.github.v3+json',
     };
   }
 
   private calculateCommentsStats(
-    reviewComments: GitHubComment[],
+    reviewComments: GitHubComment[]
   ): UserCommentsStats[] {
     const userStats = new Map<string, UserCommentsStats>();
 
     // Count review comments
-    reviewComments.forEach(comment => {
+    reviewComments.forEach((comment) => {
       const login = comment.user?.login || 'unknown';
       if (!userStats.has(login)) {
         userStats.set(login, {
           login,
-          reviewComments: 0
+          reviewComments: 0,
         });
       }
       const stats = userStats.get(login)!;
@@ -52,11 +52,15 @@ export class GithubRepository {
     return Array.from(userStats.values());
   }
 
-  async getUserStats(owner: string, repo: string, username: string): Promise<UserSpecificStats> {
+  async getUserStats(
+    owner: string,
+    repo: string,
+    username: string
+  ): Promise<UserSpecificStats> {
     try {
       // Get all pull requests
       const pullRequests = await this.getPullRequests(owner, repo, 'all');
-      
+
       let totalReviewComments = 0;
       let totalPrTime = 0;
       const userPRs: UserPullRequestStats[] = [];
@@ -65,26 +69,29 @@ export class GithubRepository {
       for (const pr of pullRequests) {
         // Only process PRs created by the user
         if (pr.user?.login === username && pr.commentsStats) {
-            // Sum up all comments from other users on this PR
-            const otherUsersComments = pr.commentsStats
-              .filter(stat => stat.login !== username)
-            .reduce((acc, stat) => ({
-              reviewComments: acc.reviewComments + stat.reviewComments,
-            }), { reviewComments: 0});
+          // Sum up all comments from other users on this PR
+          const otherUsersComments = pr.commentsStats
+            .filter((stat) => stat.login !== username)
+            .reduce(
+              (acc, stat) => ({
+                reviewComments: acc.reviewComments + stat.reviewComments,
+              }),
+              { reviewComments: 0 }
+            );
 
           userPRs.push({
             prNumber: pr.number,
             prTitle: pr.title,
-            reviewComments: otherUsersComments.reviewComments
+            reviewComments: otherUsersComments.reviewComments,
           });
 
           totalReviewComments += otherUsersComments.reviewComments;
 
-          if(pr.created_at && pr.closed_at) {
+          if (pr.created_at && pr.closed_at) {
             const createdAt = new Date(pr.created_at);
             const closedAt = new Date(pr.closed_at);
             const timeDiff = closedAt.getTime() - createdAt.getTime();
-            totalPrTime += timeDiff; 
+            totalPrTime += timeDiff;
           }
         }
       }
@@ -94,8 +101,9 @@ export class GithubRepository {
         totalReviewComments,
         totalPrTime,
         pullRequests: userPRs,
-        averageCommentsPerPR: userPRs.length > 0 ? totalReviewComments / userPRs.length : 0,
-        averagePrTime: userPRs.length > 0 ? totalPrTime / userPRs.length : 0
+        averageCommentsPerPR:
+          userPRs.length > 0 ? totalReviewComments / userPRs.length : 0,
+        averagePrTime: userPRs.length > 0 ? totalPrTime / userPRs.length : 0,
       };
     } catch (error: any) {
       if (error.response?.status === 401) {
@@ -105,7 +113,11 @@ export class GithubRepository {
     }
   }
 
-  async getPullRequests(owner: string, repo: string, state: 'open' | 'closed' | 'all' = 'all') {
+  async getPullRequests(
+    owner: string,
+    repo: string,
+    state: 'open' | 'closed' | 'all' = 'all'
+  ) {
     try {
       const url = `${this.baseUrl}/repos/${owner}/${repo}/pulls`;
       const { data } = await firstValueFrom(
@@ -120,27 +132,29 @@ export class GithubRepository {
         })
       );
 
-      const pullRequestsWithComments = await Promise.all(data.map(async (pr) => {
-        const [reviewComments] = await Promise.all([
-          this.getPullRequestComments(owner, repo, pr.number),
-        ]);
+      const pullRequestsWithComments = await Promise.all(
+        data.map(async (pr) => {
+          const [reviewComments] = await Promise.all([
+            this.getPullRequestComments(owner, repo, pr.number),
+          ]);
 
-        return {
-          id: pr.id,
-          number: pr.number,
-          title: pr.title,
-          state: pr.state,
-          created_at: pr.created_at,
-          updated_at: pr.updated_at,
-          closed_at: pr.closed_at,
-          user: pr.user,
-          draft: pr.draft || false,
-          html_url: pr.html_url,
-          review_comments_url: pr.review_comments_url,
-          comments_url: pr.comments_url,
-          commentsStats: this.calculateCommentsStats(reviewComments)
-        };
-      }));
+          return {
+            id: pr.id,
+            number: pr.number,
+            title: pr.title,
+            state: pr.state,
+            created_at: pr.created_at,
+            updated_at: pr.updated_at,
+            closed_at: pr.closed_at,
+            user: pr.user,
+            draft: pr.draft || false,
+            html_url: pr.html_url,
+            review_comments_url: pr.review_comments_url,
+            comments_url: pr.comments_url,
+            commentsStats: this.calculateCommentsStats(reviewComments),
+          };
+        })
+      );
 
       return pullRequestsWithComments;
     } catch (error: any) {
@@ -169,7 +183,10 @@ export class GithubRepository {
     }
   }
 
-  async getRepositoryContributors(owner: string, repo: string): Promise<RepositoryContributor[]> {
+  async getRepositoryContributors(
+    owner: string,
+    repo: string
+  ): Promise<RepositoryContributor[]> {
     try {
       const url = `${this.baseUrl}/repos/${owner}/${repo}/contributors`;
       const { data } = await firstValueFrom(
@@ -186,4 +203,4 @@ export class GithubRepository {
       throw error;
     }
   }
-} 
+}
