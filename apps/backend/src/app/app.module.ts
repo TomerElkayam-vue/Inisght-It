@@ -3,7 +3,7 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
-import { JiraModule } from './jira/jira.module';
+import { JiraModule } from './github/jira/jira.module';
 import { ConfigModule } from '@nestjs/config';
 import { jiraConfig } from '../config/jira-config';
 import { GithubModule } from './github/github.module';

@@ -3,7 +3,7 @@ import { JiraController } from './jira.controller';
 import { JiraService } from './jira.service';
 import { JiraRepository } from './jira.repository';
 import { HttpModule } from '@nestjs/axios';
-import { jiraConfig, JiraConfig } from '../../config/jira-config';
+import { jiraConfig, JiraConfig } from '../../../config/jira-config';
 
 @Module({
   controllers: [JiraController],
