@@ -1,31 +1,21 @@
 import { Injectable } from '@nestjs/common';
 import { GithubRepository } from './github.repository';
 import { 
-  GitHubPullRequest, 
-  GitHubReview, 
   GitHubComment,
   UserSpecificStats,
-  RepositoryUser
+  RepositoryContributor
 } from './types/github.types';
 
 @Injectable()
 export class GithubService {
   constructor(private readonly githubRepository: GithubRepository) {}
 
-  async getPullRequests(owner: string, repo: string, state: 'open' | 'closed' | 'all' = 'all'): Promise<GitHubPullRequest[]> {
-    return this.githubRepository.getPullRequests(owner, repo, state);
-  }
-
-  async getPullRequestReviews(owner: string, repo: string, prNumber: number): Promise<GitHubReview[]> {
-    return this.githubRepository.getPullRequestReviews(owner, repo, prNumber);
-  }
-
   async getPullRequestComments(owner: string, repo: string, prNumber: number): Promise<GitHubComment[]> {
     return this.githubRepository.getPullRequestComments(owner, repo, prNumber);
   }
 
   async getProjectStats(owner: string, repo: string): Promise<UserSpecificStats[]> {
-    const users = await this.getRepositoryUsers(owner, repo);
+    const users = await this.getRepositoryContributors(owner, repo);
     return await Promise.all(users.map(user => this.getUserStats(owner, repo, user.login)));
   }
 
@@ -33,7 +23,7 @@ export class GithubService {
     return this.githubRepository.getUserStats(owner, repo, username);
   }
 
-  async getRepositoryUsers(owner: string, repo: string): Promise<RepositoryUser[]> {
-    return this.githubRepository.getRepositoryUsers(owner, repo);
+  async getRepositoryContributors(owner: string, repo: string): Promise<RepositoryContributor[]> {
+    return this.githubRepository.getRepositoryContributors(owner, repo);
   }
 } 

@@ -4,13 +4,11 @@ import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { 
   GitHubPullRequest, 
-  GitHubReview, 
   GitHubComment, 
   UserCommentsStats,
   UserSpecificStats,
   UserPullRequestStats,
-  RepositoryUser,
-  GitHubUser
+  RepositoryContributor
 } from './types/github.types';
 
 @Injectable()
@@ -60,15 +58,16 @@ export class GithubRepository {
       const pullRequests = await this.getPullRequests(owner, repo, 'all');
       
       let totalReviewComments = 0;
+      let totalPrTime = 0;
       const userPRs: UserPullRequestStats[] = [];
 
       // Process each PR
       for (const pr of pullRequests) {
         // Only process PRs created by the user
         if (pr.user?.login === username && pr.commentsStats) {
-          // Sum up all comments from other users on this PR
-          const otherUsersComments = pr.commentsStats
-            .filter(stat => stat.login !== username)
+            // Sum up all comments from other users on this PR
+            const otherUsersComments = pr.commentsStats
+              .filter(stat => stat.login !== username)
             .reduce((acc, stat) => ({
               reviewComments: acc.reviewComments + stat.reviewComments,
             }), { reviewComments: 0});
@@ -80,14 +79,23 @@ export class GithubRepository {
           });
 
           totalReviewComments += otherUsersComments.reviewComments;
+
+          if(pr.created_at && pr.closed_at) {
+            const createdAt = new Date(pr.created_at);
+            const closedAt = new Date(pr.closed_at);
+            const timeDiff = closedAt.getTime() - createdAt.getTime();
+            totalPrTime += timeDiff; 
+          }
         }
       }
 
       return {
         login: username,
         totalReviewComments,
+        totalPrTime,
         pullRequests: userPRs,
-        averageCommentsPerPR: userPRs.length > 0 ? totalReviewComments / userPRs.length : 0
+        averageCommentsPerPR: userPRs.length > 0 ? totalReviewComments / userPRs.length : 0,
+        averagePrTime: userPRs.length > 0 ? totalPrTime / userPRs.length : 0
       };
     } catch (error: any) {
       if (error.response?.status === 401) {
@@ -143,24 +151,6 @@ export class GithubRepository {
     }
   }
 
-  async getPullRequestReviews(owner: string, repo: string, prNumber: number) {
-    try {
-      const url = `${this.baseUrl}/repos/${owner}/${repo}/pulls/${prNumber}/reviews`;
-      const { data } = await firstValueFrom(
-        this.httpService.get<GitHubReview[]>(url, {
-          headers: this.headers,
-        })
-      );
-
-      return data;
-    } catch (error: any) {
-      if (error.response?.status === 401) {
-        throw new UnauthorizedException('Invalid GitHub token');
-      }
-      throw error;
-    }
-  }
-
   async getPullRequestComments(owner: string, repo: string, prNumber: number) {
     try {
       const url = `${this.baseUrl}/repos/${owner}/${repo}/pulls/${prNumber}/comments`;
@@ -179,61 +169,16 @@ export class GithubRepository {
     }
   }
 
-  async getRepositoryUsers(owner: string, repo: string): Promise<RepositoryUser[]> {
+  async getRepositoryContributors(owner: string, repo: string): Promise<RepositoryContributor[]> {
     try {
-      // Get all pull requests
-      const pullRequests = await this.getPullRequests(owner, repo, 'all');
-      
-      // Get unique usernames from all PRs
-      const uniqueUsernames = new Set<string>();
-      pullRequests.forEach(pr => {
-        if (pr.user?.login) {
-          uniqueUsernames.add(pr.user.login);
-        }
-        if (pr.commentsStats) {
-          pr.commentsStats.forEach(stat => {
-            uniqueUsernames.add(stat.login);
-          });
-        }
-      });
-
-      // Get user details from GitHub API
-      const userDetails = await Promise.all(
-        Array.from(uniqueUsernames).map(async (username) => {
-          const url = `${this.baseUrl}/users/${username}`;
-          const { data } = await firstValueFrom(
-            this.httpService.get<GitHubUser>(url, {
-              headers: this.headers,
-            })
-          );
-
-          // Count user's contributions
-          const userPRs = pullRequests.filter(pr => pr.user?.login === username);
-          const userComments = pullRequests.reduce((sum, pr) => {
-            const userStat = pr.commentsStats?.find(stat => stat.login === username);
-            return sum + (userStat?.reviewComments || 0);
-          }, 0);
-
-          const userReviews = await Promise.all(
-            userPRs.map(pr => this.getPullRequestReviews(owner, repo, pr.number))
-          );
-          const totalReviews = userReviews.reduce((sum, reviews) => 
-            sum + reviews.filter(review => review.user?.login === username).length, 0);
-
-          return {
-            login: username,
-            id: data.id || 0,
-            type: data.type || 'User',
-            site_admin: data.site_admin || false,
-            contributions: userPRs.length + userComments + totalReviews,
-            pullRequests: userPRs.length,
-            comments: userComments,
-            reviews: totalReviews
-          };
+      const url = `${this.baseUrl}/repos/${owner}/${repo}/contributors`;
+      const { data } = await firstValueFrom(
+        this.httpService.get<RepositoryContributor[]>(url, {
+          headers: this.headers,
         })
       );
 
-      return userDetails;
+      return data;
     } catch (error: any) {
       if (error.response?.status === 401) {
         throw new UnauthorizedException('Invalid GitHub token');
