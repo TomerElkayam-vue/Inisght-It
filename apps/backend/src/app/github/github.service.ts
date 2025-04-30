@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { GithubRepository } from './github.repository';
+import { ProjectsSerivce } from '../projects/project.service';
 import {
   GitHubComment,
   UserSpecificStats,
@@ -8,7 +9,10 @@ import {
 
 @Injectable()
 export class GithubService {
-  constructor(private readonly githubRepository: GithubRepository) {}
+  constructor(
+    private readonly githubRepository: GithubRepository,
+    private projectsService: ProjectsSerivce
+  ) {}
 
   async getPullRequestComments(
     owner: string,
@@ -41,5 +45,16 @@ export class GithubService {
     repo: string
   ): Promise<RepositoryContributor[]> {
     return this.githubRepository.getRepositoryContributors(owner, repo);
+  }
+
+  async getUserGithubToken(code: string, projectId: string) {
+    const token = await this.githubRepository.getUserGithubToken(code);
+    await this.projectsService.updateProject({
+      where: { id: projectId },
+      data: {
+        codeRepositoryCredentials: { token },
+      },
+    });
+    return token;
   }
 }

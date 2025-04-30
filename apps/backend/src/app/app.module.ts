@@ -10,11 +10,15 @@ import { GithubModule } from './github/github.module';
 import { githubConfig } from '../config/github-config';
 import { AiModule } from './ai/ai.module';
 import { geminiConfig } from '../config/gemini-config';
+import { ProjectsModule } from './projects/project.module';
+import { UsersModule } from './users/user.module';
 
 @Module({
   imports: [
     JiraModule,
     GithubModule,
+    ProjectsModule,
+    UsersModule,
     AuthModule,
     AiModule,
     ConfigModule.forRoot({

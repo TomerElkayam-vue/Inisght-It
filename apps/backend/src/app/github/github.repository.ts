@@ -1,5 +1,5 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import * as config from '@nestjs/config';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import {
@@ -10,6 +10,7 @@ import {
   UserPullRequestStats,
   RepositoryContributor,
 } from '@packages/github';
+import { githubConfig } from '../../config/github-config';
 
 @Injectable()
 export class GithubRepository {
@@ -17,10 +18,11 @@ export class GithubRepository {
   private readonly headers: Record<string, string>;
 
   constructor(
-    private configService: ConfigService,
+    @Inject(githubConfig.KEY)
+    private githubConfigValues: config.ConfigType<typeof githubConfig>,
     private httpService: HttpService
   ) {
-    const token = this.configService.get<string>('github.token');
+    const token = this.githubConfigValues.token;
     if (!token) {
       throw new Error('GitHub token not found in environment variables');
     }
@@ -196,6 +198,36 @@ export class GithubRepository {
       );
 
       return data;
+    } catch (error: any) {
+      if (error.response?.status === 401) {
+        throw new UnauthorizedException('Invalid GitHub token');
+      }
+      throw error;
+    }
+  }
+
+  async getUserGithubToken(code: string): Promise<string> {
+    try {
+      const url = `https://github.com/login/oauth/access_token`;
+      const { data } = await firstValueFrom(
+        this.httpService.post<any>(
+          url,
+          {
+            client_id: this.githubConfigValues.oauthClientId,
+            client_secret: this.githubConfigValues.oauthClientToken,
+            code,
+            redirect_uri: this.githubConfigValues.oauthRedirectURI,
+          },
+          {
+            headers: {
+              Accept: 'application/json',
+              'Content-Type': 'application/json',
+            },
+          }
+        )
+      );
+
+      return data.access_token;
     } catch (error: any) {
       if (error.response?.status === 401) {
         throw new UnauthorizedException('Invalid GitHub token');
