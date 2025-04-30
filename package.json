@@ -4,8 +4,8 @@
   "license": "MIT",
   "scripts": {
     "postinstall": "prisma generate",
-    "start:ui": "npx nx serve frontend",
-    "start:server": "npx nx serve backend"
+    "start:ui": "npx nx serve frontend --watch",
+    "start:server": "npx nx serve backend --watch"
   },
   "private": true,
   "dependencies": {

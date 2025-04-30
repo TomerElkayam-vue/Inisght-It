@@ -20,6 +20,14 @@ const ToolCredentials = () => {
       setJiraCredentials(newValue);
     };
 
+  const redirectToGitHub = () => {
+    const clientId = 'Ov23liBqFboVyeJfPkKc';
+    const redirectUri =
+      'http://localhost:3000/api/github/callback/5189c957-1d16-4880-9e7c-2eec4667dbf2';
+    const scope = 'repo';
+    window.location.href = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}`;
+  };
+
   return (
     <div className="flex items-center justify-center gap-8 bg-[#1e1e2f] text-white">
       <div
@@ -28,7 +36,10 @@ const ToolCredentials = () => {
       >
         <h2 className="h-full text-xl font-bold mb-8">פלטפורמות ניהול</h2>
         <div className="mt-4">
-          <button className="bg-[#2b3544] text-white px-4 py-2 rounded-lg hover:bg-[#353f4f] transition-colors">
+          <button
+            className="bg-[#2b3544] text-white px-4 py-2 rounded-lg hover:bg-[#353f4f] transition-colors"
+            onClick={redirectToGitHub}
+          >
             חבר את גיטהאב
           </button>
         </div>
