@@ -1,5 +1,4 @@
 import { Expose } from 'class-transformer';
-import { UserInfo } from './../types/user-info.type';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class UserInfoDTO {

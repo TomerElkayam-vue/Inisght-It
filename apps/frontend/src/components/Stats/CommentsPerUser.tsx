@@ -10,7 +10,7 @@ import {
   Legend,
 } from 'chart.js';
 import { getPullRequestsSummery } from '../../services/github.service';
-import { UserActivity } from '../../types/github-activity';
+import { UserSpecificStats } from '@packages/github';
 
 ChartJS.register(
   CategoryScale,
@@ -68,7 +68,7 @@ const options = {
 export const CommentsPerUser = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [data, setData] = useState<UserActivity[] | null>(null);
+  const [data, setData] = useState<UserSpecificStats[] | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {

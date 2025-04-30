@@ -3,18 +3,22 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
-import { JiraModule } from './jira/jira.module';
+import { JiraModule } from './github/jira/jira.module';
 import { ConfigModule } from '@nestjs/config';
 import { jiraConfig } from '../config/jira-config';
 import { GithubModule } from './github/github.module';
 import { githubConfig } from '../config/github-config';
 import { AiModule } from './ai/ai.module';
 import { geminiConfig } from '../config/gemini-config';
+import { ProjectsModule } from './projects/project.module';
+import { UsersModule } from './users/user.module';
 
 @Module({
   imports: [
     JiraModule,
     GithubModule,
+    ProjectsModule,
+    UsersModule,
     AuthModule,
     AiModule,
     ConfigModule.forRoot({

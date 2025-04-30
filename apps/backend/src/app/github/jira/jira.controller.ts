@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 import { JiraService } from './jira.service';
 
 @Controller('jira')
@@ -8,5 +8,10 @@ export class JiraController {
   @Get('issues-count')
   getJiraIssuesCount() {
     return this.jiraService.countJiraIssuesPerUser();
+  }
+
+  @Get('sprints')
+  getJiraSprints() {
+    return this.jiraService.getJiraSprints();
   }
 }

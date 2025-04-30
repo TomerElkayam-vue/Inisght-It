@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { JiraRepository } from './jira.repository';
+import { JiraSprintDto } from './dto/jira-sprint.dto';
 
 @Injectable()
 export class JiraService {
@@ -7,6 +8,18 @@ export class JiraService {
 
   async getJiraIssues() {
     return this.jiraRepository.getJiraIssues();
+  }
+
+  async getJiraSprints() {
+    const jiraSprints = await this.jiraRepository.getJiraSprints();
+    
+    return jiraSprints.map((sprint: any): JiraSprintDto => ({
+      id: sprint.id,
+      name: sprint.name,
+      startDate: sprint.startDate ?? null,
+      endDate: sprint.endDate ?? null,
+      state: sprint.state,
+    }));
   }
 
   async countJiraIssuesPerUser(): Promise<Record<string, number>> {

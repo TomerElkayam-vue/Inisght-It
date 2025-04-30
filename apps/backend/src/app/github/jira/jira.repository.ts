@@ -26,4 +26,21 @@ export class JiraRepository {
       return [];
     }
   }
+
+  async getJiraSprints(): Promise<[]> {
+    try {
+      const response = await firstValueFrom(
+        this.httpService.get('/rest/agile/1.0/board/1/sprint', {
+          params: {
+            startAt: 0,
+          },
+        })
+      );
+
+      return response.data.values;
+    } catch (error) {
+      console.error('Error fetching Jira issues:', error);
+      return [];
+    }
+  }
 }
