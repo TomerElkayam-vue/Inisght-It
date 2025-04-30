@@ -9,4 +9,9 @@ export class JiraController {
   getJiraIssuesCount() {
     return this.jiraService.countJiraIssuesPerUser();
   }
+
+  @Get('sprints')
+  getJiraSprints() {
+    return this.jiraService.getJiraSprints();
+  }
 }
