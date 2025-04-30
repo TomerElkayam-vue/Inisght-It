@@ -22,6 +22,24 @@ export class GithubController {
     return this.githubService.getUserStats(owner, repo, username);
   }
 
+  @Get(':owner/:repo/users/:username/prs')
+  async getUserPullRequests(
+    @Param('owner') owner: string,
+    @Param('repo') repo: string,
+    @Param('username') username: string,
+    @Query('from') from: string,
+    @Query('to') to: string
+  ): Promise<any[]> {
+    console.log('getUserPullRequests', owner, repo, username, from, to);
+    return this.githubService.getUserPullRequests(
+      owner,
+      repo,
+      from,
+      to,
+      username
+    );
+  }
+
   @Get('callback/:projectId')
   async githubCallback(
     // This is a type and not a string because the it's a redirect from github, causing the parameter to be sent as an object

@@ -57,4 +57,14 @@ export class GithubService {
     });
     return token;
   }
+
+  async getUserPullRequests(
+    owner: string,
+    repo: string,
+    startDate: string,
+    endDate: string,
+    username: string
+  ): Promise<RepositoryContributor[]> {
+    return this.githubRepository.getOpenPullRequestsBetweenDates(owner, repo, startDate, endDate, username);
+  }
 }

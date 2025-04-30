@@ -235,4 +235,29 @@ export class GithubRepository {
       throw error;
     }
   }
+
+  async getOpenPullRequestsBetweenDates(
+    owner: string,
+    repo: string,
+    startDate: string,
+    endDate: string,
+    username: string
+  ): Promise<any> {
+    try {
+      const url = `${this.baseUrl}/search/issues?q=type:pr+author:${username}+repo:${owner}/${repo}+created:${startDate}..${endDate}`;
+      console.log('url', url);
+      const { data } = await firstValueFrom(
+        this.httpService.get(url, {
+          headers: this.headers,
+        })
+      );
+
+      return data.items;
+    } catch (error: any) {
+      if (error.response?.status === 401) {
+        throw new UnauthorizedException('Invalid GitHub token');
+      }
+      throw error;
+    }
+  }
 }
