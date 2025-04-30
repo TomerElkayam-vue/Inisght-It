@@ -1,8 +1,6 @@
 import { Controller, Get, Param } from '@nestjs/common';
 import { GithubService } from './github.service';
-import { 
-  UserSpecificStats,
-} from './types/github.types';
+import { UserSpecificStats } from '@packages/github';
 
 @Controller('github')
 export class GithubController {
@@ -23,4 +21,4 @@ export class GithubController {
   ): Promise<UserSpecificStats> {
     return this.githubService.getUserStats(owner, repo, username);
   }
-} 
+}
