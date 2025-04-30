@@ -1,0 +1,101 @@
+import { useProjectContext } from '../../context/ProjectContext';
+
+const ToolCredentials = () => {
+  const {
+    codeBaseCredentials,
+    setCodeBaseCredentials,
+    managmentCredentials,
+    setManagmentCredentials: setJiraCredentials,
+  } = useProjectContext();
+
+  const handleGithubChange =
+    (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
+      const newValue = { ...codeBaseCredentials, [field]: e.target.value };
+      setCodeBaseCredentials(newValue);
+    };
+
+  const handleJiraChange =
+    (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
+      const newValue = { ...managmentCredentials, [field]: e.target.value };
+      setJiraCredentials(newValue);
+    };
+
+  return (
+    <div className="flex items-center justify-center gap-8 bg-[#1e1e2f] text-white">
+      <div
+        dir="rtl"
+        className="bg-[#2e2e3e] p-8 rounded-3xl h-full w-80 text-center shadow-lg"
+      >
+        <h2 className="h-full text-xl font-bold mb-8">פלטפורמות ניהול</h2>
+        <div className="mt-4">
+          <button className="bg-[#2b3544] text-white px-4 py-2 rounded-lg hover:bg-[#353f4f] transition-colors">
+            חבר את גיטהאב
+          </button>
+        </div>
+        <div className="mt-4">
+          <label className="block mb-2">Repo Owner</label>
+          <input
+            type="text"
+            value={codeBaseCredentials?.repoOwner ?? ''}
+            onChange={handleGithubChange('repoOwner')}
+            className="w-full p-3 rounded-lg bg-[#3a3a4d] border-none focus:outline-none text-white text-right"
+          />
+        </div>
+        <div className="mt-4">
+          <label className="block mb-2">Repo Name</label>
+          <input
+            type="text"
+            value={codeBaseCredentials?.repoName ?? ''}
+            onChange={handleGithubChange('repoName')}
+            className="w-full p-3 rounded-lg bg-[#3a3a4d] border-none focus:outline-none text-white text-right"
+          />
+        </div>
+      </div>
+
+      <div
+        dir="rtl"
+        className="bg-[#2e2e3e] p-8 rounded-3xl w-80 text-center shadow-lg"
+      >
+        <h2 className="text-xl font-bold mb-8">כלי ניהול משימות</h2>
+        <div className="mt-4">
+          <label className="block mb-2">Email</label>
+          <input
+            type="text"
+            value={managmentCredentials?.email ?? ''}
+            onChange={handleJiraChange('email')}
+            className="w-full p-3 rounded-lg bg-[#3a3a4d] border-none focus:outline-none text-white text-right"
+          />
+        </div>
+        <div className="mt-4">
+          <label className="block mb-2">Jira URL</label>
+          <input
+            type="text"
+            value={managmentCredentials?.jiraUrl ?? ''}
+            onChange={handleJiraChange('jiraUrl')}
+            className="w-full p-3 rounded-lg bg-[#3a3a4d] border-none focus:outline-none text-white text-right"
+          />
+        </div>
+        <div className="mt-4">
+          <label className="block mb-2">API Token</label>
+          <input
+            type="text"
+            value={managmentCredentials?.apiToken ?? ''}
+            onChange={handleJiraChange('apiToken')}
+            className="w-full p-3 rounded-lg bg-[#3a3a4d] border-none focus:outline-none text-white text-right"
+          />
+        </div>
+        <div className="mt-4">
+          <label className="block mb-2">Board ID</label>
+          <input
+            type="text"
+            value={managmentCredentials?.boardId ?? ''}
+            onChange={handleJiraChange('boardId')}
+            className="w-full p-3 rounded-lg bg-[#3a3a4d] border-none focus:outline-none text-white text-right"
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ToolCredentials;

@@ -12,7 +12,7 @@ export function App() {
   return (
     <div className="min-h-screen bg-[#151921]">
       {showNavbar && <Navbar />}
-      <main className={`${showNavbar ? 'pt-16' : ''}`}>
+      <main className={`${showNavbar ? 'pt-16' : ''} h-full`}>
         {element}
       </main>
     </div>

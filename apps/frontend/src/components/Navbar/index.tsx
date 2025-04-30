@@ -40,6 +40,14 @@ export const Navbar = () => {
             >
               תובנות צוותיות
             </Link>
+            <Link
+              to="/project-management"
+              className={`text-white px-4 py-2 rounded-lg transition-colors ${isActive(
+                '/project-management'
+              )}`}
+            >
+             ניהול פרויקט
+            </Link>
           </div>
 
           <div className="flex items-center gap-2">

@@ -1,5 +1,7 @@
 import { TaskDistribution } from './TaskDistribution';
 import { CommentsPerUser } from './CommentsPerUser';
+import { CircularProgress } from './CircularProgress';
+import { circularStats } from '../../data/mockStats';
 
 export const StatsPage = () => {
   return (
@@ -15,6 +17,24 @@ export const StatsPage = () => {
         <div className="h-full">
           <TaskDistribution />
         </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <CircularProgress
+          value={circularStats.backlogTasks.value}
+          total={circularStats.backlogTasks.total}
+          label={circularStats.backlogTasks.label}
+        />
+        <CircularProgress
+          value={circularStats.averageTaskTime.value}
+          total={circularStats.averageTaskTime.total}
+          label={circularStats.averageTaskTime.label}
+        />
+        <CircularProgress
+          value={circularStats.averageSprintTime.value}
+          total={circularStats.averageSprintTime.total}
+          label={circularStats.averageSprintTime.label}
+        />
       </div>
     </div>
   );
