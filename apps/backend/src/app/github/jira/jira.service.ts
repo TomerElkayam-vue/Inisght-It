@@ -9,6 +9,10 @@ export class JiraService {
     return this.jiraRepository.getJiraIssues();
   }
 
+  async getJiraSprints() {
+    return this.jiraRepository.getJiraSprints();
+  }
+
   async countJiraIssuesPerUser(): Promise<Record<string, number>> {
     const issues = await this.getJiraIssues();
     const issueCounts: Record<string, number> = {};
