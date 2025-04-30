@@ -6,6 +6,7 @@ import { PublicRoute } from '../components/auth/PublicRoute';
 import { Navigate } from 'react-router-dom';
 import { getToken } from '../services/auth.service';
 import { UserInsights } from '../components/insights/UserInsights';
+import ProjectManagment from '../components/ProjectManagment/ProjectManagment';
 
 // Helper function to determine where to redirect on 404
 const NotFoundRedirect = () => {
@@ -33,6 +34,10 @@ export const routes: RouteObject[] = [
       {
         path: '/insights',
         element: <UserInsights />,
+      },
+      {
+        path: '/project-management',
+        element: <ProjectManagment />,
       },
     ],
   },
