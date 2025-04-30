@@ -27,7 +27,7 @@ export class JiraRepository {
     }
   }
 
-  async getJiraSprints(): Promise<JiraTaskDto[]> {
+  async getJiraSprints(): Promise<[]> {
     try {
       const response = await firstValueFrom(
         this.httpService.get('/rest/agile/1.0/board/1/sprint', {
