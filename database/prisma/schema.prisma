@@ -1,0 +1,47 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["prismaSchemaFolder"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                 String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  username           String              @unique
+  password           String
+  firstName          String              @map("first_name")
+  lastName           String              @map("last_name")
+  createdAt          DateTime            @default(now()) @map("created_at")
+  projectPermissions ProjectPermission[]
+
+  @@map("users")
+}
+
+model Project {
+  id                           String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name                         String
+  codeRepositoryCredentials    Json?               @map("code_repository_credentials")
+  missionManagementCredentials Json?               @map("mission_management_credentials")
+  statistics                   Json?
+  recommendations              Json?
+  createdAt                    DateTime            @default(now())
+  projectPermissions           ProjectPermission[]
+
+  @@map("projects")
+}
+
+model ProjectPermission {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @db.Uuid
+  projectId String   @db.Uuid
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, projectId])
+  @@map("project_permissions")
+}

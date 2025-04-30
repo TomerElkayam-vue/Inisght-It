@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
-import { UserActivity } from '../../types/github-activity';
+
 import { getPullRequestsSummery } from '../../services/github.service';
 import { getIssuesCount } from '../../services/jira.service';
+import { UserSpecificStats } from '@packages/github';
 
 export const useUserData = () => {
   const [userReviewsData, setUserReviewsData] = useState<
-    UserActivity | undefined
+    UserSpecificStats | undefined
   >(undefined);
   const [issuesCount, setUserIssuesCount] = useState<number>(0);
 

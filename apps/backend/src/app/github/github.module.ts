@@ -5,14 +5,12 @@ import { GithubController } from './github.controller';
 import { GithubService } from './github.service';
 import { GithubRepository } from './github.repository';
 import { githubConfig } from '../../config/github-config';
+import { ProjectsModule } from '../projects/project.module';
 
 @Module({
-  imports: [
-    ConfigModule.forFeature(githubConfig),
-    HttpModule,
-  ],
+  imports: [ProjectsModule, ConfigModule.forFeature(githubConfig), HttpModule],
   controllers: [GithubController],
   providers: [GithubService, GithubRepository],
   exports: [GithubService],
 })
-export class GithubModule {} 
+export class GithubModule {}

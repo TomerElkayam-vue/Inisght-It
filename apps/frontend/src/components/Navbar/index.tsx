@@ -18,7 +18,8 @@ export const Navbar = () => {
 
   const redirectToGitHub = () => {
     const clientId = 'Ov23liBqFboVyeJfPkKc';
-    const redirectUri = 'http://localhost:3000/api/github/callback';
+    const redirectUri =
+      'http://localhost:3000/api/github/callback/5189c957-1d16-4880-9e7c-2eec4667dbf2';
     const scope = 'repo';
     window.location.href = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}`;
   };

@@ -9,8 +9,8 @@ import {
   UserSpecificStats,
   UserPullRequestStats,
   RepositoryContributor,
-} from './types/github.types';
-import { GithubConfig, githubConfig } from '../../config/github-config';
+} from '@packages/github';
+import { githubConfig } from '../../config/github-config';
 
 @Injectable()
 export class GithubRepository {
