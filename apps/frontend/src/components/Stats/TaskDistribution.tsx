@@ -1,79 +1,76 @@
 import { useEffect, useState } from 'react';
-import { Bar } from 'react-chartjs-2';
+import randomColor from 'randomcolor';
+import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
-  BarElement,
+  PointElement,
+  LineElement,
   Title,
   Tooltip,
   Legend
 } from 'chart.js';
-import { getIssuesCount, IssuesCountResponse } from '../../services/jira.service';
+import { getIssuesCount, getSprints, IssuesCountResponse } from '../../services/jira.service';
 
 ChartJS.register(
   CategoryScale,
   LinearScale,
-  BarElement,
+  PointElement,
+  LineElement,
   Title,
   Tooltip,
   Legend
 );
 
 const options = {
-  indexAxis: 'y' as const,
   responsive: true,
-  maintainAspectRatio: false,
   plugins: {
     legend: {
-      display: false,
+      labels: {
+        color: 'white'
+      }
     },
     title: {
       display: true,
-      text: 'כמות משימות לפי עובד',
+      text: 'כמות משימות לפי ספרינט',
       color: 'white',
       font: {
-        size: 14
-      }
+        size: 14,
+      },
     },
   },
   scales: {
-    x: {
-      beginAtZero: true,
-      grid: {
-        color: 'rgba(255, 255, 255, 0.1)'
-      },
+    y: {
+      type: 'linear',
+      position: 'left',
       ticks: {
         color: 'white',
-        font: {
-          size: 12
-        }
+      },
+    },
+    x: {
+      ticks: {
+        color: 'white',
       }
     },
-    y: {
-      grid: {
-        color: 'rgba(255, 255, 255, 0.1)'
-      },
-      ticks: {
-        color: 'white',
-        font: {
-          size: 12
-        }
-      }
-    }
   },
 };
 
 export const TaskDistribution = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [data, setData] = useState<IssuesCountResponse | null>(null);
+  const [stats, setstats] = useState<IssuesCountResponse | null>(null);
+  const [sprints, setSprints] = useState<string[] | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await getIssuesCount();
-        setData(response);
+        const statsResponse = await getIssuesCount();
+        setstats(statsResponse);
+
+        const sprintsResponse = await getSprints();
+        setSprints(sprintsResponse);
+        
         setError(null);
       } catch (err) {
         setError('Failed to load data');
@@ -87,14 +84,16 @@ export const TaskDistribution = () => {
   }, []);
 
   const chartData = {
-    labels: data ? Object.keys(data) : [],
-    datasets: [
-      {
-        data: data ? Object.values(data) : [],
-        backgroundColor: '#8b5cf6',
-        borderRadius: 6,
-      }
-    ]
+    labels: sprints,
+    datasets : stats?.map(userstat => {
+      const color = randomColor();
+
+      return {
+        label: userstat.name,
+        data: userstat?.stats ? Object.values(userstat.stats) : [],
+        backgroundColor: color,
+        borderColor: color,
+    }})
   };
 
   if (isLoading) {
@@ -116,8 +115,8 @@ export const TaskDistribution = () => {
   return (
     <div className="bg-gray-900 p-4 rounded-lg h-full">
       <div className="h-[calc(100%-2rem)]">
-        <Bar options={options} data={chartData} />
+        <Line options={options} data={chartData} />
       </div>
     </div>
   );
-}; 
+};

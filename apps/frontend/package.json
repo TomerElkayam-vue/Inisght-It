@@ -6,5 +6,8 @@
     "name": "frontend",
     "projectType": "application",
     "sourceRoot": "apps/frontend/src"
+  },
+  "devDependencies": {
+    "@types/randomcolor": "^0.5.9"
   }
 }

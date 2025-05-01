@@ -17,8 +17,14 @@ export const useUserData = () => {
         setUserReviewsData(
           pullRequestsSummery.find((user) => user.login === 'TomerElkayam-vue')
         );
+
+        // TODO - fix later
         const issuesCount = await getIssuesCount();
-        setUserIssuesCount(issuesCount['Tomer Elkayam']);
+        
+        const currUserStats = issuesCount.find(userStats => userStats.name === 'Shachar Shemesh');
+        const userIssuesCount = currUserStats?.stats ? Object.values(currUserStats.stats).reduce((acc, curr) => acc + curr, 0) : 0
+        
+        setUserIssuesCount(userIssuesCount);
       } catch (err) {
         console.error('Error fetching issues count:', err);
       }
