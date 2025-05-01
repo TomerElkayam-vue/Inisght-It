@@ -25,10 +25,8 @@ ChartJS.register(
 
 const options = {
   responsive: true,
-  maintainAspectRatio: false,
   plugins: {
     legend: {
-      display: true,
       labels: {
         color: 'white'
       }
@@ -43,22 +41,9 @@ const options = {
     },
   },
   scales: {
-    yLeft: {
-      type: 'linear' as const,
+    y: {
+      type: 'linear',
       position: 'left',
-      ticks: {
-        color: 'white',
-      },
-      grid: {
-        color: 'rgba(255, 255, 255, 0.1)',
-      },
-    },
-    yRight: {
-      type: 'linear' as const,
-      position: 'right',
-      grid: {
-        drawOnChartArea: false,
-      },
       ticks: {
         color: 'white',
       },
@@ -66,10 +51,7 @@ const options = {
     x: {
       ticks: {
         color: 'white',
-      },
-      grid: {
-        color: 'rgba(255, 255, 255, 0.1)',
-      },
+      }
     },
   },
 };
@@ -105,6 +87,7 @@ export const TaskDistribution = () => {
     labels: sprints,
     datasets : stats?.map(userstat => {
       const color = randomColor();
+
       return {
         label: userstat.name,
         data: userstat?.stats ? Object.values(userstat.stats) : [],
