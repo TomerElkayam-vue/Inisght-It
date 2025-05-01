@@ -39,11 +39,11 @@ export class JiraService {
         issue.fields.assignee?.displayName || 'Unassigned';
       const sprint: string =
         issue.fields.sprint?.name || 'Backlog';
-
-      let currUser = issueCounts.find(o => o.name == assignee);
+      
+        let currUser = issueCounts.find(o => o.name == assignee);
 
       if (!currUser) {
-        currUser = {name: assignee, stats: blankStats}
+        currUser = {name: assignee, stats: structuredClone(blankStats)}
         issueCounts.push(currUser);
       }       
 
