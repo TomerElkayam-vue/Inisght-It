@@ -1,6 +1,6 @@
 import { Controller, Get, Param, Query, Res } from '@nestjs/common';
 import { GithubService } from './github.service';
-import { UserSpecificStats } from '@packages/github';
+import { SprintCommentsPerUser } from '@packages/github';
 
 @Controller('github')
 export class GithubController {
@@ -9,17 +9,25 @@ export class GithubController {
   async getProjectStats(
     @Param('owner') owner: string,
     @Param('repo') repo: string
-  ): Promise<UserSpecificStats[]> {
+  ): Promise<SprintCommentsPerUser[]> {
     return this.githubService.getProjectStats(owner, repo);
   }
 
-  @Get(':owner/:repo/users/:username/stats')
-  async getUserStats(
+  @Get(':owner/:repo/users/:username/prs')
+  async getUserPullRequests(
     @Param('owner') owner: string,
     @Param('repo') repo: string,
-    @Param('username') username: string
-  ): Promise<UserSpecificStats> {
-    return this.githubService.getUserStats(owner, repo, username);
+    @Param('username') username: string,
+    @Query('from') from: string,
+    @Query('to') to: string
+  ): Promise<any[]> {
+    return this.githubService.getUserPullRequests(
+      owner,
+      repo,
+      from,
+      to,
+      username
+    );
   }
 
   @Get('callback/:projectId')

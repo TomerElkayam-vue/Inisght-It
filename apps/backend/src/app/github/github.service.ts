@@ -5,13 +5,16 @@ import {
   GitHubComment,
   UserSpecificStats,
   RepositoryContributor,
+  SprintCommentsPerUser,
 } from '@packages/github';
+import { JiraService } from '../jira/jira.service';
 
 @Injectable()
 export class GithubService {
   constructor(
     private readonly githubRepository: GithubRepository,
-    private projectsService: ProjectsSerivce
+    private projectsService: ProjectsSerivce,
+    private readonly jiraService: JiraService
   ) {}
 
   async getPullRequestComments(
@@ -25,19 +28,56 @@ export class GithubService {
   async getProjectStats(
     owner: string,
     repo: string
-  ): Promise<UserSpecificStats[]> {
+  ): Promise<SprintCommentsPerUser[]> {
+    const sprints = await this.jiraService.getJiraSprints();
     const users = await this.getRepositoryContributors(owner, repo);
-    return await Promise.all(
-      users.map((user) => this.getUserStats(owner, repo, user.login))
+
+    const sprintStats = await Promise.all(
+      sprints.map(async (sprint) => {
+        const userStats = await Promise.all(
+          users.map((user) =>
+            this.getUserStatsPerSprint(
+              owner,
+              repo,
+              user.login,
+              sprint.startDate,
+              sprint.endDate
+            )
+          )
+        );
+
+        return {
+          sprintId: sprint.id,
+          sprintName: sprint.name,
+          startDate: sprint.startDate,
+          endDate: sprint.endDate,
+          userStats,
+        };
+      })
     );
+
+    return sprintStats;
   }
 
-  async getUserStats(
+  async getUserStatsPerSprint(
     owner: string,
     repo: string,
-    username: string
+    username: string,
+    startDate: string | null,
+    endDate: string | null
   ): Promise<UserSpecificStats> {
-    return this.githubRepository.getUserStats(owner, repo, username);
+    // call your GitHub query function for PRs within that range
+    const userSpecificStats =
+      await this.githubRepository.getCommentsRecivedForUser(
+        owner,
+        repo,
+        startDate,
+        endDate,
+        username
+      );
+
+    // calculate stats from PRs
+    return userSpecificStats;
   }
 
   async getRepositoryContributors(
@@ -56,5 +96,21 @@ export class GithubService {
       },
     });
     return token;
+  }
+
+  async getUserPullRequests(
+    owner: string,
+    repo: string,
+    startDate: string,
+    endDate: string,
+    username: string
+  ): Promise<RepositoryContributor[]> {
+    return this.githubRepository.getOpenPullRequestsBetweenDates(
+      owner,
+      repo,
+      startDate,
+      endDate,
+      username
+    );
   }
 }

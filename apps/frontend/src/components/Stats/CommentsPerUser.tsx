@@ -1,37 +1,40 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Bar } from 'react-chartjs-2';
+import { useEffect, useState } from 'react';
+import randomColor from 'randomcolor';
+import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
-  BarElement,
+  PointElement,
+  LineElement,
   Title,
   Tooltip,
   Legend,
 } from 'chart.js';
 import { getPullRequestsSummery } from '../../services/github.service';
-import { UserSpecificStats } from '@packages/github';
+import { SprintCommentsPerUser } from '@packages/github';
 
 ChartJS.register(
   CategoryScale,
   LinearScale,
-  BarElement,
+  PointElement,
+  LineElement,
   Title,
   Tooltip,
   Legend
 );
 
 const options = {
-  indexAxis: 'x' as const,
   responsive: true,
-  maintainAspectRatio: false,
   plugins: {
     legend: {
-      display: false,
+      labels: {
+        color: 'white',
+      },
     },
     title: {
       display: true,
-      text: 'ממוצע הערות בסקר קוד',
+      text: 'ממוצע הערות לכל משתמש לפי ספרינט',
       color: 'white',
       font: {
         size: 14,
@@ -39,27 +42,16 @@ const options = {
     },
   },
   scales: {
-    x: {
-      beginAtZero: true,
-      grid: {
-        color: 'rgba(255, 255, 255, 0.1)',
-      },
+    y: {
+      type: 'linear' as const,
+      position: 'left' as const,
       ticks: {
         color: 'white',
-        font: {
-          size: 12,
-        },
       },
     },
-    y: {
-      grid: {
-        color: 'rgba(255, 255, 255, 0.1)',
-      },
+    x: {
       ticks: {
         color: 'white',
-        font: {
-          size: 12,
-        },
       },
     },
   },
@@ -68,7 +60,7 @@ const options = {
 export const CommentsPerUser = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [data, setData] = useState<UserSpecificStats[] | null>(null);
+  const [data, setData] = useState<SprintCommentsPerUser[] | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -78,7 +70,7 @@ export const CommentsPerUser = () => {
         setError(null);
       } catch (err) {
         setError('Failed to load data');
-        console.error('Error fetching issues count:', err);
+        console.error('Error fetching pull request summary:', err);
       } finally {
         setIsLoading(false);
       }
@@ -87,24 +79,29 @@ export const CommentsPerUser = () => {
     fetchData();
   }, []);
 
-  const averageCommentsPerUser = useMemo(() => {
-    return (
-      data?.reduce((acc, user) => {
-        acc[user.login] = user.averageCommentsPerPR;
-        return acc;
-      }, {} as Record<string, number>) || {}
-    );
-  }, [data]);
+  // Get all unique usernames
+  const allUsers = Array.from(
+    new Set(
+      data?.flatMap((sprint) => sprint.userStats.map((u) => u.login)) || []
+    )
+  );
 
   const chartData = {
-    labels: data ? Object.keys(averageCommentsPerUser) : [],
-    datasets: [
-      {
-        data: data ? Object.values(averageCommentsPerUser) : [],
-        backgroundColor: '#8b5cf6',
-        borderRadius: 6,
-      },
-    ],
+    labels: data?.map((sprint) => sprint.sprintName) || [],
+    datasets:
+      allUsers.map((username) => {
+        const color = randomColor();
+        return {
+          label: username,
+          data: data?.map((sprint) => {
+            const user = sprint.userStats.find((u) => u.login === username);
+            return user?.averageCommentsPerPR ?? 0;
+          }),
+          backgroundColor: color,
+          borderColor: color,
+          tension: 0.3,
+        };
+      }) || [],
   };
 
   if (isLoading) {
@@ -126,7 +123,7 @@ export const CommentsPerUser = () => {
   return (
     <div className="bg-gray-900 p-4 rounded-lg h-full">
       <div className="h-[calc(100%-2rem)]">
-        <Bar options={options} data={chartData} />
+        <Line options={options} data={chartData} />
       </div>
     </div>
   );

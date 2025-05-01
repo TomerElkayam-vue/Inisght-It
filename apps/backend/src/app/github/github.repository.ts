@@ -54,14 +54,22 @@ export class GithubRepository {
     return Array.from(userStats.values());
   }
 
-  async getUserStats(
+  async getCommentsRecivedForUser(
     owner: string,
     repo: string,
+    startDate: string | null,
+    endDate: string | null,
     username: string
   ): Promise<UserSpecificStats> {
     try {
       // Get all pull requests
-      const pullRequests = await this.getPullRequests(owner, repo, 'all');
+      const pullRequests = await this.getPullRequests(
+        owner,
+        repo,
+        startDate,
+        endDate,
+        'all'
+      );
 
       let totalReviewComments = 0;
       let totalPrTime = 0;
@@ -97,7 +105,6 @@ export class GithubRepository {
           }
         }
       }
-
       return {
         login: username,
         totalReviewComments,
@@ -114,10 +121,11 @@ export class GithubRepository {
       throw error;
     }
   }
-
   async getPullRequests(
     owner: string,
     repo: string,
+    startDate: string | null,
+    endDate: string | null,
     state: 'open' | 'closed' | 'all' = 'all'
   ) {
     try {
@@ -134,8 +142,16 @@ export class GithubRepository {
         })
       );
 
+      // Manual filtering
+      const filtered = data.filter((pr) => {
+        const createdAt = new Date(pr.created_at);
+        const afterStart = !startDate || createdAt >= new Date(startDate);
+        const beforeEnd = !endDate || createdAt <= new Date(endDate);
+        return afterStart && beforeEnd;
+      });
+
       const pullRequestsWithComments = await Promise.all(
-        data.map(async (pr) => {
+        filtered.map(async (pr) => {
           const [reviewComments] = await Promise.all([
             this.getPullRequestComments(owner, repo, pr.number),
           ]);
@@ -228,6 +244,30 @@ export class GithubRepository {
       );
 
       return data.access_token;
+    } catch (error: any) {
+      if (error.response?.status === 401) {
+        throw new UnauthorizedException('Invalid GitHub token');
+      }
+      throw error;
+    }
+  }
+
+  async getOpenPullRequestsBetweenDates(
+    owner: string,
+    repo: string,
+    startDate: string,
+    endDate: string,
+    username: string
+  ): Promise<any> {
+    try {
+      const url = `${this.baseUrl}/search/issues?q=type:pr+author:${username}+repo:${owner}/${repo}+created:${startDate}..${endDate}`;
+      const { data } = await firstValueFrom(
+        this.httpService.get(url, {
+          headers: this.headers,
+        })
+      );
+
+      return data.items;
     } catch (error: any) {
       if (error.response?.status === 401) {
         throw new UnauthorizedException('Invalid GitHub token');

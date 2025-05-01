@@ -1,10 +1,10 @@
 import { api } from './api.config';
-import { UserSpecificStats } from '@packages/github';
+import { SprintCommentsPerUser, UserSpecificStats } from '@packages/github';
 
 export const getPullRequestsSummery = async (): Promise<
-  UserSpecificStats[]
+  SprintCommentsPerUser[]
 > => {
-  const response = await api.get<UserSpecificStats[]>(
+  const response = await api.get<SprintCommentsPerUser[]>(
     '/github/TomerElkayam-vue/Inisght-It/project-stats'
   );
   return response.data;
