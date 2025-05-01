@@ -9,11 +9,12 @@ export class JiraRepository {
 
   async getJiraIssues(): Promise<JiraTaskDto[]> {
     try {
+      // TODO - replace 1 with boardId
       const response = await firstValueFrom(
-        this.httpService.get('/rest/api/2/search', {
+        this.httpService.get(`/rest/agile/1.0/board/1/issue`, {
           params: {
-            jql: 'assignee IS NOT EMPTY',
-            fields: 'assignee',
+            jql: 'sprint IS NOT EMPTY and assignee IS NOT EMPTY',
+            fields: 'assignee,sprint',
             maxResults: 100,
             startAt: 0,
           },
