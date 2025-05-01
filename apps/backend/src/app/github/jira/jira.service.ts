@@ -43,11 +43,11 @@ export class JiraService {
       let currUser = issueCounts.find(o => o.name == assignee);
 
       if (!currUser) {
-        issueCounts.push({name: assignee, stats: blankStats});
-        currUser = issueCounts.find(o => o.name == assignee);
+        currUser = {name: assignee, stats: blankStats}
+        issueCounts.push(currUser);
       }       
 
-      currUser!.stats[sprint] ++;
+      currUser.stats[sprint] ++;
     });
 
     return issueCounts;
