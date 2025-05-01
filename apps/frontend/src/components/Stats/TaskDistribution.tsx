@@ -42,8 +42,8 @@ const options = {
   },
   scales: {
     y: {
-      type: 'linear',
-      position: 'left',
+      type: 'linear' as const,
+      position: 'left' as const,
       ticks: {
         color: 'white',
       },
@@ -84,8 +84,8 @@ export const TaskDistribution = () => {
   }, []);
 
   const chartData = {
-    labels: sprints,
-    datasets : stats?.map(userstat => {
+    labels: sprints || [],
+    datasets: stats?.map(userstat => {
       const color = randomColor();
 
       return {
@@ -93,7 +93,8 @@ export const TaskDistribution = () => {
         data: userstat?.stats ? Object.values(userstat.stats) : [],
         backgroundColor: color,
         borderColor: color,
-    }})
+      };
+    }) || []
   };
 
   if (isLoading) {
