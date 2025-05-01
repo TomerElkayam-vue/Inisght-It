@@ -1,3 +1,4 @@
+import { JiraSprintDto } from './jira-sprint.dto';
 import { JiraUserDto } from './jira-user.dto';
 
 export type JiraTaskDto = {
@@ -6,6 +7,7 @@ export type JiraTaskDto = {
   self: string;
   key: string;
   fields: {
+    sprint: JiraSprintDto;
     assignee: JiraUserDto;
   };
 };

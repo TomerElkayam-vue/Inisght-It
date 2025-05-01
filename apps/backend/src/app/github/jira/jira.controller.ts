@@ -5,9 +5,9 @@ import { JiraService } from './jira.service';
 export class JiraController {
   constructor(private readonly jiraService: JiraService) {}
 
-  @Get('issues-count')
-  getJiraIssuesCount() {
-    return this.jiraService.countJiraIssuesPerUser();
+  @Get('issues-count-by-sprint')
+  getJiraIssuesCountBySprint() {
+    return this.jiraService.countJiraIssuesBySprintPerUser();
   }
 
   @Get('sprints')

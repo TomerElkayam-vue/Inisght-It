@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { JiraRepository } from './jira.repository';
 import { JiraSprintDto } from './dto/jira-sprint.dto';
+import { JiraIssueCountDto } from './dto/jira-issue-count';
 
 @Injectable()
 export class JiraService {
   constructor(private readonly jiraRepository: JiraRepository) {}
-
+  
   async getJiraIssues() {
     return this.jiraRepository.getJiraIssues();
   }
@@ -22,14 +23,31 @@ export class JiraService {
     }));
   }
 
-  async countJiraIssuesPerUser(): Promise<Record<string, number>> {
+  async countJiraIssuesBySprintPerUser(): Promise<JiraIssueCountDto[]> {
+    const sprints = await this.getJiraSprints();
+    const blankStats = sprints.reduce((acc, curr) => {
+      acc[curr.name] = 0;
+      return acc;
+    }, {} as Record<string, number>);
+
     const issues = await this.getJiraIssues();
-    const issueCounts: Record<string, number> = {};
+    const issueCounts: JiraIssueCountDto[] = [];
+
 
     issues.forEach((issue) => {
       const assignee: string =
         issue.fields.assignee?.displayName || 'Unassigned';
-      issueCounts[assignee] = (issueCounts[assignee] ?? 0) + 1;
+      const sprint: string =
+        issue.fields.sprint?.name || 'Backlog';
+
+      let currUser = issueCounts.find(o => o.name == assignee);
+
+      if (!currUser) {
+        issueCounts.push({name: assignee, stats: blankStats});
+        currUser = issueCounts.find(o => o.name == assignee);
+      }       
+
+      currUser!.stats[sprint] ++;
     });
 
     return issueCounts;
