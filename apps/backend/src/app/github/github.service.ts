@@ -1,4 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 import { GithubRepository } from './github.repository';
 import { ProjectsSerivce } from '../projects/project.service';
 import {
@@ -14,7 +16,8 @@ export class GithubService {
   constructor(
     private readonly githubRepository: GithubRepository,
     private projectsService: ProjectsSerivce,
-    private readonly jiraService: JiraService
+    private readonly jiraService: JiraService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache
   ) {}
 
   async getPullRequestComments(
@@ -29,6 +32,15 @@ export class GithubService {
     owner: string,
     repo: string
   ): Promise<SprintCommentsPerUser[]> {
+    const cacheKey = `project-stats-${owner}-${repo}`;
+    const cachedData = await this.cacheManager.get<SprintCommentsPerUser[]>(
+      cacheKey
+    );
+
+    if (cachedData) {
+      return cachedData;
+    }
+
     const sprints = await this.jiraService.getJiraSprints();
     const users = await this.getRepositoryContributors(owner, repo);
 
@@ -56,6 +68,7 @@ export class GithubService {
       })
     );
 
+    await this.cacheManager.set(cacheKey, sprintStats, 300000);
     return sprintStats;
   }
 
@@ -66,7 +79,13 @@ export class GithubService {
     startDate: string | null,
     endDate: string | null
   ): Promise<UserSpecificStats> {
-    // call your GitHub query function for PRs within that range
+    const cacheKey = `user-stats-${owner}-${repo}-${username}-${startDate}-${endDate}`;
+    const cachedData = await this.cacheManager.get<UserSpecificStats>(cacheKey);
+
+    if (cachedData) {
+      return cachedData;
+    }
+
     const userSpecificStats =
       await this.githubRepository.getCommentsRecivedForUser(
         owner,
@@ -76,7 +95,7 @@ export class GithubService {
         username
       );
 
-    // calculate stats from PRs
+    await this.cacheManager.set(cacheKey, userSpecificStats, 300000);
     return userSpecificStats;
   }
 

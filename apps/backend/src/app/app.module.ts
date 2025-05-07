@@ -12,6 +12,7 @@ import { AiModule } from './ai/ai.module';
 import { geminiConfig } from '../config/gemini-config';
 import { ProjectsModule } from './projects/project.module';
 import { UsersModule } from './users/user.module';
+import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
   imports: [
@@ -21,6 +22,10 @@ import { UsersModule } from './users/user.module';
     UsersModule,
     AuthModule,
     AiModule,
+    CacheModule.register({
+      isGlobal: true,
+      ttl: 300000, // 5 minutes in milliseconds
+    }),
     ConfigModule.forRoot({
       load: [jiraConfig, githubConfig, geminiConfig],
       isGlobal: true,
