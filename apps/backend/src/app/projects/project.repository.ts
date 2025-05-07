@@ -11,6 +11,7 @@ export class ProjectsRepository {
   ): Promise<Project | null> {
     return this.prisma.project.findUnique({
       where: projectWhereUniqueInput,
+      include: { projectPermissions: { include: { user: true, role: true } } },
     });
   }
 

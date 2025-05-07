@@ -16,14 +16,6 @@ export const Navbar = () => {
     navigate('/');
   };
 
-  const redirectToGitHub = () => {
-    const clientId = 'Ov23liBqFboVyeJfPkKc';
-    const redirectUri =
-      'http://localhost:3000/api/github/callback/5189c957-1d16-4880-9e7c-2eec4667dbf2';
-    const scope = 'repo';
-    window.location.href = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}`;
-  };
-
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const token = params.get('token');
@@ -68,12 +60,6 @@ export const Navbar = () => {
 
           <div className="flex items-center gap-2">
             <span className="text-white">שלום שחר שמש</span>
-            <button
-              className="bg-[#2b3544] text-white px-4 py-2 rounded-lg hover:bg-[#353f4f] transition-colors"
-              onClick={redirectToGitHub}
-            >
-              חבר את גיטהאב
-            </button>
             <button
               className="bg-[#2b3544] text-white px-4 py-2 rounded-lg hover:bg-[#353f4f] transition-colors"
               onClick={handleLogout}

@@ -34,9 +34,9 @@ model Project {
 }
 
 model Role {
-  id                String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name              String              @unique
-  createdAt         DateTime            @default(now()) @map("created_at")
+  id                 Int                 @id
+  name               String              @unique
+  createdAt          DateTime            @default(now()) @map("created_at")
   projectPermissions ProjectPermission[]
 
   @@map("roles")
@@ -46,7 +46,7 @@ model ProjectPermission {
   id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId    String   @db.Uuid
   projectId String   @db.Uuid
-  roleId    String   @db.Uuid
+  roleId    Int
   createdAt DateTime @default(now())
 
   user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
