@@ -13,7 +13,7 @@ export class AuthService {
     const dbUser = await this.usersService.getUser({ username: user.username });
 
     if (!dbUser || dbUser.password !== user.password) {
-      throw new UnauthorizedException("Invalid credentials2");
+      throw new UnauthorizedException("Invalid credentials");
     }
 
     const payload = { username: dbUser.username, sub: dbUser.id };
