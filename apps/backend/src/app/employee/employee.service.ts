@@ -16,4 +16,12 @@ export class EmployeeService {
       },
     });
   }
+
+  async findEmployeeByGithubUsername(githubUsername: string) {
+    return this.prisma.employee.findFirst({
+      where: {
+        githubUsername: githubUsername,
+      },
+    });
+  }
 }

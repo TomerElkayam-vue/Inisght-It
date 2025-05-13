@@ -1,15 +1,16 @@
-import { Injectable, Inject } from '@nestjs/common';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Cache } from 'cache-manager';
-import { GithubRepository } from './github.repository';
-import { ProjectsSerivce } from '../projects/project.service';
+import { Injectable, Inject } from "@nestjs/common";
+import { CACHE_MANAGER } from "@nestjs/cache-manager";
+import { Cache } from "cache-manager";
+import { GithubRepository } from "./github.repository";
+import { ProjectsSerivce } from "../projects/project.service";
 import {
   GitHubComment,
   UserSpecificStats,
   RepositoryContributor,
   SprintCommentsPerUser,
-} from '@packages/github';
-import { JiraService } from '../jira/jira.service';
+} from "@packages/github";
+import { JiraService } from "../jira/jira.service";
+import { EmployeeService } from "../employee/employee.service";
 
 @Injectable()
 export class GithubService {
@@ -17,6 +18,7 @@ export class GithubService {
     private readonly githubRepository: GithubRepository,
     private projectsService: ProjectsSerivce,
     private readonly jiraService: JiraService,
+    private readonly employeeService: EmployeeService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache
   ) {}
 
@@ -68,8 +70,31 @@ export class GithubService {
       })
     );
 
-    await this.cacheManager.set(cacheKey, sprintStats, 300000);
-    return sprintStats;
+    const employees = await this.employeeService.getEmployees();
+    console.log(employees);
+
+    const sprintStatsWithDispalyName = sprintStats.map(
+      ({ userStats, ...rest }) => ({
+        ...rest,
+        userStats: userStats
+          .filter(({ login }) =>
+            employees.find(({ githubUsername }) => githubUsername === login)
+          )
+          .map(({ login, ...rest }) => {
+            const employee = employees.find(
+              ({ githubUsername }) => githubUsername === login
+            );
+
+            return {
+              ...rest,
+              login: employee?.displayName || "",
+            };
+          }),
+      })
+    );
+
+    await this.cacheManager.set(cacheKey, sprintStatsWithDispalyName, 300000);
+    return sprintStatsWithDispalyName;
   }
 
   async getUserStatsPerSprint(
