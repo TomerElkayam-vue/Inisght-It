@@ -3,17 +3,19 @@ import { useEffect, useMemo, useState } from 'react';
 import { getPullRequestsSummery } from '../../services/github.service';
 import { getIssuesCount } from '../../services/jira.service';
 import { UserSpecificStats } from '@packages/github';
+import { useCurrentProjectContext } from '../../context/CurrentProjectContext';
 
 export const useUserData = () => {
   const [userReviewsData, setUserReviewsData] = useState<
-    UserSpecificStats | undefined
+  UserSpecificStats | undefined
   >(undefined);
   const [issuesCount, setUserIssuesCount] = useState<number>(0);
+  const { currentProject } = useCurrentProjectContext();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const pullRequestsSummery = await getPullRequestsSummery();
+        const pullRequestsSummery = await getPullRequestsSummery(currentProject?.id ?? "");
         
         const userStatsInAllSprints: UserSpecificStats = {
           login: 'TomerElkayam-vue',
