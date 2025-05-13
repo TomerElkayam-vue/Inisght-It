@@ -1,12 +1,12 @@
-import { useProjectContext } from '../../context/ProjectContext';
+import { useProjectManagementContext } from '../../context/ProjectManagementContext';
 
 const ToolCredentials = () => {
   const {
     codeBaseCredentials,
     setCodeBaseCredentials,
-    managmentCredentials,
-    setManagmentCredentials: setJiraCredentials,
-  } = useProjectContext();
+    managementCredentials,
+    setManagementCredentials: setJiraCredentials,
+  } = useProjectManagementContext();
 
   const handleGithubChange =
     (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -16,7 +16,7 @@ const ToolCredentials = () => {
 
   const handleJiraChange =
     (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
-      const newValue = { ...managmentCredentials, [field]: e.target.value };
+      const newValue = { ...managementCredentials, [field]: e.target.value };
       setJiraCredentials(newValue);
     };
 
@@ -72,7 +72,7 @@ const ToolCredentials = () => {
           <label className="block mb-2">Email</label>
           <input
             type="text"
-            value={managmentCredentials?.email ?? ''}
+            value={managementCredentials?.email ?? ''}
             onChange={handleJiraChange('email')}
             className="w-full p-3 rounded-lg bg-[#3a3a4d] border-none focus:outline-none text-white text-right"
           />
@@ -81,7 +81,7 @@ const ToolCredentials = () => {
           <label className="block mb-2">Jira URL</label>
           <input
             type="text"
-            value={managmentCredentials?.jiraUrl ?? ''}
+            value={managementCredentials?.jiraUrl ?? ''}
             onChange={handleJiraChange('jiraUrl')}
             className="w-full p-3 rounded-lg bg-[#3a3a4d] border-none focus:outline-none text-white text-right"
           />
@@ -90,7 +90,7 @@ const ToolCredentials = () => {
           <label className="block mb-2">API Token</label>
           <input
             type="text"
-            value={managmentCredentials?.apiToken ?? ''}
+            value={managementCredentials?.apiToken ?? ''}
             onChange={handleJiraChange('apiToken')}
             className="w-full p-3 rounded-lg bg-[#3a3a4d] border-none focus:outline-none text-white text-right"
           />
@@ -99,7 +99,7 @@ const ToolCredentials = () => {
           <label className="block mb-2">Board ID</label>
           <input
             type="text"
-            value={managmentCredentials?.boardId ?? ''}
+            value={managementCredentials?.boardId ?? ''}
             onChange={handleJiraChange('boardId')}
             className="w-full p-3 rounded-lg bg-[#3a3a4d] border-none focus:outline-none text-white text-right"
           />

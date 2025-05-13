@@ -13,7 +13,7 @@ export class ProjectsController {
   }
 
   @Get('/:id')
-  getProjectByid(@Param("id") id: string) {
+  getProjectByid(@Param('id') id: string) {
     return this.projectService.getProject({ id });
   }
 
@@ -25,7 +25,7 @@ export class ProjectsController {
 
   @Put('/:id')
   updateProject(
-    @Param() id: string,
+    @Param('id') id: string,
     @Body() project: Prisma.ProjectUpdateInput
   ) {
     return this.projectService.updateProject({ where: { id }, data: project });

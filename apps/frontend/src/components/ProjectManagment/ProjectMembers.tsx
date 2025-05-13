@@ -1,12 +1,13 @@
 // TODO: add server logic
 
 import { useState, useMemo } from 'react';
-import { useProjectContext } from '../../context/ProjectContext';
+import { useProjectManagementContext } from '../../context/ProjectManagementContext';
 
+// TODO: Fetch suggested names from the server
 const suggestedNames = [
   'דנה כהן',
   'מיכאל פרץ',
-  'יעל לוי', 
+  'יעל לוי',
   'אמיר גולן',
   'שירה אבידן',
   'יובל ברנר',
@@ -18,20 +19,36 @@ const suggestedNames = [
 ];
 
 const ProjectMembers = () => {
-  const { employees, setEmployees } = useProjectContext();
+  const { employees, setEmployees } = useProjectManagementContext();
   const [showModal, setShowModal] = useState(false);
   const [newName, setNewName] = useState('');
-  
-  const availableSuggestions = useMemo(() => 
-    suggestedNames.filter(name => !employees.includes(name)),
+
+  const availableSuggestions = useMemo(
+    () =>
+      suggestedNames.filter(
+        (name) =>
+          !employees.find((employee) => employee.username.includes(name))
+      ),
     [employees]
   );
 
-  const [filteredNames, setFilteredNames] = useState<string[]>(availableSuggestions);
+  const [filteredNames, setFilteredNames] =
+    useState<string[]>(availableSuggestions);
 
   const handleAdd = () => {
     if (newName.trim()) {
-      setEmployees([...employees, newName]);
+      setEmployees([
+        ...employees,
+        // TODO: change to use really suggested users
+        {
+          id: crypto.randomUUID(),
+          username: newName,
+          password: '',
+          firstName: '',
+          lastName: '',
+          createdAt: new Date(),
+        },
+      ]);
       setNewName('');
       setShowModal(false);
     }
@@ -78,7 +95,7 @@ const ProjectMembers = () => {
               >
                 ✕
               </button>
-              <span>{employee}</span>
+              <span>{employee.username}</span>
             </div>
           ))}
         </div>
