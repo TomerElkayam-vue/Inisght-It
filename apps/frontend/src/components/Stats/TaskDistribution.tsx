@@ -12,6 +12,7 @@ import {
   Legend
 } from 'chart.js';
 import { getIssuesCount, getSprints, IssuesCountResponse } from '../../services/jira.service';
+import { useCurrentProjectContext } from '../../context/CurrentProjectContext';
 
 ChartJS.register(
   CategoryScale,
@@ -61,14 +62,15 @@ export const TaskDistribution = () => {
   const [error, setError] = useState<string | null>(null);
   const [stats, setstats] = useState<IssuesCountResponse | null>(null);
   const [sprints, setSprints] = useState<string[] | null>(null);
+  const { currentProject } = useCurrentProjectContext();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const statsResponse = await getIssuesCount();
+        const statsResponse = await getIssuesCount(currentProject?.id ?? "");
         setstats(statsResponse);
 
-        const sprintsResponse = await getSprints();
+        const sprintsResponse = await getSprints(currentProject?.id ?? "");
         setSprints(sprintsResponse);
         
         setError(null);
@@ -81,7 +83,7 @@ export const TaskDistribution = () => {
     };
 
     fetchData();
-  }, []);
+  }, [currentProject]);
 
   const chartData = {
     labels: sprints || [],

@@ -79,7 +79,7 @@ export const CommentsPerUser = () => {
     };
 
     fetchData();
-  }, []);
+  }, [currentProject]);
 
   // Get all unique usernames
   const allUsers = Array.from(
