@@ -70,8 +70,8 @@ export class GithubService {
       })
     );
 
+    //TODO: when getting project id select only the workers in current project
     const employees = await this.employeeService.getEmployees();
-    console.log(employees);
 
     const sprintStatsWithDispalyName = sprintStats.map(
       ({ userStats, ...rest }) => ({
@@ -87,7 +87,7 @@ export class GithubService {
 
             return {
               ...rest,
-              login: employee?.displayName || "",
+              login: employee?.displayName ?? "",
             };
           }),
       })

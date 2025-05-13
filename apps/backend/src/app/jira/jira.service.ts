@@ -101,7 +101,7 @@ export class JiraService {
           name
         );
         return {
-          name: employee?.displayName || name,
+          name: employee?.displayName ?? name,
           stats,
         };
       })
