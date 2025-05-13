@@ -3,6 +3,8 @@ import { BrowserRouter } from 'react-router-dom';
 import * as ReactDOM from 'react-dom/client';
 import App from './app/app';
 import './styles.css';
+import { CurrentProjectProvider } from './context/CurrentProjectContext';
+import { QueryProvider } from "./providers/QueryProvider";
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -10,8 +12,12 @@ const root = ReactDOM.createRoot(
 
 root.render(
   <StrictMode>
-    <BrowserRouter>
-    <App />
-    </BrowserRouter>
+    <QueryProvider>
+      <CurrentProjectProvider>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </CurrentProjectProvider>
+    </QueryProvider>
   </StrictMode>
 );

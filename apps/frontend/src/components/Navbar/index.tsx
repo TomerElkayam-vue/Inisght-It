@@ -2,6 +2,10 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import logoDark from '../../assets/logo-dark.png';
 import { removeToken } from '../../services/auth.service';
 import { useEffect } from 'react';
+import { useProject } from '../hooks/useProjectQueries';
+import { useMutation } from '@tanstack/react-query';
+import { projectsService } from '../../services/projects.service';
+import { useCurrentProjectContext } from '../../context/CurrentProjectContext';
 
 export const Navbar = () => {
   const location = useLocation();
@@ -22,6 +26,17 @@ export const Navbar = () => {
 
     console.log(token);
   }, []);
+
+  // Fetch project data using our custom hook
+  const { setCurrentProject } = useCurrentProjectContext();
+
+  const id = '5189c957-1d16-4880-9e7c-2eec4667dbf2';
+  const getProject = useMutation({
+    mutationFn: () => projectsService.getProject(id),
+    onSuccess: (project) => {
+      setCurrentProject(project);
+    },
+  });
 
   return (
     <nav className="bg-[#1e2530] h-16 fixed w-full top-0 z-50 shadow-lg">
@@ -54,10 +69,16 @@ export const Navbar = () => {
                 '/project-management'
               )}`}
             >
-             ניהול פרויקט
+              ניהול פרויקט
             </Link>
           </div>
 
+          <button
+            className="bg-[#2b3544] text-white px-4 py-2 rounded-lg hover:bg-[#353f4f] transition-colors"
+            onClick={() => getProject.mutate()}
+          >
+            שלוף פרוייקט
+          </button>
           <div className="flex items-center gap-2">
             <span className="text-white">שלום שחר שמש</span>
             <button
