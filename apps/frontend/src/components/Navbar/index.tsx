@@ -7,6 +7,8 @@ import { useProjects } from '../hooks/useProjectQueries';
 import { AutoCompleteInput } from '../common/AutoCompleteInput';
 
 export const Navbar = () => {
+  const { data: projects = [] } = useProjects();
+  const { currentProject, setCurrentProject } = useCurrentProjectContext();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -25,8 +27,11 @@ export const Navbar = () => {
     console.log(token);
   }, []);
 
-  const { data: projects = [] } = useProjects();
-  const { currentProject, setCurrentProject } = useCurrentProjectContext();
+  useEffect(() => {
+    if (!currentProject) {
+      setCurrentProject(projects[0])
+    }
+  }, [projects]);
 
   return (
     <nav className="bg-[#1e2530] h-16 fixed w-full top-0 z-50 shadow-lg">
@@ -36,7 +41,7 @@ export const Navbar = () => {
             <img src={logoDark} alt="Logo" className="h-10 w-auto" />
 
             <div className="w-64">
-              <AutoCompleteInput
+            <AutoCompleteInput
                 options={projects}
                 value={currentProject}
                 onChange={setCurrentProject}
