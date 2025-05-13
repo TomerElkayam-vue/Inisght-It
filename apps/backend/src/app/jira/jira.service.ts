@@ -4,11 +4,13 @@ import { Cache } from 'cache-manager';
 import { JiraRepository } from './jira.repository';
 import { JiraSprintDto } from './dto/jira-sprint.dto';
 import { JiraIssueCountDto } from './dto/jira-issue-count';
+import { ProjectsSerivce } from '../projects/project.service';
 
 @Injectable()
 export class JiraService {
   constructor(
     private readonly jiraRepository: JiraRepository,
+    private projectsService: ProjectsSerivce,
     @Inject(CACHE_MANAGER) private cacheManager: Cache
   ) {}
 
@@ -93,5 +95,45 @@ export class JiraService {
 
     await this.cacheManager.set(cacheKey, issueCounts, 300000); // Cache for 5 minutes
     return issueCounts;
+  }
+
+  async getJiraToken(code: string, projectId: string) {
+    const token = await this.jiraRepository.getJiraToken(code);
+    await this.projectsService.updateProject({
+      where: { id: projectId },
+      data: {
+        missionManagementCredentials: { token },
+      },
+    });
+  }
+
+  async getJiraProjects(projectId: string) {
+    const token = //@ts-ignore
+      (
+        (await this.projectsService.getProject({ id: projectId }))
+          ?.missionManagementCredentials as any
+      )?.token;
+
+    return this.jiraRepository.getJiraProjects(token);
+  }
+
+  async updateJiraProjectOnProject(
+    projectId: string,
+    jiraProject: { projectName: string; projectId: string }
+  ) {
+    const currentMissionManagmentSettings = (
+      await this.projectsService.getProject({ id: projectId })
+    )?.missionManagementCredentials as any;
+
+    const settings = {
+      ...currentMissionManagmentSettings,
+      name: jiraProject.projectName,
+      id: jiraProject.projectId,
+    };
+
+    await this.projectsService.updateProject({
+      where: { id: projectId },
+      data: { missionManagementCredentials: settings },
+    });
   }
 }

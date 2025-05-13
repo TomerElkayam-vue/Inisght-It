@@ -4,11 +4,13 @@ import { JiraService } from './jira.service';
 import { JiraRepository } from './jira.repository';
 import { HttpModule } from '@nestjs/axios';
 import { jiraConfig, JiraConfig } from '../../config/jira-config';
+import { ProjectsModule } from '../projects/project.module';
 
 @Module({
   controllers: [JiraController],
   providers: [JiraService, JiraRepository],
   imports: [
+    ProjectsModule,
     HttpModule.registerAsync({
       useFactory: (config: JiraConfig) => {
         return {
