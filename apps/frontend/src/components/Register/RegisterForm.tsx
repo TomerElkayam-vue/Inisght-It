@@ -1,11 +1,13 @@
 import React, { useState, FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import { login, saveToken } from "../../services/auth.service";
+import { register, saveToken } from "../../services/auth.service";
 
-const LoginForm: React.FC = () => {
+const RegisterForm: React.FC = () => {
   const navigate = useNavigate();
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [firstName, setFirstName] = useState<string>("");
+  const [lastName, setLastName] = useState<string>("");
   const [error, setError] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -15,12 +17,12 @@ const LoginForm: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const response = await login({ username, password });
+      const response = await register({ username, password, firstName, lastName });
       saveToken(response);
       navigate('/stats');
-    } catch (err) {
-      setError("שם משתמש או סיסמא שגויים");
-      console.error('Login error:', err);
+    } catch (err: any) {
+      setError(err.response?.data?.message || "Registration failed");
+      console.error('Registration error:', err);
     } finally {
       setIsLoading(false);
     }
@@ -29,7 +31,7 @@ const LoginForm: React.FC = () => {
   return (
     <div className="w-full max-w-md mx-auto">
       <div className="bg-[#1e2530] rounded-3xl p-10">
-        <h2 className="text-white text-3xl font-bold text-center mb-8">התחברות</h2>
+        <h2 className="text-white text-3xl font-bold text-center mb-8">הרשמה</h2>
         
         {error && (
           <div className="bg-red-500 text-white p-3 rounded-lg mb-4 text-center">
@@ -38,6 +40,36 @@ const LoginForm: React.FC = () => {
         )}
         
         <form onSubmit={handleSubmit} dir="rtl">
+
+
+          <div className="mb-6">
+            <label className="block text-white mb-2">
+              שם פרטי
+            </label>
+            <input
+              type="text"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              className="w-full bg-[#2b3544] text-white rounded-lg p-3 focus:outline-none"
+              placeholder="הכנס שם פרטי"
+              disabled={isLoading}
+            />
+          </div>
+
+          <div className="mb-6">
+            <label className="block text-white mb-2">
+              שם משפחה
+            </label>
+            <input
+              type="text"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              className="w-full bg-[#2b3544] text-white rounded-lg p-3 focus:outline-none"
+              placeholder="הכנס שם משפחה"
+              disabled={isLoading}
+            />
+          </div>
+
           <div className="mb-6">
             <label className="block text-white mb-2">
               שם משתמש
@@ -73,14 +105,14 @@ const LoginForm: React.FC = () => {
             }`}
             disabled={isLoading}
           >
-            התחברות
+            הרשמה
           </button>
 
           <div className="text-center">
             <p className="text-white text-sm">
-              אין לך עדיין משתמש אצלנו?{" "}
-              <a href="/register" className="text-white underline">
-                לחץ כאן להרשמה
+              כבר יש לך משתמש?{" "}
+              <a href="/" className="text-white underline">
+                לחץ כאן להתחברות
               </a>
             </p>
           </div>
@@ -90,4 +122,4 @@ const LoginForm: React.FC = () => {
   );
 };
 
-export default LoginForm; 
+export default RegisterForm; 
