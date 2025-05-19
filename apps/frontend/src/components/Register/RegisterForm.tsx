@@ -21,7 +21,7 @@ const RegisterForm: React.FC = () => {
       saveToken(response);
       navigate('/stats');
     } catch (err: any) {
-      setError(err.response?.data?.message || "Registration failed");
+      setError("שגיאה בהתחברות");
       console.error('Registration error:', err);
     } finally {
       setIsLoading(false);
