@@ -45,3 +45,12 @@ export interface ProjectUpdateInput {
     delete?: { id: string }[];
   };
 }
+
+export type InsiteitUser = {
+  id?: string;
+  username: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  createdAt?: Date;
+};

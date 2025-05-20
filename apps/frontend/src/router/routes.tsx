@@ -1,6 +1,7 @@
 import { RouteObject } from 'react-router-dom';
 import LoginPage from '../components/Login';
 import { StatsPage } from '../components/Stats/StatsPage';
+import RegisterPage from '../components/Register';
 import { AuthGuard } from '../components/auth/AuthGuard';
 import { PublicRoute } from '../components/auth/PublicRoute';
 import { Navigate } from 'react-router-dom';
@@ -23,6 +24,10 @@ export const routes: RouteObject[] = [
       {
         path: '/',
         element: <LoginPage />,
+      },
+      {
+        path: '/register',
+        element: <RegisterPage />,
       },
     ],
   },

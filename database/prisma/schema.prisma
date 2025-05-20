@@ -11,7 +11,7 @@ datasource db {
 model User {
   id                 String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   username           String              @unique
-  password           String
+  password           String              @db.Text
   firstName          String              @map("first_name")
   lastName           String              @map("last_name")
   createdAt          DateTime            @default(now()) @map("created_at")
