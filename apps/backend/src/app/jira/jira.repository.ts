@@ -5,6 +5,7 @@ import { JiraTaskDto } from './dto/jira-task.dto';
 import { jiraConfig } from '../../config/jira-config';
 import { ConfigType } from '@nestjs/config';
 import axios from 'axios';
+import { JiraSettings } from './types/jira-settings.type';
 
 @Injectable()
 export class JiraRepository {
@@ -14,19 +15,27 @@ export class JiraRepository {
     private jiraConfigValues: ConfigType<typeof jiraConfig>
   ) {}
 
-  async getJiraIssues(): Promise<JiraTaskDto[]> {
+  async getJiraIssues(projectSettings: JiraSettings): Promise<JiraTaskDto[]> {
     try {
       // TODO - replace 1 with boardId
       const response = await firstValueFrom(
-        this.httpService.get(`/rest/agile/1.0/board/1/issue`, {
-          params: {
-            jql: 'sprint IS NOT EMPTY and assignee IS NOT EMPTY',
-            fields: 'assignee,sprint',
-            maxResults: 100,
-            startAt: 0,
-          },
-        })
+        this.httpService.get(
+          `https://api.atlassian.com/ex/jira/${projectSettings.id}/rest/agile/1.0/board/1/issue`,
+          {
+            params: {
+              jql: 'sprint IS NOT EMPTY and assignee IS NOT EMPTY',
+              fields: 'assignee,sprint',
+              maxResults: 100,
+              startAt: 0,
+            },
+            headers: {
+              Authorization: `Bearer ${projectSettings.token}`,
+              Accept: 'application/json',
+            },
+          }
+        )
       );
+      console.log(response);
 
       return response.data.issues;
     } catch (error) {
@@ -35,14 +44,21 @@ export class JiraRepository {
     }
   }
 
-  async getJiraSprints(): Promise<[]> {
+  async getJiraSprints(projectSettings: JiraSettings): Promise<[]> {
     try {
       const response = await firstValueFrom(
-        this.httpService.get('/rest/agile/1.0/board/1/sprint', {
-          params: {
-            startAt: 0,
-          },
-        })
+        this.httpService.get(
+          `https://api.atlassian.com/ex/jira/${projectSettings.id}/rest/agile/1.0/board/1/sprint`,
+          {
+            params: {
+              startAt: 0,
+            },
+            headers: {
+              Authorization: `Bearer ${projectSettings.token}`,
+              Accept: 'application/json',
+            },
+          }
+        )
       );
 
       return response.data.values;
@@ -85,15 +101,20 @@ export class JiraRepository {
   }
 
   async getJiraProjects(token: string) {
-    const { data } = await axios.get(
-      'https://api.atlassian.com/oauth/token/accessible-resources',
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-
-    return data;
+    try {
+      console.log(token);
+      const { data } = await axios.get(
+        'https://api.atlassian.com/oauth/token/accessible-resources',
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      console.log(data);
+      return data;
+    } catch (e) {
+      console.log(e);
+    }
   }
 }
