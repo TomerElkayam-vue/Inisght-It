@@ -1,16 +1,16 @@
-import { Injectable, Inject } from "@nestjs/common";
-import { CACHE_MANAGER } from "@nestjs/cache-manager";
-import { Cache } from "cache-manager";
-import { GithubRepository } from "./github.repository";
-import { ProjectsSerivce } from "../projects/project.service";
+import { Injectable, Inject } from '@nestjs/common';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
+import { GithubRepository } from './github.repository';
+import { ProjectsSerivce } from '../projects/project.service';
 import {
   GitHubComment,
   UserSpecificStats,
   RepositoryContributor,
   SprintCommentsPerUser,
-} from "@packages/github";
-import { JiraService } from "../jira/jira.service";
-import { EmployeeService } from "../employee/employee.service";
+} from '@packages/github';
+import { JiraService } from '../jira/jira.service';
+import { EmployeeService } from '../employee/employee.service';
 
 @Injectable()
 export class GithubService {
@@ -32,7 +32,8 @@ export class GithubService {
 
   async getProjectStats(
     owner: string,
-    repo: string
+    repo: string,
+    projectManagmentSettings: any
   ): Promise<SprintCommentsPerUser[]> {
     const cacheKey = `project-stats-${owner}-${repo}`;
     const cachedData = await this.cacheManager.get<SprintCommentsPerUser[]>(
@@ -40,10 +41,12 @@ export class GithubService {
     );
 
     if (cachedData) {
-      return cachedData;
+      console.log('cached');
     }
+    const sprints = await this.jiraService.getJiraSprints(
+      projectManagmentSettings?.missionManagementCredentials
+    );
 
-    const sprints = await this.jiraService.getJiraSprints();
     const users = await this.getRepositoryContributors(owner, repo);
 
     const sprintStats = await Promise.all(
@@ -87,7 +90,7 @@ export class GithubService {
 
             return {
               ...rest,
-              login: employee?.displayName ?? "",
+              login: employee?.displayName ?? '',
             };
           }),
       })
@@ -108,7 +111,7 @@ export class GithubService {
     const cachedData = await this.cacheManager.get<UserSpecificStats>(cacheKey);
 
     if (cachedData) {
-      return cachedData;
+      console.log('last cache');
     }
 
     const userSpecificStats =

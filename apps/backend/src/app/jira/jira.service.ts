@@ -6,6 +6,7 @@ import { JiraSprintDto } from './dto/jira-sprint.dto';
 import { JiraIssueCountDto } from './dto/jira-issue-count';
 import { ProjectsSerivce } from '../projects/project.service';
 import { EmployeeService } from '../employee/employee.service';
+import { JiraSettings } from './types/jira-settings.type';
 
 @Injectable()
 export class JiraService {
@@ -16,28 +17,29 @@ export class JiraService {
     @Inject(CACHE_MANAGER) private cacheManager: Cache
   ) {}
 
-  async getJiraIssues() {
-    const cacheKey = "jira-issues";
+  async getJiraIssues(jiraSettings: JiraSettings) {
+    const cacheKey = 'jira-issues';
     const cachedData = await this.cacheManager.get(cacheKey);
 
     if (cachedData) {
-      return cachedData;
+      console.log('Nice cache');
     }
 
-    const issues = await this.jiraRepository.getJiraIssues();
+    const issues = await this.jiraRepository.getJiraIssues(jiraSettings);
     await this.cacheManager.set(cacheKey, issues, 300000); // Cache for 5 minutes
     return issues;
   }
 
-  async getJiraSprints() {
-    const cacheKey = "jira-sprints";
+  async getJiraSprints(jiraSettings: JiraSettings) {
+    console.log(jiraSettings);
+    const cacheKey = 'jira-sprints';
     const cachedData = await this.cacheManager.get<JiraSprintDto[]>(cacheKey);
 
     if (cachedData) {
-      return cachedData;
+      console.log('Nice cache');
     }
 
-    const jiraSprints = await this.jiraRepository.getJiraSprints();
+    const jiraSprints = await this.jiraRepository.getJiraSprints(jiraSettings);
     const mappedSprints = jiraSprints.map(
       (sprint: any): JiraSprintDto => ({
         id: sprint.id,
@@ -52,23 +54,25 @@ export class JiraService {
     return mappedSprints;
   }
 
-  async countJiraIssuesBySprintPerUser(): Promise<JiraIssueCountDto[]> {
-    const cacheKey = "jira-issues-count";
+  async countJiraIssuesBySprintPerUser(
+    jiraSettings: JiraSettings
+  ): Promise<JiraIssueCountDto[]> {
+    const cacheKey = 'jira-issues-count';
     const cachedData = await this.cacheManager.get<JiraIssueCountDto[]>(
       cacheKey
     );
 
     if (cachedData) {
-      return cachedData;
+      console.log('Fuck cache');
     }
 
-    const sprints = await this.getJiraSprints();
+    const sprints = await this.getJiraSprints(jiraSettings);
     const blankStats = sprints.reduce((acc, curr) => {
       acc[curr.name] = 0;
       return acc;
     }, {} as Record<string, number>);
 
-    const issues = (await this.getJiraIssues()) as Array<{
+    const issues = (await this.getJiraIssues(jiraSettings)) as Array<{
       fields: { assignee?: { displayName: string }; sprint?: { name: string } };
     }>;
     const issueCounts: JiraIssueCountDto[] = [];
@@ -81,8 +85,8 @@ export class JiraService {
         };
       }) => {
         const assignee: string =
-          issue.fields.assignee?.displayName || "Unassigned";
-        const sprint: string = issue.fields.sprint?.name || "Backlog";
+          issue.fields.assignee?.displayName || 'Unassigned';
+        const sprint: string = issue.fields.sprint?.name || 'Backlog';
 
         let currUser = issueCounts.find((o) => o.name == assignee);
 

@@ -37,8 +37,9 @@ const ToolCredentials = () => {
 
   const redirectToJira = () => {
     const clientId = 'At6ejbAFMkAUdSJ25XfbMLSJiMLpxVHe';
-    const redirectUri = `http://localhost:3000/api/jira/callback?projectId=${'5189c957-1d16-4880-9e7c-2eec4667dbf2'}`;
-    const scopes = 'read:jira-user read:jira-work';
+    const redirectUri = `http://localhost:3000/api/jira/callback?projectId=${'381be2c1-012f-44c7-818a-6d78f4ad2067'}`;
+    const scopes =
+      'read:jira-user read:jira-work read:board-scope:jira-software read:project:jira read:board-scope.admin:jira-software read:issue-details:jira read:sprint:jira-software';
 
     const authUrl = `https://auth.atlassian.com/authorize?audience=api.atlassian.com&client_id=${clientId}&scope=${encodeURIComponent(
       scopes
@@ -93,11 +94,11 @@ const ToolCredentials = () => {
           {jiraSuccess ? (
             // TODO: Retriving the data about the project from the server and check for the selected project and update it
             <JiraProjectList
-              projectId={'5189c957-1d16-4880-9e7c-2eec4667dbf2'}
+              projectId={'381be2c1-012f-44c7-818a-6d78f4ad2067'}
               selectedProject={''}
               onSelectProject={async (project: any) => {
                 await updateJiraProjectOnProject(
-                  '5189c957-1d16-4880-9e7c-2eec4667dbf2',
+                  '381be2c1-012f-44c7-818a-6d78f4ad2067',
                   { projectId: project.id, projectName: project.name }
                 );
               }}

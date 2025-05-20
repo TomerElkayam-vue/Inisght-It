@@ -1,5 +1,13 @@
-
-import { Body, Controller, Get, Param, Post, Query, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  Req,
+  Res,
+} from '@nestjs/common';
 import { JiraService } from './jira.service';
 
 @Controller('jira')
@@ -7,15 +15,21 @@ export class JiraController {
   constructor(private readonly jiraService: JiraService) {}
 
   @Get('issues-count-by-sprint')
-  getJiraIssuesCountBySprint(@Query('projectId') projectId: string) {
-        console.log(projectId)
-    return this.jiraService.countJiraIssuesBySprintPerUser();
+  getJiraIssuesCountBySprint(
+    @Query('projectId') projectId: string,
+    @Req() req: any
+  ) {
+    return this.jiraService.countJiraIssuesBySprintPerUser(
+      req.projectCredentials?.missionManagementCredentials
+    );
   }
 
   @Get('sprints')
-  getJiraSprints(@Query('projectId') projectId: string) {
-    console.log(projectId)
-    return this.jiraService.getJiraSprints();
+  getJiraSprints(@Query('projectId') projectId: string, @Req() req: any) {
+    console.log(projectId);
+    return this.jiraService.getJiraSprints(
+      req.projectCredentials?.missionManagementCredentials
+    );
   }
 
   @Get('/callback')
