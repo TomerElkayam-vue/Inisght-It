@@ -1,6 +1,6 @@
 import { Controller, Get, Param, Query, Res } from "@nestjs/common";
 import { GithubRemoteService } from "../remote/github-remote.service";
-import { GithubService } from "../github.service";
+import { GithubService } from "./github.service";
 import { SprintCommentsPerUser } from "@packages/github";
 
 @Controller("github")

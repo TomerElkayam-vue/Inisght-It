@@ -10,6 +10,11 @@ export class CronService {
   async handleCustomCron() {
     console.log("Running scheduled query from DB every 5 minutes");
     //TODO: replace with loop on the project from the DB
-    this.GithubRemoteService.getProjectStats("TomerElkayam-vue", "Inisght-It");
+    //TODO: get project managment credencials
+    this.GithubRemoteService.getProjectStats(
+      "TomerElkayam-vue",
+      "Inisght-It",
+      {}
+    );
   }
 }
