@@ -3,17 +3,21 @@ import { useEffect, useMemo, useState } from 'react';
 import { getPullRequestsSummery } from '../../services/github.service';
 import { getIssuesCount } from '../../services/jira.service';
 import { UserSpecificStats } from '@packages/github';
+import { useCurrentProjectContext } from '../../context/CurrentProjectContext';
 
 export const useUserData = () => {
   const [userReviewsData, setUserReviewsData] = useState<
     UserSpecificStats | undefined
   >(undefined);
   const [issuesCount, setUserIssuesCount] = useState<number>(0);
+  const { currentProject } = useCurrentProjectContext();
 
   useEffect(() => {
     const fetchData = async () => {
+      if (!currentProject) return;
+
       try {
-        const pullRequestsSummery = await getPullRequestsSummery();
+        const pullRequestsSummery = await getPullRequestsSummery(currentProject.id);
         
         const userStatsInAllSprints: UserSpecificStats = {
           login: 'TomerElkayam-vue',
@@ -43,8 +47,7 @@ export const useUserData = () => {
 
         setUserReviewsData(userStatsInAllSprints);
 
-        // TODO - fix later
-        const issuesCount = await getIssuesCount();
+        const issuesCount = await getIssuesCount(currentProject.id);
 
         const currUserStats = issuesCount.find(
           (userStats) => userStats.name === 'Shachar Shemesh'
@@ -63,7 +66,7 @@ export const useUserData = () => {
     };
 
     fetchData();
-  }, []);
+  }, [currentProject]);
 
   const userData = useMemo(() => {
     return {
