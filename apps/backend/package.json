@@ -52,6 +52,8 @@
   "dependencies": {
     "@nestjs/axios": "^3.0.2",
     "@nestjs/cache-manager": "^3.0.1",
+    "@types/bcrypt": "^5.0.2",
+    "bcrypt": "^6.0.0",
     "cache-manager": "^6.4.3",
     "passport-jwt": "^4.0.1"
   },
