@@ -11,7 +11,7 @@ datasource db {
 model User {
   id                 String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   username           String              @unique
-  password           String
+  password           String              @db.Text
   firstName          String              @map("first_name")
   lastName           String              @map("last_name")
   createdAt          DateTime            @default(now()) @map("created_at")
@@ -29,6 +29,7 @@ model Project {
   recommendations              Json?
   createdAt                    DateTime            @default(now())
   projectPermissions           ProjectPermission[]
+  employees                    ProjectEmployee[]
 
   @@map("projects")
 }
@@ -55,4 +56,24 @@ model ProjectPermission {
 
   @@unique([userId, projectId])
   @@map("project_permissions")
+}
+
+model Employee {
+  id            String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  displayName   String           @map("display_name")
+  githubUsername String?         @map("github_username")
+  jiraUsername  String?          @map("jira_username")
+  projects      ProjectEmployee[]
+
+  @@map("employee")
+}
+
+model ProjectEmployee {
+  projectId    String   @db.Uuid @map("project_id")
+  employeeId   String   @db.Uuid @map("employee_id")
+  project      Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  employee     Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@id([employeeId, projectId])
+  @@map("project_employee")
 }

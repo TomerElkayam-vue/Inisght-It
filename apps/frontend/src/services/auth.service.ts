@@ -10,6 +10,11 @@ interface LoginCredentials {
   password: string;
 }
 
+interface RegisterCredentials extends LoginCredentials {
+  firstName: string;
+  lastName: string;
+}
+
 export const login = async (credentials: LoginCredentials): Promise<string> => {
   try {
     console.log("credentials", credentials);
@@ -23,6 +28,23 @@ export const login = async (credentials: LoginCredentials): Promise<string> => {
   } catch (error) {
     if (axios.isAxiosError(error)) {
       throw new Error(error.response?.data?.message || "Login failed");
+    }
+    throw error;
+  }
+};
+
+export const register = async (
+  credentials: RegisterCredentials
+): Promise<string> => {
+  try {
+    const {
+      data: { access_token },
+    } = await api.post<LoginResponse>("/auth/register", credentials);
+
+    return access_token;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      throw new Error(error.response?.data?.message || "Registration failed");
     }
     throw error;
   }

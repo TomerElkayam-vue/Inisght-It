@@ -7,6 +7,7 @@ import { GithubRepository } from './github.repository';
 import { githubConfig } from '../../config/github-config';
 import { ProjectsModule } from '../projects/project.module';
 import { JiraModule } from '../jira/jira.module';
+import { EmployeeModule } from '../employee/employee.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { JiraModule } from '../jira/jira.module';
     ConfigModule.forFeature(githubConfig),
     HttpModule,
     JiraModule,
+    EmployeeModule
   ],
   controllers: [GithubController],
   providers: [GithubService, GithubRepository],
