@@ -14,6 +14,8 @@ import { ProjectsModule } from "./projects/project.module";
 import { UsersModule } from "./users/user.module";
 import { CacheModule } from "@nestjs/cache-manager";
 import { EmployeeModule } from "./employee/employee.module";
+import { ScheduleModule } from "@nestjs/schedule";
+import { CronModule } from "./cron/cron.module";
 
 @Module({
   imports: [
@@ -24,6 +26,8 @@ import { EmployeeModule } from "./employee/employee.module";
     AuthModule,
     AiModule,
     EmployeeModule,
+    CronModule,
+    ScheduleModule.forRoot(),
     CacheModule.register({
       isGlobal: true,
       ttl: 300000, // 5 minutes in milliseconds

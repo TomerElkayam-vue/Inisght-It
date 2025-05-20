@@ -1,7 +1,7 @@
-import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
-import * as config from '@nestjs/config';
-import { HttpService } from '@nestjs/axios';
-import { firstValueFrom } from 'rxjs';
+import { Inject, Injectable, UnauthorizedException } from "@nestjs/common";
+import * as config from "@nestjs/config";
+import { HttpService } from "@nestjs/axios";
+import { firstValueFrom } from "rxjs";
 import {
   GitHubPullRequest,
   GitHubComment,
@@ -9,27 +9,30 @@ import {
   UserSpecificStats,
   UserPullRequestStats,
   RepositoryContributor,
-} from '@packages/github';
-import { githubConfig } from '../../config/github-config';
+  SprintCommentsPerUser,
+} from "@packages/github";
+import { githubConfig } from "../../../config/github-config";
+import { PrismaService } from "../../prisma/prisma.service";
 
 @Injectable()
-export class GithubRepository {
-  private readonly baseUrl = 'https://api.github.com';
+export class GithubRemoteRepository {
+  private readonly baseUrl = "https://api.github.com";
   private readonly headers: Record<string, string>;
 
   constructor(
     @Inject(githubConfig.KEY)
     private githubConfigValues: config.ConfigType<typeof githubConfig>,
-    private httpService: HttpService
+    private httpService: HttpService,
+    private readonly prisma: PrismaService
   ) {
     const token = this.githubConfigValues.token;
     if (!token) {
-      throw new Error('GitHub token not found in environment variables');
+      throw new Error("GitHub token not found in environment variables");
     }
 
     this.headers = {
       Authorization: `Bearer ${token}`,
-      Accept: 'application/vnd.github.v3+json',
+      Accept: "application/vnd.github.v3+json",
     };
   }
 
@@ -40,7 +43,7 @@ export class GithubRepository {
 
     // Count review comments
     reviewComments.forEach((comment) => {
-      const login = comment.user?.login || 'unknown';
+      const login = comment.user?.login || "unknown";
       if (!userStats.has(login)) {
         userStats.set(login, {
           login,
@@ -68,7 +71,7 @@ export class GithubRepository {
         repo,
         startDate,
         endDate,
-        'all'
+        "all"
       );
 
       let totalReviewComments = 0;
@@ -107,6 +110,7 @@ export class GithubRepository {
       }
       return {
         login: username,
+        employeeId: "",
         totalReviewComments,
         totalPrTime,
         pullRequests: userPRs,
@@ -116,7 +120,7 @@ export class GithubRepository {
       };
     } catch (error: any) {
       if (error.response?.status === 401) {
-        throw new UnauthorizedException('Invalid GitHub token');
+        throw new UnauthorizedException("Invalid GitHub token");
       }
       throw error;
     }
@@ -126,7 +130,7 @@ export class GithubRepository {
     repo: string,
     startDate: string | null,
     endDate: string | null,
-    state: 'open' | 'closed' | 'all' = 'all'
+    state: "open" | "closed" | "all" = "all"
   ) {
     try {
       const url = `${this.baseUrl}/repos/${owner}/${repo}/pulls`;
@@ -135,8 +139,8 @@ export class GithubRepository {
           headers: this.headers,
           params: {
             state,
-            sort: 'updated',
-            direction: 'desc',
+            sort: "updated",
+            direction: "desc",
             per_page: 100,
           },
         })
@@ -177,7 +181,7 @@ export class GithubRepository {
       return pullRequestsWithComments;
     } catch (error: any) {
       if (error.response?.status === 401) {
-        throw new UnauthorizedException('Invalid GitHub token');
+        throw new UnauthorizedException("Invalid GitHub token");
       }
       throw error;
     }
@@ -195,7 +199,7 @@ export class GithubRepository {
       return data;
     } catch (error: any) {
       if (error.response?.status === 401) {
-        throw new UnauthorizedException('Invalid GitHub token');
+        throw new UnauthorizedException("Invalid GitHub token");
       }
       throw error;
     }
@@ -216,7 +220,7 @@ export class GithubRepository {
       return data;
     } catch (error: any) {
       if (error.response?.status === 401) {
-        throw new UnauthorizedException('Invalid GitHub token');
+        throw new UnauthorizedException("Invalid GitHub token");
       }
       throw error;
     }
@@ -236,8 +240,8 @@ export class GithubRepository {
           },
           {
             headers: {
-              Accept: 'application/json',
-              'Content-Type': 'application/json',
+              Accept: "application/json",
+              "Content-Type": "application/json",
             },
           }
         )
@@ -246,7 +250,7 @@ export class GithubRepository {
       return data.access_token;
     } catch (error: any) {
       if (error.response?.status === 401) {
-        throw new UnauthorizedException('Invalid GitHub token');
+        throw new UnauthorizedException("Invalid GitHub token");
       }
       throw error;
     }
@@ -270,9 +274,85 @@ export class GithubRepository {
       return data.items;
     } catch (error: any) {
       if (error.response?.status === 401) {
-        throw new UnauthorizedException('Invalid GitHub token');
+        throw new UnauthorizedException("Invalid GitHub token");
       }
       throw error;
+    }
+  }
+
+  async storeSprintStats(
+    projectId: string,
+    sprintStats: SprintCommentsPerUser[]
+  ) {
+    console.log("=---------");
+    for (const sprint of sprintStats) {
+      // Create or update sprint
+      await this.prisma.sprint.upsert({
+        where: {
+          id: sprint.sprintId,
+        },
+        update: {
+          name: sprint.sprintName,
+          startDate: new Date(sprint.startDate),
+          endDate: new Date(sprint.endDate),
+          projectId,
+        },
+        create: {
+          id: sprint.sprintId,
+          name: sprint.sprintName,
+          startDate: new Date(sprint.startDate),
+          endDate: new Date(sprint.endDate),
+          projectId,
+        },
+      });
+
+      // Store user stats for each user in the sprint
+      for (const userStat of sprint.userStats) {
+        const userStatsRecord = await this.prisma.userStats.upsert({
+          where: {
+            sprintId_employeeId: {
+              sprintId: sprint.sprintId,
+              employeeId: userStat.employeeId,
+            },
+          },
+          update: {
+            totalReviewComments: userStat.totalReviewComments,
+            totalPrTime: userStat.totalPrTime,
+            averageCommentsPerPR: userStat.averageCommentsPerPR,
+            averagePrTime: userStat.averagePrTime,
+          },
+          create: {
+            sprintId: sprint.sprintId,
+            employeeId: userStat.employeeId,
+            totalReviewComments: userStat.totalReviewComments,
+            totalPrTime: userStat.totalPrTime,
+            averageCommentsPerPR: userStat.averageCommentsPerPR,
+            averagePrTime: userStat.averagePrTime,
+          },
+        });
+
+        // Store pull requests for each user
+        for (const pr of userStat.pullRequests) {
+          await this.prisma.pullRequest.upsert({
+            where: {
+              prNumber_userStatsId: {
+                prNumber: pr.prNumber,
+                userStatsId: userStatsRecord.id,
+              },
+            },
+            update: {
+              prTitle: pr.prTitle,
+              reviewComments: pr.reviewComments,
+            },
+            create: {
+              prNumber: pr.prNumber,
+              prTitle: pr.prTitle,
+              reviewComments: pr.reviewComments,
+              userStatsId: userStatsRecord.id,
+            },
+          });
+        }
+      }
     }
   }
 }
