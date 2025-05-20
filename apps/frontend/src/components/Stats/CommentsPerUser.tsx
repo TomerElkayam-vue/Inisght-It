@@ -13,6 +13,7 @@ import {
 } from 'chart.js';
 import { getPullRequestsSummery } from '../../services/github.service';
 import { SprintCommentsPerUser } from '@packages/github';
+import { useCurrentProjectContext } from '../../context/CurrentProjectContext';
 
 ChartJS.register(
   CategoryScale,
@@ -61,11 +62,14 @@ export const CommentsPerUser = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<SprintCommentsPerUser[] | null>(null);
+  const { currentProject } = useCurrentProjectContext();
 
   useEffect(() => {
     const fetchData = async () => {
+      if (!currentProject) return;
+
       try {
-        const response = await getPullRequestsSummery();
+        const response = await getPullRequestsSummery(currentProject.id);
         setData(response);
         setError(null);
       } catch (err) {
@@ -77,7 +81,7 @@ export const CommentsPerUser = () => {
     };
 
     fetchData();
-  }, []);
+  }, [currentProject]);
 
   // Get all unique usernames
   const allUsers = Array.from(
