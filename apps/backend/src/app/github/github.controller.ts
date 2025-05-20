@@ -8,8 +8,10 @@ export class GithubController {
   @Get(':owner/:repo/project-stats')
   async getProjectStats(
     @Param('owner') owner: string,
-    @Param('repo') repo: string
+    @Param('repo') repo: string,
+    @Query('projectId') projectId: string
   ): Promise<SprintCommentsPerUser[]> {
+    console.log(projectId)
     return this.githubService.getProjectStats(owner, repo);
   }
 
