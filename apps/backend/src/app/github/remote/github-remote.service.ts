@@ -12,6 +12,7 @@ import {
 } from "@packages/github";
 import { JiraService } from "../../jira/jira.service";
 import { EmployeeService } from "../../employee/employee.service";
+import { PrismaService } from "../../prisma/prisma.service";
 
 @Injectable()
 export class GithubRemoteService {
@@ -21,6 +22,7 @@ export class GithubRemoteService {
     private projectsService: ProjectsSerivce,
     private readonly jiraService: JiraService,
     private readonly employeeService: EmployeeService,
+    private readonly prisma: PrismaService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache
   ) {}
 
@@ -172,5 +174,44 @@ export class GithubRemoteService {
       endDate,
       username
     );
+  }
+
+  async getSprintStatsByProjectId(projectId: string) {
+    const sprints = await this.prisma.sprint.findMany({
+      where: {
+        projectId,
+      },
+      include: {
+        userStats: {
+          include: {
+            employee: true,
+            pullRequests: true,
+          },
+        },
+      },
+      orderBy: {
+        startDate: "asc",
+      },
+    });
+
+    return sprints.map((sprint) => ({
+      sprintId: sprint.id,
+      sprintName: sprint.name,
+      startDate: sprint.startDate.toISOString(),
+      endDate: sprint.endDate.toISOString(),
+      userStats: sprint.userStats.map((userStat) => ({
+        login: userStat.employee.displayName,
+        employeeId: userStat.employeeId,
+        totalReviewComments: userStat.totalReviewComments,
+        totalPrTime: userStat.totalPrTime,
+        averageCommentsPerPR: userStat.averageCommentsPerPR,
+        averagePrTime: userStat.averagePrTime,
+        pullRequests: userStat.pullRequests.map((pr) => ({
+          prNumber: pr.prNumber,
+          prTitle: pr.prTitle,
+          reviewComments: pr.reviewComments,
+        })),
+      })),
+    }));
   }
 }
