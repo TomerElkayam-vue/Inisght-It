@@ -1,9 +1,10 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import logoDark from '../../assets/logo-dark.png';
 import { removeToken } from '../../services/auth.service';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useProjects } from '../hooks/useProjectQueries';
 import { useCurrentProjectContext } from '../../context/CurrentProjectContext';
+import { useCreateProject } from '../hooks/useProjectQueries';
 
 export const Navbar = () => {
   const location = useLocation();
@@ -56,6 +57,40 @@ export const Navbar = () => {
     }
   }, [isProtectedRoute, isLoadingProjects, isProjectsError, navigate]);
 
+  // --- Modal state ---
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newProjectName, setNewProjectName] = useState('');
+  const [error, setError] = useState('');
+  const createProjectMutation = useCreateProject();
+  const [toast, setToast] = useState<{ message: string; type: 'error' | 'success' } | null>(null);
+
+  const handleOpenModal = () => {
+    setNewProjectName('');
+    setError('');
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setNewProjectName('');
+    setError('');
+  };
+
+  const handleCreateProject = async () => {
+    if (!newProjectName.trim()) {
+      setError('יש להזין שם לפרויקט');
+      return;
+    }
+    try {
+      const newProject = await createProjectMutation.mutateAsync({ name: newProjectName });
+      setCurrentProject(newProject);
+      handleCloseModal();
+    } catch (e) {
+      setToast({ message: 'אופס, משהו השתבש', type: 'error' });
+      setTimeout(() => setToast(null), 3000);
+    }
+  };
+
   return (
     <>
       {isLoadingProjects && (
@@ -63,6 +98,52 @@ export const Navbar = () => {
           <div className="flex flex-col items-center gap-4">
             <div className="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
             <span className="text-white text-lg">טוען פרויקטים...</span>
+          </div>
+        </div>
+      )}
+      {/* Toast notification */}
+      {toast && (
+        <div
+          className={`fixed top-4 right-1/2 translate-x-1/2 z-[100] px-6 py-3 rounded-lg shadow-lg text-white text-lg transition-all
+            ${toast.type === 'error' ? 'bg-red-600' : 'bg-green-600'}`}
+        >
+          {toast.message}
+        </div>
+      )}
+      {/* Modal for creating a project */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+          <div className="bg-[#23263a] p-8 rounded-2xl shadow-lg w-96 flex flex-col items-center">
+            <h2 className="text-xl font-bold mb-4 text-white">צור פרויקט חדש</h2>
+            <input
+              type="text"
+              className="w-full p-3 rounded-lg bg-[#3a3a4d] border-none focus:outline-none text-white text-right mb-4"
+              placeholder="שם הפרויקט"
+              value={newProjectName}
+              onChange={e => setNewProjectName(e.target.value)}
+              autoFocus
+            />
+            {error && <div className="text-red-400 mb-2 w-full text-right">{error}</div>}
+            <div className="flex gap-2 w-full">
+              <button
+                className="flex-1 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors flex items-center justify-center"
+                onClick={handleCreateProject}
+                disabled={createProjectMutation.isPending}
+              >
+                {createProjectMutation.isPending ? (
+                  <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                ) : (
+                  'צור פרויקט'
+                )}
+              </button>
+              <button
+                className="flex-1 bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors"
+                onClick={handleCloseModal}
+                disabled={createProjectMutation.isPending}
+              >
+                ביטול
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -113,7 +194,13 @@ export const Navbar = () => {
                   </option>
                 ))}
               </select>
-
+              {/* Create Project Button */}
+              <button
+                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors"
+                onClick={handleOpenModal}
+              >
+                צור פרויקט
+              </button>
               <div className="flex items-center gap-2">
                 <span className="text-white">שלום שחר שמש</span>
                 <button
