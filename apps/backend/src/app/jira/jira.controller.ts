@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Param, Req } from '@nestjs/common';
 import { JiraService } from './jira.service';
 
 @Controller('jira')
@@ -6,12 +6,12 @@ export class JiraController {
   constructor(private readonly jiraService: JiraService) {}
 
   @Get('issues-count-by-sprint')
-  getJiraIssuesCountBySprint() {
-    return this.jiraService.countJiraIssuesBySprintPerUser();
+  getJiraIssuesCountBySprint(@Req() req: Request, @Param('projectId') projectId: string) {
+    return this.jiraService.countJiraIssuesBySprintPerUser(req.codeRepositoryCredentials);
   }
 
   @Get('sprints')
-  getJiraSprints() {
+  getJiraSprints(@Req() req: Request, @Param('projectId') projectId: string) {
     return this.jiraService.getJiraSprints();
   }
 }
