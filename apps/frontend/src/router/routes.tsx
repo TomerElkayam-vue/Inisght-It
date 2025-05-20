@@ -1,5 +1,6 @@
 import { RouteObject } from 'react-router-dom';
 import LoginPage from '../components/Login';
+import RegisterPage from '../components/Register';
 import { StatsPage } from '../components/stats/StatsPage';
 import { AuthGuard } from '../components/auth/AuthGuard';
 import { PublicRoute } from '../components/auth/PublicRoute';
@@ -22,6 +23,10 @@ export const routes: RouteObject[] = [
       {
         path: '/',
         element: <LoginPage />,
+      },
+      {
+        path: '/register',
+        element: <RegisterPage />,
       },
     ],
   },
