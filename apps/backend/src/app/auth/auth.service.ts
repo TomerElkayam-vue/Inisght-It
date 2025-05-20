@@ -37,12 +37,7 @@ export class AuthService {
       throw new ConflictException("Username already exists");
     }
 
-    const newUser = await this.usersService.createUser({
-      username: user.username,
-      password: user.password,
-      firstName: user.firstName,
-      lastName: user.lastName,
-    });
+    const newUser = await this.usersService.createUser(user);
 
     const payload = { username: newUser.username, sub: newUser.id };
     return {
