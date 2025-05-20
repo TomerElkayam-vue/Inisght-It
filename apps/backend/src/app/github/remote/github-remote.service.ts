@@ -1,21 +1,23 @@
 import { Injectable, Inject } from "@nestjs/common";
 import { CACHE_MANAGER } from "@nestjs/cache-manager";
 import { Cache } from "cache-manager";
-import { GithubRepository } from "./github.repository";
-import { ProjectsSerivce } from "../projects/project.service";
+import { GithubRemoteRepository } from "./github-remote.reposetory";
+import { GithubRepository } from "../db/github.reposetory";
+import { ProjectsSerivce } from "../../projects/project.service";
 import {
   GitHubComment,
   UserSpecificStats,
   RepositoryContributor,
   SprintCommentsPerUser,
 } from "@packages/github";
-import { JiraService } from "../jira/jira.service";
-import { EmployeeService } from "../employee/employee.service";
+import { JiraService } from "../../jira/jira.service";
+import { EmployeeService } from "../../employee/employee.service";
 
 @Injectable()
-export class GithubService {
+export class GithubRemoteService {
   constructor(
-    private readonly githubRepository: GithubRepository,
+    private readonly GithubRemoteRepository: GithubRemoteRepository,
+    private readonly GithubRepository: GithubRepository,
     private projectsService: ProjectsSerivce,
     private readonly jiraService: JiraService,
     private readonly employeeService: EmployeeService,
@@ -27,7 +29,11 @@ export class GithubService {
     repo: string,
     prNumber: number
   ): Promise<GitHubComment[]> {
-    return this.githubRepository.getPullRequestComments(owner, repo, prNumber);
+    return this.GithubRemoteRepository.getPullRequestComments(
+      owner,
+      repo,
+      prNumber
+    );
   }
 
   async getProjectStats(
@@ -63,8 +69,8 @@ export class GithubService {
         return {
           sprintId: sprint.id,
           sprintName: sprint.name,
-          startDate: sprint.startDate,
-          endDate: sprint.endDate,
+          startDate: sprint.startDate ?? new Date().toISOString(),
+          endDate: sprint.endDate ?? new Date().toISOString(),
           userStats,
         };
       })
@@ -88,9 +94,19 @@ export class GithubService {
             return {
               ...rest,
               login: employee?.displayName ?? "",
+              employeeId:
+                employee?.id ?? "381be2c1-012f-44c7-818a-6d78f4ad2067",
             };
           }),
       })
+    );
+
+    // Store the sprint stats in the database
+    const projectId = "381be2c1-012f-44c7-818a-6d78f4ad2067"; // TODO: REPLACE WITH THE PROJECT ID
+
+    await this.GithubRepository.storeSprintStats(
+      projectId,
+      sprintStatsWithDispalyName
     );
 
     await this.cacheManager.set(cacheKey, sprintStatsWithDispalyName, 300000);
@@ -112,7 +128,7 @@ export class GithubService {
     }
 
     const userSpecificStats =
-      await this.githubRepository.getCommentsRecivedForUser(
+      await this.GithubRemoteRepository.getCommentsRecivedForUser(
         owner,
         repo,
         startDate,
@@ -128,11 +144,11 @@ export class GithubService {
     owner: string,
     repo: string
   ): Promise<RepositoryContributor[]> {
-    return this.githubRepository.getRepositoryContributors(owner, repo);
+    return this.GithubRemoteRepository.getRepositoryContributors(owner, repo);
   }
 
   async getUserGithubToken(code: string, projectId: string) {
-    const token = await this.githubRepository.getUserGithubToken(code);
+    const token = await this.GithubRemoteRepository.getUserGithubToken(code);
     await this.projectsService.updateProject({
       where: { id: projectId },
       data: {
@@ -149,7 +165,7 @@ export class GithubService {
     endDate: string,
     username: string
   ): Promise<RepositoryContributor[]> {
-    return this.githubRepository.getOpenPullRequestsBetweenDates(
+    return this.GithubRemoteRepository.getOpenPullRequestsBetweenDates(
       owner,
       repo,
       startDate,
