@@ -12,10 +12,20 @@ export class GithubController {
     @Query('projectId') projectId: string,
     @Req() req: any
   ): Promise<SprintCommentsPerUser[]> {
-    console.log('Project Stats Route - Credentials:');
-    console.log('missionManagementCredentials:', req.projectCredentials?.missionManagementCredentials);
-    console.log('codeRepositoryCredentials:', req.projectCredentials?.codeRepositoryCredentials);
-    return this.githubService.getProjectStats(owner, repo);
+    // console.log('Project Stats Route - Credentials:');
+    // console.log(
+    //   'missionManagementCredentials:',
+    //   req.projectCredentials?.missionManagementCredentials
+    // );
+    // console.log(
+    //   'codeRepositoryCredentials:',
+    //   req.projectCredentials?.codeRepositoryCredentials
+    // );
+    return this.githubService.getProjectStats(
+      owner,
+      repo,
+      req.projectCredentials
+    );
   }
 
   // @Get(':owner/:repo/users/:username/prs')
@@ -48,12 +58,15 @@ export class GithubController {
     @Req() req: any
   ) {
     console.log('GitHub Callback Route - Credentials:');
-    console.log('missionManagementCredentials:', req.projectCredentials?.missionManagementCredentials);
-    console.log('codeRepositoryCredentials:', req.projectCredentials?.codeRepositoryCredentials);
-    const token = await this.githubService.getUserGithubToken(
-      code,
-      projectId
+    console.log(
+      'missionManagementCredentials:',
+      req.projectCredentials?.missionManagementCredentials
     );
+    console.log(
+      'codeRepositoryCredentials:',
+      req.projectCredentials?.codeRepositoryCredentials
+    );
+    const token = await this.githubService.getUserGithubToken(code, projectId);
 
     // For dev: pass token in URL (insecure for prod)
     return res.redirect(`http://localhost:4200/github-success?token=${token}`);

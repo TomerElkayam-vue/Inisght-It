@@ -35,7 +35,6 @@ export class JiraRepository {
           }
         )
       );
-      console.log(response);
 
       return response.data.issues;
     } catch (error) {
@@ -102,7 +101,6 @@ export class JiraRepository {
 
   async getJiraProjects(token: string) {
     try {
-      console.log(token);
       const { data } = await axios.get(
         'https://api.atlassian.com/oauth/token/accessible-resources',
         {
@@ -111,7 +109,7 @@ export class JiraRepository {
           },
         }
       );
-      console.log(data);
+
       return data;
     } catch (e) {
       console.log(e);
