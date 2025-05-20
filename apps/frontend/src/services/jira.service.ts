@@ -16,6 +16,7 @@ export const getIssuesCount = async (projectId: string): Promise<IssuesCountResp
 export const getSprints = async (projectId: string): Promise<SprintResponse> => {
   const response = await api.get(`/jira/sprints?projectId=${projectId}`);
   return response.data.map((sprint: { name: string; }) => sprint.name);
+};
 
 export const getProjects = async (projectId: string): Promise<any> => {
   const response = await api.get(`/jira/projects/${projectId}`);
