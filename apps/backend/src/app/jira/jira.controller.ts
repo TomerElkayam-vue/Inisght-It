@@ -7,7 +7,7 @@ export class JiraController {
 
   @Get('issues-count-by-sprint')
   getJiraIssuesCountBySprint(@Req() req: Request, @Param('projectId') projectId: string) {
-    return this.jiraService.countJiraIssuesBySprintPerUser(req.codeRepositoryCredentials);
+    return this.jiraService.countJiraIssuesBySprintPerUser();
   }
 
   @Get('sprints')

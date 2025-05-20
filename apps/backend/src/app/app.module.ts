@@ -15,6 +15,7 @@ import { CacheModule } from '@nestjs/cache-manager';
 import { ProjectSettingsMiddleware } from './middleware/project-settings.middleware';
 import { JiraController } from './jira/jira.controller';
 import { GithubController } from './github/github.controller';
+import { EmployeeModule } from './employee/employee.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { GithubController } from './github/github.controller';
     UsersModule,
     AuthModule,
     AiModule,
+    EmployeeModule,
     CacheModule.register({
       isGlobal: true,
       ttl: 300000, // 5 minutes in milliseconds

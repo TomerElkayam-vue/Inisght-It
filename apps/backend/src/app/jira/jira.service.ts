@@ -1,19 +1,21 @@
-import { Injectable, Inject } from '@nestjs/common';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Cache } from 'cache-manager';
-import { JiraRepository } from './jira.repository';
-import { JiraSprintDto } from './dto/jira-sprint.dto';
-import { JiraIssueCountDto } from './dto/jira-issue-count';
+import { Injectable, Inject } from "@nestjs/common";
+import { CACHE_MANAGER } from "@nestjs/cache-manager";
+import { Cache } from "cache-manager";
+import { JiraRepository } from "./jira.repository";
+import { JiraSprintDto } from "./dto/jira-sprint.dto";
+import { JiraIssueCountDto } from "./dto/jira-issue-count";
+import { EmployeeService } from "../employee/employee.service";
 
 @Injectable()
 export class JiraService {
   constructor(
     private readonly jiraRepository: JiraRepository,
+    private readonly employeeService: EmployeeService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache
   ) {}
 
   async getJiraIssues() {
-    const cacheKey = 'jira-issues';
+    const cacheKey = "jira-issues";
     const cachedData = await this.cacheManager.get(cacheKey);
 
     if (cachedData) {
@@ -26,7 +28,7 @@ export class JiraService {
   }
 
   async getJiraSprints() {
-    const cacheKey = 'jira-sprints';
+    const cacheKey = "jira-sprints";
     const cachedData = await this.cacheManager.get<JiraSprintDto[]>(cacheKey);
 
     if (cachedData) {
@@ -49,7 +51,7 @@ export class JiraService {
   }
 
   async countJiraIssuesBySprintPerUser(): Promise<JiraIssueCountDto[]> {
-    const cacheKey = 'jira-issues-count';
+    const cacheKey = "jira-issues-count";
     const cachedData = await this.cacheManager.get<JiraIssueCountDto[]>(
       cacheKey
     );
@@ -77,8 +79,8 @@ export class JiraService {
         };
       }) => {
         const assignee: string =
-          issue.fields.assignee?.displayName || 'Unassigned';
-        const sprint: string = issue.fields.sprint?.name || 'Backlog';
+          issue.fields.assignee?.displayName || "Unassigned";
+        const sprint: string = issue.fields.sprint?.name || "Backlog";
 
         let currUser = issueCounts.find((o) => o.name == assignee);
 
@@ -91,7 +93,21 @@ export class JiraService {
       }
     );
 
-    await this.cacheManager.set(cacheKey, issueCounts, 300000); // Cache for 5 minutes
-    return issueCounts;
+    //TODO: when getting project id select only the workers in current project (and not a new request to eche worker)
+
+    const issueCountsWithUsername = await Promise.all(
+      issueCounts.map(async ({ name, stats }) => {
+        const employee = await this.employeeService.findEmployeeByJiraUsername(
+          name
+        );
+        return {
+          name: employee?.displayName ?? name,
+          stats,
+        };
+      })
+    );
+
+    await this.cacheManager.set(cacheKey, issueCountsWithUsername, 300000);
+    return issueCountsWithUsername;
   }
 }
