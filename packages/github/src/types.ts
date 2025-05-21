@@ -50,6 +50,7 @@ export type UserPullRequestStats = {
 
 export type UserSpecificStats = {
   login: string;
+  employeeId: string;
   totalReviewComments: number;
   pullRequests: UserPullRequestStats[];
   averageCommentsPerPR: number;
@@ -60,6 +61,8 @@ export type UserSpecificStats = {
 export type SprintCommentsPerUser = {
   sprintId: number;
   sprintName: string;
+  startDate: string;
+  endDate: string;
   userStats: UserSpecificStats[];
 };
 

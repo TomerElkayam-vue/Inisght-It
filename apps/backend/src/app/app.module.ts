@@ -1,5 +1,10 @@
 // filepath: /Users/nitzan/Documents/code/colman/Inisght-It/apps/backend/src/app/app.module.ts
-import { MiddlewareConsumer, Module, NestModule, RequestMethod } from "@nestjs/common";
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from "@nestjs/common";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { AuthModule } from "./auth/auth.module";
@@ -14,6 +19,8 @@ import { ProjectsModule } from "./projects/project.module";
 import { UsersModule } from "./users/user.module";
 import { CacheModule } from "@nestjs/cache-manager";
 import { EmployeeModule } from "./employee/employee.module";
+import { ScheduleModule } from "@nestjs/schedule";
+import { CronModule } from "./cron/cron.module";
 import { ProjectSettingsMiddleware } from "./middleware/project-settings.middleware";
 import { JiraController } from "./jira/jira.controller";
 import { GithubController } from "./github/github.controller";
@@ -27,6 +34,8 @@ import { GithubController } from "./github/github.controller";
     AuthModule,
     AiModule,
     EmployeeModule,
+    CronModule,
+    ScheduleModule.forRoot(),
     CacheModule.register({
       isGlobal: true,
       ttl: 300000, // 5 minutes in milliseconds
@@ -39,14 +48,11 @@ import { GithubController } from "./github/github.controller";
   controllers: [AppController],
   providers: [AppService],
 })
-
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(ProjectSettingsMiddleware)
-      .exclude(
-        { path: '*callback*', method: RequestMethod.ALL }
-      )
+      .exclude({ path: "*callback*", method: RequestMethod.ALL })
       .forRoutes(JiraController, GithubController);
   }
 }
