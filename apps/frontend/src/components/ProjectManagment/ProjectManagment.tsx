@@ -32,8 +32,8 @@ const ProjectContent = () => {
       // Filter out owners (roleId === 1) from the employees list
       if (currentProject.projectPermissions) {
         const memberEmployees = currentProject.projectPermissions
-          .filter((permission) => permission.roleId !== 1) // Filter out owners
-          .map((permission) => permission.user);
+          .filter((permission) => permission.roleId !== 1)
+          .map(({ user }) => ({ id: user.id, username: user.username }));
 
         setEmployees(memberEmployees);
       }
@@ -45,6 +45,7 @@ const ProjectContent = () => {
 
     try {
       const projectPermissions = {
+        deleteMany: {},
         create: employees.map((employee) => ({
           userId: employee.id,
           roleId: 2, // Member role
@@ -56,7 +57,7 @@ const ProjectContent = () => {
         data: {
           codeRepositoryCredentials: codeBaseCredentials,
           missionManagementCredentials: managementCredentials,
-          // projectPermissions: projectPermissions, // fix
+          projectPermissions: projectPermissions,
         },
       });
       console.log('Project updated successfully');
