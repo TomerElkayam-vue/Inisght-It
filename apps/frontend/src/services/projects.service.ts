@@ -4,7 +4,16 @@ import { Project } from '@packages/projects';
 
 export const projectsService = {
   getProjects: async (): Promise<Project[]> => {
-    const response = await api.get<Project[]>('/projects');
+    const token = localStorage.getItem('jwt_token'); // Retrieve the token from localStorage
+    if (!token) {
+      throw new Error('User is not authenticated. Token is missing.');
+    }
+
+    const response = await api.get<Project[]>(`/projects/user`, {
+      headers: {
+        Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+      },
+    });
     return response.data;
   },
 

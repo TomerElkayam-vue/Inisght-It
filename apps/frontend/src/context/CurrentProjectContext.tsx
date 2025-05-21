@@ -1,6 +1,5 @@
 import { createContext, useContext, useState } from 'react';
 import { Project } from '@packages/projects';
-import { useProject } from '../components/hooks/useProjectQueries';
 
 type ProjectContextType = {
   currentProject: Project | null;

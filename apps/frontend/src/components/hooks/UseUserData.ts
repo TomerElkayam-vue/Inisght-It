@@ -17,10 +17,12 @@ export const useUserData = () => {
       if (!currentProject) return;
 
       try {
-        const pullRequestsSummery = await getPullRequestsSummery(currentProject.id);
-        
+        const pullRequestsSummery = await getPullRequestsSummery(
+          currentProject.id
+        );
         const userStatsInAllSprints: UserSpecificStats = {
           login: 'TomerElkayam-vue',
+          employeeId: 'TomerElkayam-vue',
           pullRequests: [],
           averageCommentsPerPR: 0,
           averagePrTime: 0,
@@ -42,7 +44,8 @@ export const useUserData = () => {
             userStats?.averageCommentsPerPR || 0;
           userStatsInAllSprints.averagePrTime += userStats?.averagePrTime || 0;
         });
-        userStatsInAllSprints.averageCommentsPerPR /= pullRequestsSummery.length;
+        userStatsInAllSprints.averageCommentsPerPR /=
+          pullRequestsSummery.length;
         userStatsInAllSprints.averagePrTime /= pullRequestsSummery.length;
 
         setUserReviewsData(userStatsInAllSprints);
@@ -71,6 +74,7 @@ export const useUserData = () => {
   const userData = useMemo(() => {
     return {
       username: 'Tomer Elkayam',
+      userId: 'TomerElkayam-vue',
       issuesCount,
       amountOfPR: userReviewsData?.pullRequests.length,
       averageCommentsPerPR: userReviewsData?.averageCommentsPerPR,

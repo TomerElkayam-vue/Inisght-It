@@ -16,7 +16,14 @@ export class GithubController {
     @Param("repo") repo: string
   ): Promise<SprintCommentsPerUser[]> {
     const projectId = "381be2c1-012f-44c7-818a-6d78f4ad2067";
-    return this.GithubService.getSprintStatsByProjectId(projectId);
+    const stats = await this.GithubService.getSprintStatsByProjectId(projectId);
+    return stats.map(sprint => ({
+      ...sprint,
+      userStats: sprint.userStats.map(userStat => ({
+        ...userStat,
+        totalPrTime: Number(userStat.totalPrTime),
+      })),
+    }));
   }
 
   @Get(":owner/:repo/users/:username/prs")

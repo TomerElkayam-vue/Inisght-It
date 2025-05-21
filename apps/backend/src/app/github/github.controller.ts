@@ -27,7 +27,14 @@ export class GithubController {
     //   req.projectCredentials?.codeRepositoryCredentials
     // );
 
-    return this.GithubService.getSprintStatsByProjectId(projectId);
+    const sprintStats = await this.GithubService.getSprintStatsByProjectId(projectId);
+    return sprintStats.map(sprint => ({
+      ...sprint,
+      userStats: sprint.userStats.map(userStat => ({
+        ...userStat,
+        totalPrTime: Number(userStat.totalPrTime),
+      })),
+    }));
   }
 
   @Get("/callback")
