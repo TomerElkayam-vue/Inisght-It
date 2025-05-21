@@ -5,12 +5,10 @@ import { useEffect, useState } from 'react';
 import { useProjects } from '../hooks/useProjectQueries';
 import { useCurrentProjectContext } from '../../context/CurrentProjectContext';
 import { useCreateProject } from '../hooks/useProjectQueries';
-import { useUserData } from '../hooks/UseUserData';
 
 export const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { userData } = useUserData();
 
   const isActive = (path: string) => {
     return location.pathname === path ? 'bg-[#2b3544]' : '';
@@ -26,7 +24,7 @@ export const Navbar = () => {
     data: projects,
     isLoading: isLoadingProjects,
     isError: isProjectsError,
-  } = useProjects(userData?.userId || '');
+  } = useProjects();
 
   // Get current project context
   const { currentProject, setCurrentProject } = useCurrentProjectContext();

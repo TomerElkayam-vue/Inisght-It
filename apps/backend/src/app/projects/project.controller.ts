@@ -1,8 +1,19 @@
-import { Controller, Get, Post, Body, Param, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Put, Req } from '@nestjs/common';
 import { ProjectsSerivce } from './project.service';
 import { Prisma } from '@prisma/client';
 import { ApiBody } from '@nestjs/swagger';
 import { CreateProjectDto } from './dto/CreateProjectDto';
+import { Request } from 'express';
+
+export interface AuthenticatedUser {
+  sub: string; // Define the expected structure of the user object
+}
+
+declare module 'express' {
+  interface Request {
+    user?: AuthenticatedUser; // Extend the Request interface to include user
+  }
+}
 
 @Controller('projects')
 export class ProjectsController {
@@ -13,13 +24,18 @@ export class ProjectsController {
     return this.projectService.getProjects({});
   }
 
-  @Get('/user/:userId')
-  getEmployeeProjects(@Param('userId') userId: string) {
+  @Get('/user')
+  getEmployeeProjects(@Req() req: Request) {
+    const userId = req.user?.sub; // Extract user ID from the token (populated by AuthMiddleware)
+    if (!userId) {
+      throw new Error('User ID is undefined');
+    }
     return this.projectService.getProjects({
       where: {
         projectPermissions: {
           some: {
             userId: userId,
+            // TODO : add permission check
           },
         },
       },

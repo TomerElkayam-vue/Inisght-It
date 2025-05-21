@@ -11,11 +11,10 @@ export const projectKeys = {
 };
 
 // Hook for fetching multiple projects
-export const useProjects = (userId: string) => {
+export const useProjects = () => {
   return useQuery({
     queryKey: projectKeys.lists(),
-    queryFn: () => projectsService.getProjects(userId),
-    enabled: !!userId,
+    queryFn: projectsService.getProjects,
   });
 };
 
