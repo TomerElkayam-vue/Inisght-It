@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Project } from '@packages/projects';
+import { Project, ProjectUpdateInput } from '@packages/projects';
 import { projectsService } from '../../services/projects.service';
+import { ucs2 } from 'punycode';
 // Keys for query caching
 export const projectKeys = {
   all: ['projects'] as const,
@@ -49,7 +50,7 @@ export const useUpdateProject = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<Project> }) =>
+    mutationFn: ({ id, data }: { id: string; data: ProjectUpdateInput }) =>
       projectsService.updateProject(id, data),
     onSuccess: (updatedProject) => {
       // Update both the list and the individual project in the cache

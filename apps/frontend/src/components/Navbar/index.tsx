@@ -188,7 +188,7 @@ export const Navbar = () => {
                 className="bg-[#2b3544] text-white px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 disabled={isLoadingProjects}
               >
-                {projects?.map((project) => (
+                {projects?.map?.((project) => (
                   <option key={project.id} value={project.id}>
                     {project.name}
                   </option>

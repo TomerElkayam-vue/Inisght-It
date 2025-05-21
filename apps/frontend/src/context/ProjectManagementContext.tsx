@@ -1,5 +1,5 @@
-import { User } from '@prisma/client';
 import { createContext, useContext, useState } from 'react';
+import { simpleUser } from '../components/ProjectManagment/interfaces';
 
 type CodeBaseCredentials = {
   repoOwner?: string;
@@ -14,8 +14,8 @@ type ManagementCredentials = {
 };
 
 type ProjectContextType = {
-  employees: User[];
-  setEmployees: React.Dispatch<React.SetStateAction<User[]>>;
+  employees: simpleUser[];
+  setEmployees: React.Dispatch<React.SetStateAction<simpleUser[]>>;
   codeBaseCredentials: CodeBaseCredentials | null;
   setCodeBaseCredentials: (credentials: CodeBaseCredentials | null) => void;
   managementCredentials: ManagementCredentials | null;
@@ -31,7 +31,7 @@ export const ProjectManagementProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const [employees, setEmployees] = useState<User[]>([]);
+  const [employees, setEmployees] = useState<simpleUser[]>([]);
   const [codeBaseCredentials, setCodeBaseCredentials] =
     useState<CodeBaseCredentials | null>(null);
   const [managementCredentials, setManagementCredentials] =

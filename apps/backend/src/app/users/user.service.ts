@@ -20,7 +20,7 @@ export class UsersService {
       where?: Prisma.UserWhereInput;
       orderBy?: Prisma.UserOrderByWithRelationInput;
     } = {}
-  ): Promise<User[]> {
+  ) {
     return this.usersRepository.getUsers(params);
   }
 

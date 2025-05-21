@@ -1,11 +1,11 @@
 import {
-    Get,
-    Put,
-    Post,
-    Body,
-    Param,
-    Delete,
-    Controller,
+  Get,
+  Put,
+  Post,
+  Body,
+  Param,
+  Delete,
+  Controller,
 } from '@nestjs/common';
 import { UsersService } from './user.service';
 import { Prisma, User } from '@prisma/client';
@@ -15,7 +15,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  async getUsers(): Promise<User[]> {
+  async getUsers() {
     return this.usersService.getUsers();
   }
 
