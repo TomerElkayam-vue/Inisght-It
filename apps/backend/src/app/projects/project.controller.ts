@@ -3,6 +3,7 @@ import { ProjectsSerivce } from './project.service';
 import { Prisma } from '@prisma/client';
 import { ApiBody } from '@nestjs/swagger';
 import { CreateProjectDto } from './dto/CreateProjectDto';
+
 @Controller('projects')
 export class ProjectsController {
   constructor(private readonly projectService: ProjectsSerivce) {}
@@ -10,6 +11,19 @@ export class ProjectsController {
   @Get('')
   getAllProjects() {
     return this.projectService.getProjects({});
+  }
+
+  @Get('/user/:userId')
+  getEmployeeProjects(@Param('userId') userId: string) {
+    return this.projectService.getProjects({
+      where: {
+        projectPermissions: {
+          some: {
+            userId: userId,
+          },
+        },
+      },
+    });
   }
 
   @Get('/:id')

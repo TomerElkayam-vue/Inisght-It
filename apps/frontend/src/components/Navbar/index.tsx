@@ -5,10 +5,12 @@ import { useEffect, useState } from 'react';
 import { useProjects } from '../hooks/useProjectQueries';
 import { useCurrentProjectContext } from '../../context/CurrentProjectContext';
 import { useCreateProject } from '../hooks/useProjectQueries';
+import { useUserData } from '../hooks/UseUserData';
 
 export const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { userData } = useUserData();
 
   const isActive = (path: string) => {
     return location.pathname === path ? 'bg-[#2b3544]' : '';
@@ -20,14 +22,18 @@ export const Navbar = () => {
   };
 
   // Fetch all projects
-  const { data: projects, isLoading: isLoadingProjects, isError: isProjectsError } = useProjects();
-  
+  const {
+    data: projects,
+    isLoading: isLoadingProjects,
+    isError: isProjectsError,
+  } = useProjects(userData?.userId || '');
+
   // Get current project context
   const { currentProject, setCurrentProject } = useCurrentProjectContext();
 
   // Handle project change
   const handleProjectChange = (projectId: string) => {
-    const selectedProject = projects?.find(p => p.id === projectId);
+    const selectedProject = projects?.find((p) => p.id === projectId);
     if (selectedProject) {
       setCurrentProject(selectedProject);
     }
@@ -35,7 +41,12 @@ export const Navbar = () => {
 
   // Auto-select first project if none is selected
   useEffect(() => {
-    if (!isLoadingProjects && projects && projects.length > 0 && !currentProject) {
+    if (
+      !isLoadingProjects &&
+      projects &&
+      projects.length > 0 &&
+      !currentProject
+    ) {
       setCurrentProject(projects[0]);
     }
   }, [isLoadingProjects, projects, currentProject, setCurrentProject]);
@@ -48,8 +59,12 @@ export const Navbar = () => {
   }, [isLoadingProjects, isProjectsError, navigate]);
 
   // Check if current route requires a project
-  const isProtectedRoute = ['/stats', '/insights', '/project-management'].includes(location.pathname);
-  
+  const isProtectedRoute = [
+    '/stats',
+    '/insights',
+    '/project-management',
+  ].includes(location.pathname);
+
   // Redirect to error page if trying to access protected route without a project
   useEffect(() => {
     if (isProtectedRoute && !isLoadingProjects && isProjectsError) {
@@ -62,7 +77,10 @@ export const Navbar = () => {
   const [newProjectName, setNewProjectName] = useState('');
   const [error, setError] = useState('');
   const createProjectMutation = useCreateProject();
-  const [toast, setToast] = useState<{ message: string; type: 'error' | 'success' } | null>(null);
+  const [toast, setToast] = useState<{
+    message: string;
+    type: 'error' | 'success';
+  } | null>(null);
 
   const handleOpenModal = () => {
     setNewProjectName('');
@@ -82,7 +100,9 @@ export const Navbar = () => {
       return;
     }
     try {
-      const newProject = await createProjectMutation.mutateAsync({ name: newProjectName });
+      const newProject = await createProjectMutation.mutateAsync({
+        name: newProjectName,
+      });
       setCurrentProject(newProject);
       handleCloseModal();
     } catch (e) {
@@ -114,16 +134,20 @@ export const Navbar = () => {
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
           <div className="bg-[#23263a] p-8 rounded-2xl shadow-lg w-96 flex flex-col items-center">
-            <h2 className="text-xl font-bold mb-4 text-white">צור פרויקט חדש</h2>
+            <h2 className="text-xl font-bold mb-4 text-white">
+              צור פרויקט חדש
+            </h2>
             <input
               type="text"
               className="w-full p-3 rounded-lg bg-[#3a3a4d] border-none focus:outline-none text-white text-right mb-4"
               placeholder="שם הפרויקט"
               value={newProjectName}
-              onChange={e => setNewProjectName(e.target.value)}
+              onChange={(e) => setNewProjectName(e.target.value)}
               autoFocus
             />
-            {error && <div className="text-red-400 mb-2 w-full text-right">{error}</div>}
+            {error && (
+              <div className="text-red-400 mb-2 w-full text-right">{error}</div>
+            )}
             <div className="flex gap-2 w-full">
               <button
                 className="flex-1 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors flex items-center justify-center"
@@ -161,7 +185,7 @@ export const Navbar = () => {
                   '/stats'
                 )}`}
               >
-                סטטיסטיקות
+                תובנות צוותיות
               </Link>
               <Link
                 to="/insights"
@@ -169,7 +193,7 @@ export const Navbar = () => {
                   '/insights'
                 )}`}
               >
-                תובנות צוותיות
+                תובנות כל עובד/ת
               </Link>
               <Link
                 to="/project-management"
@@ -182,18 +206,20 @@ export const Navbar = () => {
             </div>
 
             <div className="flex items-center gap-4">
-              <select
-                value={currentProject?.id || ''}
-                onChange={(e) => handleProjectChange(e.target.value)}
-                className="bg-[#2b3544] text-white px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                disabled={isLoadingProjects}
-              >
-                {projects?.map((project) => (
-                  <option key={project.id} value={project.id}>
-                    {project.name}
-                  </option>
-                ))}
-              </select>
+              {projects && projects.length > 0 && (
+                <select
+                  value={currentProject?.id || ''}
+                  onChange={(e) => handleProjectChange(e.target.value)}
+                  className="bg-[#2b3544] text-white px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  disabled={isLoadingProjects}
+                >
+                  {projects?.map((project) => (
+                    <option key={project.id} value={project.id}>
+                      {project.name}
+                    </option>
+                  ))}
+                </select>
+              )}
               {/* Create Project Button */}
               <button
                 className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors"

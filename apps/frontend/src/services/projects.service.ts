@@ -3,8 +3,8 @@ import { api } from './api.config';
 import { Project } from '@packages/projects';
 
 export const projectsService = {
-  getProjects: async (): Promise<Project[]> => {
-    const response = await api.get<Project[]>('/projects');
+  getProjects: async (userId: string): Promise<Project[]> => {
+    const response = await api.get<Project[]>(`/projects/user/${userId}`);
     return response.data;
   },
 
