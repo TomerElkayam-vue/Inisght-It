@@ -3,10 +3,12 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { JiraRepository } from './jira.repository';
 import { JiraSprintDto } from './dto/jira-sprint.dto';
-import { JiraIssueCountDto } from './dto/jira-issue-count';
 import { ProjectsSerivce } from '../projects/project.service';
 import { EmployeeService } from '../employee/employee.service';
 import { JiraSettings } from './types/jira-settings.type';
+import { JiraUserStatsDTO } from './dto/jira-issue-count';
+import { JiraDataType } from './enums/jira-data-type.enum';
+import { JiraDtoTransformationMapper } from './mappers/jira-dto-transformation-mapper';
 
 @Injectable()
 export class JiraService {
@@ -17,21 +19,16 @@ export class JiraService {
     @Inject(CACHE_MANAGER) private cacheManager: Cache
   ) {}
 
-  async getJiraIssues(jiraSettings: JiraSettings) {
-    const cacheKey = 'jira-issues';
-    const cachedData = await this.cacheManager.get(cacheKey);
+  async getJiraIssues(jiraSettings: JiraSettings, jiraDataType: JiraDataType) {
+    const issues = await this.jiraRepository.getJiraIssues(
+      jiraSettings,
+      jiraDataType
+    );
 
-    if (cachedData) {
-      console.log('Nice cache');
-    }
-
-    const issues = await this.jiraRepository.getJiraIssues(jiraSettings);
-    await this.cacheManager.set(cacheKey, issues, 300000); // Cache for 5 minutes
     return issues;
   }
 
   async getJiraSprints(jiraSettings: JiraSettings) {
-    console.log(jiraSettings);
     const cacheKey = 'jira-sprints';
     const cachedData = ''; // await this.cacheManager.get<JiraSprintDto[]>(cacheKey);
 
@@ -54,67 +51,55 @@ export class JiraService {
     return mappedSprints;
   }
 
-  async countJiraIssuesBySprintPerUser(
-    jiraSettings: JiraSettings
-  ): Promise<JiraIssueCountDto[]> {
-    const cacheKey = 'jira-issues-count';
-    const cachedData = await this.cacheManager.get<JiraIssueCountDto[]>(
-      cacheKey
-    );
-
-    if (cachedData) {
-      console.log('Fuck cache');
-    }
-
+  async countJiraStatsPerUser(
+    jiraSettings: JiraSettings,
+    jiraDataType: JiraDataType
+  ): Promise<JiraUserStatsDTO> {
     const sprints = await this.getJiraSprints(jiraSettings);
     const blankStats = sprints.reduce((acc, curr) => {
-      acc[curr.name] = 0;
+      acc[curr.name] =
+        JiraDtoTransformationMapper[jiraDataType].sprintInitaliztionValue;
       return acc;
-    }, {} as Record<string, number>);
+    }, {} as Record<string, any>);
 
-    const issues = (await this.getJiraIssues(jiraSettings)) as Array<{
-      fields: { assignee?: { displayName: string }; sprint?: { name: string } };
-    }>;
-    const issueCounts: JiraIssueCountDto[] = [];
+    const issues = await this.getJiraIssues(jiraSettings, jiraDataType);
+    const issueCounts: JiraUserStatsDTO = {};
 
-    issues.forEach(
-      (issue: {
-        fields: {
-          assignee?: { displayName: string };
-          sprint?: { name: string };
-        };
-      }) => {
-        const assignee: string =
-          issue.fields.assignee?.displayName || 'Unassigned';
-        const sprint: string = issue.fields.sprint?.name || 'Backlog';
+    issues.forEach(async (fields: any) => {
+      const assignee: string = fields.assignee?.displayName || 'Unassigned';
+      const sprint: string = fields.sprint?.name || 'Backlog';
 
-        let currUser = issueCounts.find((o) => o.name == assignee);
-
-        if (!currUser) {
-          currUser = { name: assignee, stats: structuredClone(blankStats) };
-          issueCounts.push(currUser);
-        }
-
-        currUser.stats[sprint]++;
+      if (!issueCounts[assignee]) {
+        issueCounts[assignee] = structuredClone(blankStats);
       }
-    );
 
-    //TODO: when getting project id select only the workers in current project (and not a new request to eche worker)
-
-    const issueCountsWithUsername = await Promise.all(
-      issueCounts.map(async ({ name, stats }) => {
-        const employee = await this.employeeService.findEmployeeByJiraUsername(
-          name
+      if (issueCounts[assignee][sprint] !== undefined) {
+        issueCounts[assignee][sprint] = JiraDtoTransformationMapper[
+          jiraDataType
+        ].dataTransformation(
+          structuredClone(issueCounts[assignee][sprint]),
+          fields
         );
-        return {
-          name: employee?.displayName ?? name,
-          stats,
-        };
+      }
+    });
+
+    return this.getStatsWithEmployeesUsername(issueCounts);
+  }
+
+  async getStatsWithEmployeesUsername(
+    stats: JiraUserStatsDTO
+  ): Promise<JiraUserStatsDTO> {
+    const entries = await Promise.all(
+      Object.entries(stats).map(async ([username, value]) => {
+        const employee = await this.employeeService.findEmployeeByJiraUsername(
+          username
+        );
+        const displayName = employee?.displayName ?? username;
+        return [displayName, value] as [string, typeof value];
       })
     );
 
-    await this.cacheManager.set(cacheKey, issueCountsWithUsername, 300000);
-    return issueCountsWithUsername;
+    return Object.fromEntries(entries);
   }
 
   async getJiraToken(code: string, projectId: string) {

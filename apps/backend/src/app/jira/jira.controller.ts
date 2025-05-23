@@ -1,18 +1,30 @@
-import { Body, Controller, Get, Post, Query, Req, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  Req,
+  Res,
+} from '@nestjs/common';
 import { JiraService } from './jira.service';
+import { JiraDataType } from './enums/jira-data-type.enum';
 
 @Controller('jira')
 export class JiraController {
   constructor(private readonly jiraService: JiraService) {}
 
-  @Get('issues-count-by-sprint')
+  @Get('stats/:statType')
   getJiraIssuesCountBySprint(
+    @Param('statType') statType: JiraDataType,
     @Query('projectId') projectId: string,
     @Req() req: any
   ) {
     if (req.projectCredentials?.missionManagementCredentials?.id) {
-      return this.jiraService.countJiraIssuesBySprintPerUser(
-        req.projectCredentials?.missionManagementCredentials
+      return this.jiraService.countJiraStatsPerUser(
+        req.projectCredentials?.missionManagementCredentials,
+        statType
       );
     }
     return [];

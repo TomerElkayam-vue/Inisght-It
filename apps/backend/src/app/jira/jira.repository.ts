@@ -6,6 +6,8 @@ import { jiraConfig } from '../../config/jira-config';
 import { ConfigType } from '@nestjs/config';
 import axios from 'axios';
 import { JiraSettings } from './types/jira-settings.type';
+import { JiraDataType } from './enums/jira-data-type.enum';
+import { jiraDataTypeTransformation } from './mappers/jira-data-type-transformation';
 
 @Injectable()
 export class JiraRepository {
@@ -15,7 +17,10 @@ export class JiraRepository {
     private jiraConfigValues: ConfigType<typeof jiraConfig>
   ) {}
 
-  async getJiraIssues(projectSettings: JiraSettings): Promise<JiraTaskDto[]> {
+  async getJiraIssues(
+    projectSettings: JiraSettings,
+    dataType: JiraDataType
+  ): Promise<JiraTaskDto['fields'][]> {
     try {
       // TODO - replace 1 with boardId
       const response = await firstValueFrom(
@@ -24,7 +29,7 @@ export class JiraRepository {
           {
             params: {
               jql: 'sprint IS NOT EMPTY and assignee IS NOT EMPTY',
-              fields: 'assignee,sprint',
+              fields: jiraDataTypeTransformation[dataType].fields,
               maxResults: 100,
               startAt: 0,
             },
@@ -36,7 +41,9 @@ export class JiraRepository {
         )
       );
 
-      return response.data.issues;
+      return response.data.issues.map((issue: any) =>
+        jiraDataTypeTransformation[dataType].transformFunction(issue.fields)
+      );
     } catch (error) {
       console.error('Error fetching Jira issues:', error);
       return [];
