@@ -41,7 +41,7 @@ export const JiraProjectList = ({
           style={{
             cursor: 'grab',
             ...(project.id === selectedProject.id && {
-              backgroundColor: 'blue',
+              backgroundColor: '#2563eb',
             }),
           }}
         >

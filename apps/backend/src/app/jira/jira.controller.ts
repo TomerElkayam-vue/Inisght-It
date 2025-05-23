@@ -1,13 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Post,
-  Query,
-  Req,
-  Res,
-} from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Req, Res } from '@nestjs/common';
 import { JiraService } from './jira.service';
 
 @Controller('jira')
@@ -19,17 +10,23 @@ export class JiraController {
     @Query('projectId') projectId: string,
     @Req() req: any
   ) {
-    return this.jiraService.countJiraIssuesBySprintPerUser(
-      req.projectCredentials?.missionManagementCredentials
-    );
+    if (req.projectCredentials?.missionManagementCredentials?.id) {
+      return this.jiraService.countJiraIssuesBySprintPerUser(
+        req.projectCredentials?.missionManagementCredentials
+      );
+    }
+    return [];
   }
 
   @Get('sprints')
   getJiraSprints(@Query('projectId') projectId: string, @Req() req: any) {
-    console.log(projectId);
-    return this.jiraService.getJiraSprints(
-      req.projectCredentials?.missionManagementCredentials
-    );
+    if (req.projectCredentials?.missionManagementCredentials?.id) {
+      return this.jiraService.getJiraSprints(
+        req.projectCredentials?.missionManagementCredentials
+      );
+    } else {
+      return [];
+    }
   }
 
   @Get('/callback')
@@ -44,14 +41,16 @@ export class JiraController {
     );
   }
 
-  @Get('/projects/:projectId')
-  async getProjects(@Param('projectId') projectId: string) {
-    return this.jiraService.getJiraProjects(projectId);
+  @Get('/projects')
+  async getProjects(@Query('projectId') projectId: string, @Req() req: any) {
+    return this.jiraService.getJiraProjects(
+      req.projectCredentials?.missionManagementCredentials
+    );
   }
 
-  @Post('/update-jira-project/:projectId')
+  @Post('/update-jira-project')
   async updateJiraProject(
-    @Param('projectId') projectId: string,
+    @Query('projectId') projectId: string,
     @Body() jiraProject: { projectName: string; projectId: string }
   ) {
     return this.jiraService.updateJiraProjectOnProject(projectId, jiraProject);
