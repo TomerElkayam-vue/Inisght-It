@@ -3,6 +3,8 @@ import { useSearchParams } from 'react-router-dom';
 import { JiraProjectList } from './JiraProjectList';
 import { JiraService } from '../../../../backend/src/app/jira/jira.service';
 import { updateJiraProjectOnProject } from '../../services/jira.service';
+import { useCurrentProjectContext } from '../../context/CurrentProjectContext';
+import { Project } from '@prisma/client';
 
 const ToolCredentials = () => {
   const {
@@ -11,6 +13,9 @@ const ToolCredentials = () => {
     managementCredentials,
     setManagementCredentials: setJiraCredentials,
   } = useProjectManagementContext();
+
+  const { currentProject, setCurrentProject } = useCurrentProjectContext();
+  console.log(currentProject);
 
   const [searchParams] = useSearchParams();
 
@@ -30,14 +35,14 @@ const ToolCredentials = () => {
 
   const redirectToGitHub = () => {
     const clientId = 'Ov23liBqFboVyeJfPkKc';
-    const redirectUri =`http://localhost:3000/api/github/callback/?projectId=${"5189c957-1d16-4880-9e7c-2eec4667dbf2"}`;
+    const redirectUri = `http://localhost:3000/api/github/callback/?projectId=${currentProject?.id}`;
     const scope = 'repo';
     window.location.href = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}`;
   };
 
   const redirectToJira = () => {
     const clientId = 'At6ejbAFMkAUdSJ25XfbMLSJiMLpxVHe';
-    const redirectUri = `http://localhost:3000/api/jira/callback?projectId=${'381be2c1-012f-44c7-818a-6d78f4ad2067'}`;
+    const redirectUri = `http://localhost:3000/api/jira/callback?projectId=${currentProject?.id}`;
     const scopes =
       'read:jira-user read:jira-work read:board-scope:jira-software read:project:jira read:board-scope.admin:jira-software read:issue-details:jira read:sprint:jira-software';
 
@@ -91,16 +96,32 @@ const ToolCredentials = () => {
       >
         <h2 className="text-xl font-bold mb-8">כלי ניהול משימות</h2>
         <div className="mt-4">
-          {jiraSuccess ? (
+          {(jiraSuccess && currentProject?.id) ||
+          currentProject?.missionManagementCredentials?.name ? (
             // TODO: Retriving the data about the project from the server and check for the selected project and update it
             <JiraProjectList
-              projectId={'381be2c1-012f-44c7-818a-6d78f4ad2067'}
-              selectedProject={''}
+              projectId={currentProject.id}
+              selectedProject={
+                currentProject?.missionManagementCredentials || {}
+              }
               onSelectProject={async (project: any) => {
-                await updateJiraProjectOnProject(
-                  '381be2c1-012f-44c7-818a-6d78f4ad2067',
-                  { projectId: project.id, projectName: project.name }
-                );
+                try {
+                  //@ts-ignore
+                  setCurrentProject((prev: Project) => ({
+                    ...prev,
+                    missionManagementCredentials: {
+                      //@ts-ignore
+                      ...prev.missionManagementCredentials,
+                      name: project.name,
+                    },
+                  }));
+                  await updateJiraProjectOnProject(currentProject.id, {
+                    projectId: project.id,
+                    projectName: project.name,
+                  });
+                } catch (err) {
+                  console.log(err);
+                }
               }}
             />
           ) : (

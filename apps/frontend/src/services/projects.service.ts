@@ -5,6 +5,7 @@ import { Project } from '@packages/projects';
 export const projectsService = {
   getProjects: async (): Promise<Project[]> => {
     const response = await api.get<Project[]>('/projects');
+    console.log(response.data);
     return response.data;
   },
 

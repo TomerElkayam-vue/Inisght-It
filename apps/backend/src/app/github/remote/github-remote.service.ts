@@ -1,18 +1,18 @@
-import { Injectable, Inject } from "@nestjs/common";
-import { CACHE_MANAGER } from "@nestjs/cache-manager";
-import { Cache } from "cache-manager";
-import { GithubRemoteRepository } from "./github-remote.reposetory";
-import { GithubRepository } from "../db/github.reposetory";
-import { ProjectsSerivce } from "../../projects/project.service";
+import { Injectable, Inject } from '@nestjs/common';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
+import { GithubRemoteRepository } from './github-remote.reposetory';
+import { GithubRepository } from '../db/github.reposetory';
+import { ProjectsSerivce } from '../../projects/project.service';
 import {
   GitHubComment,
   UserSpecificStats,
   RepositoryContributor,
   SprintCommentsPerUser,
-} from "@packages/github";
-import { JiraService } from "../../jira/jira.service";
-import { EmployeeService } from "../../employee/employee.service";
-import { PrismaService } from "../../prisma/prisma.service";
+} from '@packages/github';
+import { JiraService } from '../../jira/jira.service';
+import { EmployeeService } from '../../employee/employee.service';
+import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
 export class GithubRemoteService {
@@ -49,7 +49,7 @@ export class GithubRemoteService {
     );
 
     if (cachedData) {
-      console.log("cached");
+      console.log('cached');
     }
     const sprints = await this.jiraService.getJiraSprints(
       projectManagmentSettings?.missionManagementCredentials
@@ -98,21 +98,25 @@ export class GithubRemoteService {
 
             return {
               ...rest,
-              login: employee?.displayName ?? "",
+              login: employee?.displayName ?? '',
               employeeId:
-                employee?.id ?? "381be2c1-012f-44c7-818a-6d78f4ad2067",
+                employee?.id ?? '381be2c1-012f-44c7-818a-6d78f4ad2067',
             };
           }),
       })
     );
 
     // Store the sprint stats in the database
-    const projectId = "381be2c1-012f-44c7-818a-6d78f4ad2067"; // TODO: REPLACE WITH THE PROJECT ID
+    const projectId = '381be2c1-012f-44c7-818a-6d78f4ad2067'; // TODO: REPLACE WITH THE PROJECT ID
 
-    await this.GithubRepository.storeSprintStats(
-      projectId,
-      sprintStatsWithDispalyName
-    );
+    try {
+      await this.GithubRepository.storeSprintStats(
+        projectId,
+        sprintStatsWithDispalyName
+      );
+    } catch (err) {
+      console.log('There was an error while storing the data');
+    }
 
     await this.cacheManager.set(cacheKey, sprintStatsWithDispalyName, 300000);
     return sprintStatsWithDispalyName;
@@ -129,7 +133,7 @@ export class GithubRemoteService {
     const cachedData = await this.cacheManager.get<UserSpecificStats>(cacheKey);
 
     if (cachedData) {
-      console.log("last cache");
+      console.log('last cache');
     }
 
     const userSpecificStats =
@@ -193,7 +197,7 @@ export class GithubRemoteService {
         },
       },
       orderBy: {
-        startDate: "asc",
+        startDate: 'asc',
       },
     });
 
