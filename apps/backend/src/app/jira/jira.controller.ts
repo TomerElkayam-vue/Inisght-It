@@ -19,13 +19,21 @@ export class JiraController {
   getJiraIssuesCountBySprint(
     @Param('statType') statType: JiraDataType,
     @Query('projectId') projectId: string,
+    @Query('teamStats') teamStats: boolean = false,
     @Req() req: any
   ) {
     if (req.projectCredentials?.missionManagementCredentials?.id) {
-      return this.jiraService.countJiraStatsPerUser(
-        req.projectCredentials?.missionManagementCredentials,
-        statType
-      );
+      if (teamStats) {
+        return this.jiraService.countJiraStatsPerSprint(
+          req.projectCredentials?.missionManagementCredentials,
+          statType
+        );
+      } else {
+        return this.jiraService.countJiraStatsPerUser(
+          req.projectCredentials?.missionManagementCredentials,
+          statType
+        );
+      }
     }
     return [];
   }

@@ -86,6 +86,34 @@ export class JiraService {
     return this.getStatsWithEmployeesUsername(issueCounts);
   }
 
+  async countJiraStatsPerSprint(
+    jiraSettings: JiraSettings,
+    jiraDataType: JiraDataType
+  ): Promise<JiraUserStatsDTO> {
+    const sprints = await this.getJiraSprints(jiraSettings);
+
+    const issues = await this.getJiraIssues(jiraSettings, jiraDataType);
+    const issueCounts: JiraUserStatsDTO = {};
+
+    sprints.forEach(
+      (sprint) =>
+        (issueCounts[sprint.name] =
+          JiraDtoTransformationMapper[jiraDataType].sprintInitaliztionValue)
+    );
+
+    issues.forEach(async (fields: any) => {
+      const sprint: string = fields.sprint?.name || 'Backlog';
+
+      if (issueCounts[sprint] !== undefined) {
+        issueCounts[sprint] = JiraDtoTransformationMapper[
+          jiraDataType
+        ].dataTransformation(structuredClone(issueCounts[sprint]), fields);
+      }
+    });
+
+    return issueCounts;
+  }
+
   async getStatsWithEmployeesUsername(
     stats: JiraUserStatsDTO
   ): Promise<JiraUserStatsDTO> {

@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 
 import { getPullRequestsSummery } from '../../services/github.service';
-import { getIssuesCount } from '../../services/jira.service';
 import { UserSpecificStats } from '@packages/github';
 import { useCurrentProjectContext } from '../../context/CurrentProjectContext';
 
@@ -17,8 +16,10 @@ export const useUserData = () => {
       if (!currentProject) return;
 
       try {
-        const pullRequestsSummery = await getPullRequestsSummery(currentProject.id);
-        
+        const pullRequestsSummery = await getPullRequestsSummery(
+          currentProject.id
+        );
+
         const userStatsInAllSprints: UserSpecificStats = {
           login: 'TomerElkayam-vue',
           pullRequests: [],
@@ -26,6 +27,7 @@ export const useUserData = () => {
           averagePrTime: 0,
           totalPrTime: 0,
           totalReviewComments: 0,
+          employeeId: '',
         };
 
         pullRequestsSummery.forEach((sprint) => {
@@ -42,12 +44,13 @@ export const useUserData = () => {
             userStats?.averageCommentsPerPR || 0;
           userStatsInAllSprints.averagePrTime += userStats?.averagePrTime || 0;
         });
-        userStatsInAllSprints.averageCommentsPerPR /= pullRequestsSummery.length;
+        userStatsInAllSprints.averageCommentsPerPR /=
+          pullRequestsSummery.length;
         userStatsInAllSprints.averagePrTime /= pullRequestsSummery.length;
 
         setUserReviewsData(userStatsInAllSprints);
 
-        const issuesCount = await getIssuesCount(currentProject.id);
+        const issuesCount = [{ name: 'tomer', stats: { 'sprint 1': 1 } }];
 
         const currUserStats = issuesCount.find(
           (userStats) => userStats.name === 'Shachar Shemesh'
