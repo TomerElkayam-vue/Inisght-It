@@ -45,13 +45,7 @@ export class GithubRemoteService {
     projectId: string
   ): Promise<SprintCommentsPerUser[]> {
     const cacheKey = `project-stats-${owner}-${repo}`;
-    const cachedData = await this.cacheManager.get<SprintCommentsPerUser[]>(
-      cacheKey
-    );
 
-    if (cachedData) {
-      console.log('cached');
-    }
     const sprints = await this.jiraService.getJiraSprints(
       projectManagmentSettings?.missionManagementCredentials,
       projectId
@@ -129,11 +123,7 @@ export class GithubRemoteService {
     endDate: string | null
   ): Promise<UserSpecificStats> {
     const cacheKey = `user-stats-${owner}-${repo}-${username}-${startDate}-${endDate}`;
-    const cachedData = await this.cacheManager.get<UserSpecificStats>(cacheKey);
 
-    if (cachedData) {
-      console.log('last cache');
-    }
 
     const userSpecificStats =
       await this.GithubRemoteRepository.getCommentsRecivedForUser(

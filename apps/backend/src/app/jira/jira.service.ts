@@ -44,11 +44,7 @@ export class JiraService {
   }
 
   async getJiraSprints(jiraSettings: JiraSettings, projectId: string) {
-    const cachedData = ''; // await this.cacheManager.get<JiraSprintDto[]>(cacheKey);
 
-    if (cachedData) {
-      console.log('Nice cache');
-    }
 
     let jiraSprints = [];
     try {
