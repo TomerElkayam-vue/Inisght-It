@@ -29,6 +29,7 @@ export class ProjectsRepository {
       cursor,
       where,
       orderBy,
+      include: { projectPermissions: { include: { user: true, role: true } } },
     });
   }
 

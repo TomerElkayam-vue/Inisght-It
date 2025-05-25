@@ -1,6 +1,6 @@
 import { api } from './api.config';
 
-import { Project } from '@packages/projects';
+import { Project, ProjectUpdateInput } from '@packages/projects';
 
 export const projectsService = {
   getProjects: async (): Promise<Project[]> => {
@@ -23,7 +23,7 @@ export const projectsService = {
 
   updateProject: async (
     id: string,
-    project: Partial<Project>
+    project: ProjectUpdateInput
   ): Promise<Project> => {
     const response = await api.put<Project>(`/projects/${id}`, project);
     return response.data;
