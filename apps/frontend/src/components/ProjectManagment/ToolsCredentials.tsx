@@ -15,7 +15,6 @@ const ToolCredentials = () => {
   } = useProjectManagementContext();
 
   const { currentProject, setCurrentProject } = useCurrentProjectContext();
-  console.log(currentProject);
 
   const [searchParams] = useSearchParams();
 
@@ -44,7 +43,7 @@ const ToolCredentials = () => {
     const clientId = 'At6ejbAFMkAUdSJ25XfbMLSJiMLpxVHe';
     const redirectUri = `http://localhost:3000/api/jira/callback?projectId=${currentProject?.id}`;
     const scopes =
-      'read:jira-user read:jira-work read:board-scope:jira-software read:project:jira read:board-scope.admin:jira-software read:issue-details:jira read:sprint:jira-software';
+      'read:jira-user read:jira-work read:board-scope:jira-software read:project:jira read:board-scope.admin:jira-software read:issue-details:jira read:sprint:jira-software offline_access';
 
     const authUrl = `https://auth.atlassian.com/authorize?audience=api.atlassian.com&client_id=${clientId}&scope=${encodeURIComponent(
       scopes

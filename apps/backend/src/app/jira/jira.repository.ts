@@ -96,9 +96,44 @@ export class JiraRepository {
 
       const { data } = await axios.request(config);
 
-      return data.access_token;
+      return {
+        accessToken: data.access_token,
+        refreshToken: data.refresh_token,
+      };
     } catch (error: any) {
-      console.log(error);
+      if (error.response?.status === 401) {
+        throw new UnauthorizedException('Invalid Jira token');
+      }
+      throw error;
+    }
+  }
+
+  async refreshJiraToken(currentRefreshToken: string): Promise<any> {
+    try {
+      const body = JSON.stringify({
+        grant_type: 'refresh_token',
+        client_id: this.jiraConfigValues.clientId,
+        client_secret: this.jiraConfigValues.clientSecret,
+        refresh_token: currentRefreshToken,
+      });
+
+      const config = {
+        method: 'post',
+        maxBodyLength: Infinity,
+        url: 'https://auth.atlassian.com/oauth/token',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        data: body,
+      };
+
+      const { data } = await axios.request(config);
+
+      return {
+        accessToken: data.access_token,
+        refreshToken: data.refresh_token,
+      };
+    } catch (error: any) {
       if (error.response?.status === 401) {
         throw new UnauthorizedException('Invalid Jira token');
       }
@@ -118,8 +153,6 @@ export class JiraRepository {
       );
 
       return data;
-    } catch (e) {
-      console.log(e);
-    }
+    } catch (e) {}
   }
 }

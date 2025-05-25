@@ -41,7 +41,8 @@ export class GithubRemoteService {
   async getProjectStats(
     owner: string,
     repo: string,
-    projectManagmentSettings: any
+    projectManagmentSettings: any,
+    projectId: string
   ): Promise<SprintCommentsPerUser[]> {
     const cacheKey = `project-stats-${owner}-${repo}`;
     const cachedData = await this.cacheManager.get<SprintCommentsPerUser[]>(
@@ -52,7 +53,8 @@ export class GithubRemoteService {
       console.log('cached');
     }
     const sprints = await this.jiraService.getJiraSprints(
-      projectManagmentSettings?.missionManagementCredentials
+      projectManagmentSettings?.missionManagementCredentials,
+      projectId
     );
 
     const users = await this.getRepositoryContributors(owner, repo);
@@ -105,9 +107,6 @@ export class GithubRemoteService {
           }),
       })
     );
-
-    // Store the sprint stats in the database
-    const projectId = '381be2c1-012f-44c7-818a-6d78f4ad2067'; // TODO: REPLACE WITH THE PROJECT ID
 
     try {
       await this.GithubRepository.storeSprintStats(

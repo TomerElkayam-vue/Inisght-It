@@ -99,8 +99,6 @@ export const JiraDashboard = () => {
 
   const isMultipleDataGraph = useMemo(() => {
     if (stats && Object.values(stats).length > 0) {
-      console.log(toggle);
-      console.log(Object.values(Object.values(stats || {})[0]));
       return toggle === 'user'
         ? typeof Object.values(Object.values(stats || {})[0])[0] === 'object'
         : typeof Object.values(stats || {})[0] === 'object';
@@ -128,8 +126,6 @@ export const JiraDashboard = () => {
         : generateSingleGraphDataset(stats ?? {}),
     };
   }, [stats, sprints, isMultipleDataGraph, selectedSprint]);
-
-  console.log(chartData);
 
   return (
     <div className="flex flex-col items-center justify-center p-6 space-y-6 bg-gray-900 rounded-lg">

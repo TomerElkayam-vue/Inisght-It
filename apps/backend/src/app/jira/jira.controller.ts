@@ -26,12 +26,14 @@ export class JiraController {
       if (teamStats) {
         return this.jiraService.countJiraStatsPerSprint(
           req.projectCredentials?.missionManagementCredentials,
-          statType
+          statType,
+          projectId
         );
       } else {
         return this.jiraService.countJiraStatsPerUser(
           req.projectCredentials?.missionManagementCredentials,
-          statType
+          statType,
+          projectId
         );
       }
     }
@@ -42,7 +44,8 @@ export class JiraController {
   getJiraSprints(@Query('projectId') projectId: string, @Req() req: any) {
     if (req.projectCredentials?.missionManagementCredentials?.id) {
       return this.jiraService.getJiraSprints(
-        req.projectCredentials?.missionManagementCredentials
+        req.projectCredentials?.missionManagementCredentials,
+        projectId
       );
     } else {
       return [];
@@ -64,7 +67,8 @@ export class JiraController {
   @Get('/projects')
   async getProjects(@Query('projectId') projectId: string, @Req() req: any) {
     return this.jiraService.getJiraProjects(
-      req.projectCredentials?.missionManagementCredentials
+      req.projectCredentials?.missionManagementCredentials,
+      projectId
     );
   }
 
