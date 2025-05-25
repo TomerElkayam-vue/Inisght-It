@@ -31,7 +31,8 @@ export class GithubController {
     return this.GithubRemoteService.getProjectStats(
       owner,
       repo,
-      req.projectCredentials
+      req.projectCredentials,
+      projectId
     );
   }
 

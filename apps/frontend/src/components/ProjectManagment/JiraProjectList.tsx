@@ -31,7 +31,7 @@ export const JiraProjectList = ({
     fetchData();
   }, [projectId]);
 
-  return !loading ? (
+  return !loading && projects ? (
     <ul className="divide-y divide-gray-200 rounded-md border border-gray-300 bg-white shadow-sm">
       {projects.map((project: any) => (
         <li

@@ -125,7 +125,7 @@ export const CommentsPerUser = () => {
   }
 
   return (
-    <div className="bg-gray-900 p-4 rounded-lg h-full">
+    <div className="bg-gray-900 p-4 rounded-lg h-full flex items-center justify-center">
       <div className="h-[calc(100%-2rem)]">
         <Line options={options} data={chartData} />
       </div>

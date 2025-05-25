@@ -1,3 +1,4 @@
+import { JiraDataType } from '../components/Stats/JiraDashboard';
 import { api } from './api.config';
 
 export type IssuesCountResponse = [
@@ -8,11 +9,15 @@ export type IssuesCountResponse = [
 ];
 export type SprintResponse = string[];
 
-export const getIssuesCount = async (
-  projectId: string
-): Promise<IssuesCountResponse> => {
-  const response = await api.get<IssuesCountResponse>(
-    `/jira/issues-count-by-sprint?projectId=${projectId}`
+export const getJiraStats = async (
+  projectId: string,
+  statType: JiraDataType,
+  teamStats: boolean
+): Promise<Record<string, Record<string, any>>> => {
+  const response = await api.get<Record<string, Record<string, any>>>(
+    `/jira/stats/${statType}?projectId=${projectId}${
+      teamStats ? `&teamStats=true` : ''
+    }`
   );
   return response.data;
 };

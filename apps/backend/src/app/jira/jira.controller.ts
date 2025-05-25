@@ -1,19 +1,41 @@
-import { Body, Controller, Get, Post, Query, Req, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  Req,
+  Res,
+} from '@nestjs/common';
 import { JiraService } from './jira.service';
+import { JiraDataType } from './enums/jira-data-type.enum';
 
 @Controller('jira')
 export class JiraController {
   constructor(private readonly jiraService: JiraService) {}
 
-  @Get('issues-count-by-sprint')
+  @Get('stats/:statType')
   getJiraIssuesCountBySprint(
+    @Param('statType') statType: JiraDataType,
     @Query('projectId') projectId: string,
+    @Query('teamStats') teamStats: boolean = false,
     @Req() req: any
   ) {
     if (req.projectCredentials?.missionManagementCredentials?.id) {
-      return this.jiraService.countJiraIssuesBySprintPerUser(
-        req.projectCredentials?.missionManagementCredentials
-      );
+      if (teamStats) {
+        return this.jiraService.countJiraStatsPerSprint(
+          req.projectCredentials?.missionManagementCredentials,
+          statType,
+          projectId
+        );
+      } else {
+        return this.jiraService.countJiraStatsPerUser(
+          req.projectCredentials?.missionManagementCredentials,
+          statType,
+          projectId
+        );
+      }
     }
     return [];
   }
@@ -22,7 +44,8 @@ export class JiraController {
   getJiraSprints(@Query('projectId') projectId: string, @Req() req: any) {
     if (req.projectCredentials?.missionManagementCredentials?.id) {
       return this.jiraService.getJiraSprints(
-        req.projectCredentials?.missionManagementCredentials
+        req.projectCredentials?.missionManagementCredentials,
+        projectId
       );
     } else {
       return [];
@@ -44,7 +67,8 @@ export class JiraController {
   @Get('/projects')
   async getProjects(@Query('projectId') projectId: string, @Req() req: any) {
     return this.jiraService.getJiraProjects(
-      req.projectCredentials?.missionManagementCredentials
+      req.projectCredentials?.missionManagementCredentials,
+      projectId
     );
   }
 
