@@ -4,8 +4,7 @@ import { Project, ProjectUpdateInput } from '@packages/projects';
 
 export const projectsService = {
   getProjects: async (): Promise<Project[]> => {
-    const response = await api.get<Project[]>('/projects');
-
+    const response = await api.get<Project[]>(`/projects/user`);
     return response.data;
   },
 

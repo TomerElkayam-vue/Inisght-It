@@ -19,15 +19,14 @@ export const useUserData = () => {
         const pullRequestsSummery = await getPullRequestsSummery(
           currentProject.id
         );
-
         const userStatsInAllSprints: UserSpecificStats = {
           login: 'TomerElkayam-vue',
+          employeeId: 'TomerElkayam-vue',
           pullRequests: [],
           averageCommentsPerPR: 0,
           averagePrTime: 0,
           totalPrTime: 0,
           totalReviewComments: 0,
-          employeeId: '',
         };
 
         pullRequestsSummery.forEach((sprint) => {
@@ -74,6 +73,7 @@ export const useUserData = () => {
   const userData = useMemo(() => {
     return {
       username: 'Tomer Elkayam',
+      userId: 'TomerElkayam-vue',
       issuesCount,
       amountOfPR: userReviewsData?.pullRequests.length,
       averageCommentsPerPR: userReviewsData?.averageCommentsPerPR,

@@ -12,7 +12,9 @@ export const Navbar = () => {
   const navigate = useNavigate();
 
   const isActive = (path: string) => {
-    return location.pathname === path ? 'bg-[#23263a] text-blue-400' : 'hover:bg-[#23263a] hover:text-blue-300';
+    return location.pathname === path
+      ? 'bg-[#23263a] text-blue-400'
+      : 'hover:bg-[#23263a] hover:text-blue-300';
   };
 
   const handleLogout = () => {
@@ -21,14 +23,18 @@ export const Navbar = () => {
   };
 
   // Fetch all projects
-  const { data: projects, isLoading: isLoadingProjects, isError: isProjectsError } = useProjects();
-  
+  const {
+    data: projects,
+    isLoading: isLoadingProjects,
+    isError: isProjectsError,
+  } = useProjects();
+
   // Get current project context
   const { currentProject, setCurrentProject } = useCurrentProjectContext();
 
   // Handle project change
   const handleProjectChange = (projectId: string) => {
-    const selectedProject = projects?.find(p => p.id === projectId);
+    const selectedProject = projects?.find((p) => p.id === projectId);
     if (selectedProject) {
       setCurrentProject(selectedProject);
     }
@@ -36,7 +42,12 @@ export const Navbar = () => {
 
   // Auto-select first project if none is selected
   useEffect(() => {
-    if (!isLoadingProjects && projects && projects.length > 0 && !currentProject) {
+    if (
+      !isLoadingProjects &&
+      projects &&
+      projects.length > 0 &&
+      !currentProject
+    ) {
       setCurrentProject(projects[0]);
     }
   }, [isLoadingProjects, projects, currentProject, setCurrentProject]);
@@ -49,8 +60,12 @@ export const Navbar = () => {
   }, [isLoadingProjects, isProjectsError, navigate]);
 
   // Check if current route requires a project
-  const isProtectedRoute = ['/stats', '/insights', '/project-management'].includes(location.pathname);
-  
+  const isProtectedRoute = [
+    '/stats',
+    '/insights',
+    '/project-management',
+  ].includes(location.pathname);
+
   // Redirect to error page if trying to access protected route without a project
   useEffect(() => {
     if (isProtectedRoute && !isLoadingProjects && isProjectsError) {
@@ -58,41 +73,11 @@ export const Navbar = () => {
     }
   }, [isProtectedRoute, isLoadingProjects, isProjectsError, navigate]);
 
-  // --- Modal state ---
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newProjectName, setNewProjectName] = useState('');
-  const [error, setError] = useState('');
-  const createProjectMutation = useCreateProject();
-  const [toast, setToast] = useState<{ message: string; type: 'error' | 'success' } | null>(null);
+  const [toast, setToast] = useState<{
+    message: string;
+    type: 'error' | 'success';
+  } | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
-
-  const handleOpenModal = () => {
-    setNewProjectName('');
-    setError('');
-    setIsModalOpen(true);
-    setDrawerOpen(false);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setNewProjectName('');
-    setError('');
-  };
-
-  const handleCreateProject = async () => {
-    if (!newProjectName.trim()) {
-      setError('יש להזין שם לפרויקט');
-      return;
-    }
-    try {
-      const newProject = await createProjectMutation.mutateAsync({ name: newProjectName });
-      setCurrentProject(newProject);
-      handleCloseModal();
-    } catch (e) {
-      setToast({ message: 'אופס, משהו השתבש', type: 'error' });
-      setTimeout(() => setToast(null), 3000);
-    }
-  };
 
   return (
     <>
@@ -125,15 +110,34 @@ export const Navbar = () => {
             onClick={() => setDrawerOpen(true)}
             aria-label="פתח תפריט"
           >
-            <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
+            <svg
+              width="28"
+              height="28"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 6h16M4 12h16M4 18h16"
+              />
+            </svg>
           </button>
         </div>
       </nav>
       {/* Drawer overlay */}
       {drawerOpen && (
         <div className="fixed inset-0 z-50">
-          <div className="absolute inset-0 bg-black bg-opacity-40" onClick={() => setDrawerOpen(false)} />
-          <aside className="fixed right-0 top-0 h-full w-80 bg-[#23263a] shadow-2xl flex flex-col p-6 gap-6 animate-slideIn z-50" dir="rtl">
+          <div
+            className="absolute inset-0 bg-black bg-opacity-40"
+            onClick={() => setDrawerOpen(false)}
+          />
+          <aside
+            className="fixed right-0 top-0 h-full w-80 bg-[#23263a] shadow-2xl flex flex-col p-6 gap-6 animate-slideIn z-50"
+            dir="rtl"
+          >
             <button
               className="self-end text-gray-400 hover:text-white text-2xl font-bold focus:outline-none mb-2"
               onClick={() => setDrawerOpen(false)}
@@ -141,30 +145,55 @@ export const Navbar = () => {
             >
               ×
             </button>
-            <Link to="/stats" className={`block px-4 py-3 rounded-lg text-white text-lg font-medium transition-colors ${isActive('/stats')}`} onClick={() => setDrawerOpen(false)}>
+            <Link
+              to="/stats"
+              className={`block px-4 py-3 rounded-lg text-white text-lg font-medium transition-colors ${isActive(
+                '/stats'
+              )}`}
+              onClick={() => setDrawerOpen(false)}
+            >
               סטטיסטיקות
             </Link>
-            <Link to="/insights" className={`block px-4 py-3 rounded-lg text-white text-lg font-medium transition-colors ${isActive('/insights')}`} onClick={() => setDrawerOpen(false)}>
+            <Link
+              to="/insights"
+              className={`block px-4 py-3 rounded-lg text-white text-lg font-medium transition-colors ${isActive(
+                '/insights'
+              )}`}
+              onClick={() => setDrawerOpen(false)}
+            >
               תובנות צוותיות
             </Link>
-            <Link to="/project-management" className={`block px-4 py-3 rounded-lg text-white text-lg font-medium transition-colors ${isActive('/project-management')}`} onClick={() => setDrawerOpen(false)}>
+            <Link
+              to="/project-management"
+              className={`block px-4 py-3 rounded-lg text-white text-lg font-medium transition-colors ${isActive(
+                '/project-management'
+              )}`}
+              onClick={() => setDrawerOpen(false)}
+            >
               ניהול פרויקט
             </Link>
-            {currentProject && (<div className="flex flex-col gap-2">
-              <label className="text-white text-sm mb-1">בחר פרויקט</label>
-              <select
-                value={currentProject?.id || ''}
-                onChange={(e) => { handleProjectChange(e.target.value); setDrawerOpen(false); }}
-                className="bg-[#2b3544] text-white px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 border border-blue-900"
-                disabled={isLoadingProjects}
-              >
-                {projects?.map?.((project) => (
-                  <option key={project.id} value={project.id}>
-                    {project.name}
-                  </option>
-                ))}
-              </select>
-            </div>)}
+            {currentProject && (
+              <div className="flex flex-col gap-2">
+                <label className="text-white text-sm mb-1">בחר פרויקט</label>
+                <select
+                  value={currentProject?.id || ''}
+                  onChange={(e) => {
+                    handleProjectChange(e.target.value);
+                    setDrawerOpen(false);
+                  }}
+                  className="bg-[#2b3544] text-white px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 border border-blue-900"
+                  disabled={isLoadingProjects}
+                >
+                  {projects &&
+                    projects.length > 0 &&
+                    projects?.map((project) => (
+                      <option key={project.id} value={project.id}>
+                        {project.name}
+                      </option>
+                    ))}
+                </select>
+              </div>
+            )}
             <CreateProjectButton
               onProjectCreated={(project) => setCurrentProject(project)}
               setToast={setToast}

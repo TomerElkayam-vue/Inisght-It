@@ -22,8 +22,11 @@ export class ProjectsSerivce {
     return this.projectsRepository.getProjects(params);
   }
 
-  async createProject(data: Prisma.ProjectCreateInput): Promise<Project> {
-    return this.projectsRepository.createProject(data);
+  async createProject(
+    data: Prisma.ProjectCreateInput,
+    userId: string
+  ): Promise<Project> {
+    return this.projectsRepository.createProject(data, userId);
   }
 
   async updateProject(params: {
