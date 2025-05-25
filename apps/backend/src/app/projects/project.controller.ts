@@ -49,8 +49,15 @@ export class ProjectsController {
 
   @Post('')
   @ApiBody({ type: CreateProjectDto })
-  createProject(@Body() project: Prisma.ProjectCreateInput) {
-    return this.projectService.createProject(project);
+  createProject(
+    @Body() project: Prisma.ProjectCreateInput,
+    @Req() req: Request
+  ) {
+    const userId = req.user?.sub; // Extract user ID from the token (populated by AuthMiddleware)
+    if (!userId) {
+      throw new Error('User ID is undefined');
+    }
+    return this.projectService.createProject(project, userId);
   }
 
   @Put('/:id')

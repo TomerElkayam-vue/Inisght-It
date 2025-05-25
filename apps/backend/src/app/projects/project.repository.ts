@@ -29,13 +29,25 @@ export class ProjectsRepository {
       cursor,
       where,
       orderBy,
+      include: { projectPermissions: { include: { user: true, role: true } } },
     });
   }
 
-  async createProject(data: Prisma.ProjectCreateInput): Promise<Project> {
-    return this.prisma.project.create({
-      data,
+  async createProject(
+    data: Prisma.ProjectCreateInput,
+    userId: string
+  ): Promise<Project> {
+    const project = await this.prisma.project.create({ data });
+
+    await this.prisma.projectPermission.create({
+      data: {
+        userId,
+        projectId: project.id,
+        roleId: 1,
+      },
     });
+
+    return project;
   }
 
   async updateProject(params: {

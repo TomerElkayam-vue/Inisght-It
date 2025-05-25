@@ -1,55 +1,51 @@
-// TODO: add server logic
-
-import { useState, useMemo } from 'react';
+import { simpleUser } from './interfaces';
+import { useMemo, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { usersService } from '../../services/users.service';
+import { useCurrentProjectContext } from '../../context/CurrentProjectContext';
 import { useProjectManagementContext } from '../../context/ProjectManagementContext';
 
-// TODO: Fetch suggested names from the server
-const suggestedNames = [
-  'דנה כהן',
-  'מיכאל פרץ',
-  'יעל לוי',
-  'אמיר גולן',
-  'שירה אבידן',
-  'יובל ברנר',
-  'טליה שפירא',
-  'תומר אלקיים',
-  'נעם יפעת',
-  'ניצן חמצני',
-  'רון ארוך',
-];
-
+// TODO: add server logic
 const ProjectMembers = () => {
+  const { currentProject } = useCurrentProjectContext();
   const { employees, setEmployees } = useProjectManagementContext();
-  const [showModal, setShowModal] = useState(false);
-  const [newName, setNewName] = useState('');
 
-  const availableSuggestions = useMemo(
-    () =>
-      suggestedNames.filter(
-        (name) =>
-          !employees.find((employee) => employee.username.includes(name))
-      ),
-    [employees]
+  const [showModal, setShowModal] = useState(false);
+  const [newMember, setNewMember] = useState<simpleUser>({} as simpleUser);
+  const [searchValue, setSearchValue] = useState('');
+
+  const { data: users } = useQuery({
+    queryKey: ['users'],
+    queryFn: () => {
+      return usersService.getUsers();
+    },
+  });
+
+  const managersIds = useMemo(() => {
+    return currentProject?.projectPermissions
+      ?.filter((permission) => permission.roleId === 1)
+      ?.map((permission) => permission.user.id);
+  }, [currentProject?.projectPermissions]);
+
+  const employeesIds = useMemo(() => {
+    return employees.map((employee) => employee.id);
+  }, [employees]);
+
+  const suggestedUsers = useMemo(() => {
+    return users?.filter(
+      (user) =>
+        !(employeesIds?.includes(user.id) || managersIds?.includes(user.id))
+    );
+  }, [users, employees, managersIds]);
+
+  const [filteredUsers, setFilteredUsers] = useState<simpleUser[] | undefined>(
+    suggestedUsers
   );
 
-  const [filteredNames, setFilteredNames] =
-    useState<string[]>(availableSuggestions);
-
   const handleAdd = () => {
-    if (newName.trim()) {
-      setEmployees([
-        ...employees,
-        // TODO: change to use really suggested users
-        {
-          id: crypto.randomUUID(),
-          username: newName,
-          password: '',
-          firstName: '',
-          lastName: '',
-          createdAt: new Date(),
-        },
-      ]);
-      setNewName('');
+    if (newMember.id) {
+      setEmployees([...employees, newMember]);
+      setNewMember(newMember);
       setShowModal(false);
     }
   };
@@ -60,9 +56,11 @@ const ProjectMembers = () => {
   };
 
   const handleInputChange = (value: string) => {
-    setNewName(value);
-    const filter = availableSuggestions.filter((name) => name.includes(value));
-    setFilteredNames(filter);
+    setSearchValue(value);
+    const filter = suggestedUsers?.filter((user) =>
+      user.username.toLowerCase().includes(value.toLowerCase())
+    );
+    setFilteredUsers(filter);
   };
 
   return (
@@ -74,7 +72,11 @@ const ProjectMembers = () => {
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-lg font-bold">רשימת עובדים</h2>
           <button
-            onClick={() => setShowModal(true)}
+            onClick={() => {
+              setShowModal(true);
+              setNewMember({} as simpleUser);
+              setSearchValue('');
+            }}
             className="bg-blue-600 hover:bg-blue-700 text-white rounded-full w-8 h-8 flex items-center justify-center text-lg"
             title="הוסף עובד"
           >
@@ -109,18 +111,21 @@ const ProjectMembers = () => {
                 type="text"
                 className="w-full p-2 mb-2 rounded-md bg-[#3a3a4d] text-white focus:outline-none"
                 placeholder="שם העובד"
-                value={newName}
+                value={searchValue}
                 onChange={(e) => handleInputChange(e.target.value)}
               />
-              {filteredNames.length > 0 && newName && (
+              {filteredUsers && filteredUsers.length > 0 && searchValue && (
                 <ul className="bg-[#3a3a4d] rounded-md max-h-32 overflow-auto text-sm text-right">
-                  {filteredNames.map((name, idx) => (
+                  {filteredUsers.map((user, idx) => (
                     <li
                       key={idx}
                       className="p-2 hover:bg-blue-500 cursor-pointer"
-                      onClick={() => setNewName(name)}
+                      onClick={() => {
+                        setNewMember(user);
+                        setSearchValue(user.username);
+                      }}
                     >
-                      {name}
+                      {user.username}
                     </li>
                   ))}
                 </ul>

@@ -73,46 +73,11 @@ export const Navbar = () => {
     }
   }, [isProtectedRoute, isLoadingProjects, isProjectsError, navigate]);
 
-  // --- Modal state ---
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newProjectName, setNewProjectName] = useState('');
-  const [error, setError] = useState('');
-  const createProjectMutation = useCreateProject();
   const [toast, setToast] = useState<{
     message: string;
     type: 'error' | 'success';
   } | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
-
-  const handleOpenModal = () => {
-    setNewProjectName('');
-    setError('');
-    setIsModalOpen(true);
-    setDrawerOpen(false);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setNewProjectName('');
-    setError('');
-  };
-
-  const handleCreateProject = async () => {
-    if (!newProjectName.trim()) {
-      setError('יש להזין שם לפרויקט');
-      return;
-    }
-    try {
-      const newProject = await createProjectMutation.mutateAsync({
-        name: newProjectName,
-      });
-      setCurrentProject(newProject);
-      handleCloseModal();
-    } catch (e) {
-      setToast({ message: 'אופס, משהו השתבש', type: 'error' });
-      setTimeout(() => setToast(null), 3000);
-    }
-  };
 
   return (
     <>

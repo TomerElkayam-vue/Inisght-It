@@ -1,7 +1,6 @@
 import { useProjectManagementContext } from '../../context/ProjectManagementContext';
 import { useSearchParams } from 'react-router-dom';
 import { JiraProjectList } from './JiraProjectList';
-import { JiraService } from '../../../../backend/src/app/jira/jira.service';
 import { updateJiraProjectOnProject } from '../../services/jira.service';
 import { useCurrentProjectContext } from '../../context/CurrentProjectContext';
 import { Project } from '@prisma/client';
