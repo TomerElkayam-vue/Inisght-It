@@ -1,0 +1,6 @@
+export enum JiraDataType {
+  ISSUES = 'ISSUES',
+  STORY_POINTS = 'STORY_POINTS',
+  ISSUE_STATUS = 'ISSUE_STATUS',
+  ISSUE_TYPE = 'ISSUE_TYPE',
+}

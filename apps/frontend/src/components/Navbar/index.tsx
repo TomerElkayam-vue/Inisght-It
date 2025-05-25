@@ -5,13 +5,16 @@ import { useEffect, useState } from 'react';
 import { useProjects } from '../hooks/useProjectQueries';
 import { useCurrentProjectContext } from '../../context/CurrentProjectContext';
 import { useCreateProject } from '../hooks/useProjectQueries';
+import CreateProjectButton from './CreateProjectButton';
 
 export const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
   const isActive = (path: string) => {
-    return location.pathname === path ? 'bg-[#2b3544]' : '';
+    return location.pathname === path
+      ? 'bg-[#23263a] text-blue-400'
+      : 'hover:bg-[#23263a] hover:text-blue-300';
   };
 
   const handleLogout = () => {
@@ -79,11 +82,13 @@ export const Navbar = () => {
     message: string;
     type: 'error' | 'success';
   } | null>(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const handleOpenModal = () => {
     setNewProjectName('');
     setError('');
     setIsModalOpen(true);
+    setDrawerOpen(false);
   };
 
   const handleCloseModal = () => {
@@ -128,116 +133,125 @@ export const Navbar = () => {
           {toast.message}
         </div>
       )}
-      {/* Modal for creating a project */}
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
-          <div className="bg-[#23263a] p-8 rounded-2xl shadow-lg w-96 flex flex-col items-center">
-            <h2 className="text-xl font-bold mb-4 text-white">
-              צור פרויקט חדש
-            </h2>
-            <input
-              type="text"
-              className="w-full p-3 rounded-lg bg-[#3a3a4d] border-none focus:outline-none text-white text-right mb-4"
-              placeholder="שם הפרויקט"
-              value={newProjectName}
-              onChange={(e) => setNewProjectName(e.target.value)}
-              autoFocus
-            />
-            {error && (
-              <div className="text-red-400 mb-2 w-full text-right">{error}</div>
-            )}
-            <div className="flex gap-2 w-full">
-              <button
-                className="flex-1 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors flex items-center justify-center"
-                onClick={handleCreateProject}
-                disabled={createProjectMutation.isPending}
-              >
-                {createProjectMutation.isPending ? (
-                  <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                ) : (
-                  'צור פרויקט'
-                )}
-              </button>
-              <button
-                className="flex-1 bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors"
-                onClick={handleCloseModal}
-                disabled={createProjectMutation.isPending}
-              >
-                ביטול
-              </button>
-            </div>
-          </div>
+      {/* Top bar */}
+      <nav className="bg-[#1e2530] h-16 fixed w-full top-0 z-40 shadow-lg flex items-center justify-between px-6">
+        <div className="flex items-center gap-4">
+          <img src={logoDark} alt="Logo" className="h-10 w-auto" />
         </div>
-      )}
-      <nav className="bg-[#1e2530] h-16 fixed w-full top-0 z-40 shadow-lg">
-        <div className="container mx-auto px-4 h-full">
-          <div className="flex justify-between items-center h-full">
-            <div className="flex items-center">
-              <img src={logoDark} alt="Logo" className="h-10 w-auto" />
-            </div>
-
-            <div className="flex items-center gap-4">
-              <Link
-                to="/stats"
-                className={`text-white px-4 py-2 rounded-lg transition-colors ${isActive(
-                  '/stats'
-                )}`}
-              >
-                תובנות צוותיות
-              </Link>
-              <Link
-                to="/insights"
-                className={`text-white px-4 py-2 rounded-lg transition-colors ${isActive(
-                  '/insights'
-                )}`}
-              >
-                תובנות כל עובד/ת
-              </Link>
-              <Link
-                to="/project-management"
-                className={`text-white px-4 py-2 rounded-lg transition-colors ${isActive(
-                  '/project-management'
-                )}`}
-              >
-                ניהול פרויקט
-              </Link>
-            </div>
-
-            <div className="flex items-center gap-4">
-              {projects && projects.length > 0 && (
-                <select
-                  value={currentProject?.id || ''}
-                  onChange={(e) => handleProjectChange(e.target.value)}
-                  className="bg-[#2b3544] text-white px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  disabled={isLoadingProjects}
-                >
-                  {projects?.map((project) => (
-                    <option key={project.id} value={project.id}>
-                      {project.name}
-                    </option>
-                  ))}
-                </select>
-              )}
-              {/* Create Project Button */}
-              <button
-                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors"
-                onClick={handleOpenModal}
-              >
-                צור פרויקט
-              </button>
-              <div className="flex items-center gap-2">
-                <span className="text-white">שלום שחר שמש</span>
-                <button
-                  className="bg-[#2b3544] text-white px-4 py-2 rounded-lg hover:bg-[#353f4f] transition-colors"
-                  onClick={handleLogout}
-                >
-                  התנתק
-                </button>
-              </div>
-            </div>
-          </div>
+        <div className="flex items-center gap-4">
+          {/* Hamburger menu */}
+          <button
+            className="text-white text-2xl focus:outline-none ml-2"
+            onClick={() => setDrawerOpen(true)}
+            aria-label="פתח תפריט"
+          >
+            <svg
+              width="28"
+              height="28"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 6h16M4 12h16M4 18h16"
+              />
+            </svg>
+          </button>
         </div>
       </nav>
+      {/* Drawer overlay */}
+      {drawerOpen && (
+        <div className="fixed inset-0 z-50">
+          <div
+            className="absolute inset-0 bg-black bg-opacity-40"
+            onClick={() => setDrawerOpen(false)}
+          />
+          <aside
+            className="fixed right-0 top-0 h-full w-80 bg-[#23263a] shadow-2xl flex flex-col p-6 gap-6 animate-slideIn z-50"
+            dir="rtl"
+          >
+            <button
+              className="self-end text-gray-400 hover:text-white text-2xl font-bold focus:outline-none mb-2"
+              onClick={() => setDrawerOpen(false)}
+              aria-label="סגור תפריט"
+            >
+              ×
+            </button>
+            <Link
+              to="/stats"
+              className={`block px-4 py-3 rounded-lg text-white text-lg font-medium transition-colors ${isActive(
+                '/stats'
+              )}`}
+              onClick={() => setDrawerOpen(false)}
+            >
+              סטטיסטיקות
+            </Link>
+            <Link
+              to="/insights"
+              className={`block px-4 py-3 rounded-lg text-white text-lg font-medium transition-colors ${isActive(
+                '/insights'
+              )}`}
+              onClick={() => setDrawerOpen(false)}
+            >
+              תובנות צוותיות
+            </Link>
+            <Link
+              to="/project-management"
+              className={`block px-4 py-3 rounded-lg text-white text-lg font-medium transition-colors ${isActive(
+                '/project-management'
+              )}`}
+              onClick={() => setDrawerOpen(false)}
+            >
+              ניהול פרויקט
+            </Link>
+            {currentProject && (
+              <div className="flex flex-col gap-2">
+                <label className="text-white text-sm mb-1">בחר פרויקט</label>
+                <select
+                  value={currentProject?.id || ''}
+                  onChange={(e) => {
+                    handleProjectChange(e.target.value);
+                    setDrawerOpen(false);
+                  }}
+                  className="bg-[#2b3544] text-white px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 border border-blue-900"
+                  disabled={isLoadingProjects}
+                >
+                  {projects &&
+                    projects.length > 0 &&
+                    projects?.map((project) => (
+                      <option key={project.id} value={project.id}>
+                        {project.name}
+                      </option>
+                    ))}
+                </select>
+              </div>
+            )}
+            <CreateProjectButton
+              onProjectCreated={(project) => setCurrentProject(project)}
+              setToast={setToast}
+            />
+            <button
+              className="bg-[#2b3544] hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors font-bold mt-auto"
+              onClick={handleLogout}
+            >
+              התנתק
+            </button>
+          </aside>
+        </div>
+      )}
+      {/* Drawer animation */}
+      <style>{`
+        @keyframes slideIn {
+          from { transform: translateX(100%); }
+          to { transform: translateX(0); }
+        }
+        .animate-slideIn {
+          animation: slideIn 0.2s cubic-bezier(0.4,0,0.2,1);
+        }
+      `}</style>
     </>
   );
 };

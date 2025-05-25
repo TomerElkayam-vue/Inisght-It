@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 
 import { getPullRequestsSummery } from '../../services/github.service';
-import { getIssuesCount } from '../../services/jira.service';
 import { UserSpecificStats } from '@packages/github';
 import { useCurrentProjectContext } from '../../context/CurrentProjectContext';
 
@@ -50,7 +49,7 @@ export const useUserData = () => {
 
         setUserReviewsData(userStatsInAllSprints);
 
-        const issuesCount = await getIssuesCount(currentProject.id);
+        const issuesCount = [{ name: 'tomer', stats: { 'sprint 1': 1 } }];
 
         const currUserStats = issuesCount.find(
           (userStats) => userStats.name === 'Shachar Shemesh'

@@ -6,6 +6,8 @@ import { jiraConfig } from '../../config/jira-config';
 import { ConfigType } from '@nestjs/config';
 import axios from 'axios';
 import { JiraSettings } from './types/jira-settings.type';
+import { JiraDataType } from './enums/jira-data-type.enum';
+import { jiraDataTypeTransformation } from './mappers/jira-data-type-transformation';
 
 @Injectable()
 export class JiraRepository {
@@ -15,7 +17,10 @@ export class JiraRepository {
     private jiraConfigValues: ConfigType<typeof jiraConfig>
   ) {}
 
-  async getJiraIssues(projectSettings: JiraSettings): Promise<JiraTaskDto[]> {
+  async getJiraIssues(
+    projectSettings: JiraSettings,
+    dataType: JiraDataType
+  ): Promise<JiraTaskDto['fields'][]> {
     try {
       // TODO - replace 1 with boardId
       const response = await firstValueFrom(
@@ -24,7 +29,7 @@ export class JiraRepository {
           {
             params: {
               jql: 'sprint IS NOT EMPTY and assignee IS NOT EMPTY',
-              fields: 'assignee,sprint',
+              fields: jiraDataTypeTransformation[dataType].fields,
               maxResults: 100,
               startAt: 0,
             },
@@ -36,7 +41,9 @@ export class JiraRepository {
         )
       );
 
-      return response.data.issues;
+      return response.data.issues.map((issue: any) =>
+        jiraDataTypeTransformation[dataType].transformFunction(issue.fields)
+      );
     } catch (error) {
       console.error('Error fetching Jira issues:', error);
       return [];
@@ -89,9 +96,44 @@ export class JiraRepository {
 
       const { data } = await axios.request(config);
 
-      return data.access_token;
+      return {
+        accessToken: data.access_token,
+        refreshToken: data.refresh_token,
+      };
     } catch (error: any) {
-      console.log(error);
+      if (error.response?.status === 401) {
+        throw new UnauthorizedException('Invalid Jira token');
+      }
+      throw error;
+    }
+  }
+
+  async refreshJiraToken(currentRefreshToken: string): Promise<any> {
+    try {
+      const body = JSON.stringify({
+        grant_type: 'refresh_token',
+        client_id: this.jiraConfigValues.clientId,
+        client_secret: this.jiraConfigValues.clientSecret,
+        refresh_token: currentRefreshToken,
+      });
+
+      const config = {
+        method: 'post',
+        maxBodyLength: Infinity,
+        url: 'https://auth.atlassian.com/oauth/token',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        data: body,
+      };
+
+      const { data } = await axios.request(config);
+
+      return {
+        accessToken: data.access_token,
+        refreshToken: data.refresh_token,
+      };
+    } catch (error: any) {
       if (error.response?.status === 401) {
         throw new UnauthorizedException('Invalid Jira token');
       }
@@ -111,8 +153,6 @@ export class JiraRepository {
       );
 
       return data;
-    } catch (e) {
-      console.log(e);
-    }
+    } catch (e) {}
   }
 }

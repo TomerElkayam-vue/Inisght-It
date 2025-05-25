@@ -1,0 +1,90 @@
+import { useState } from 'react';
+import { useCreateProject } from '../hooks/useProjectQueries';
+
+interface CreateProjectButtonProps {
+  onProjectCreated: (project: any) => void;
+  setToast: (toast: { message: string; type: 'error' | 'success' } | null) => void;
+}
+
+const CreateProjectButton: React.FC<CreateProjectButtonProps> = ({ onProjectCreated, setToast }) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newProjectName, setNewProjectName] = useState('');
+  const [error, setError] = useState('');
+  const createProjectMutation = useCreateProject();
+
+  const handleOpenModal = () => {
+    setNewProjectName('');
+    setError('');
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setNewProjectName('');
+    setError('');
+  };
+
+  const handleCreateProject = async () => {
+    if (!newProjectName.trim()) {
+      setError('יש להזין שם לפרויקט');
+      return;
+    }
+    try {
+      const newProject = await createProjectMutation.mutateAsync({ name: newProjectName });
+      onProjectCreated(newProject);
+      handleCloseModal();
+    } catch (e) {
+      setToast({ message: 'אופס, משהו השתבש', type: 'error' });
+      setTimeout(() => setToast(null), 3000);
+    }
+  };
+
+  return (
+    <>
+      <button
+        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors font-bold mt-2"
+        onClick={handleOpenModal}
+      >
+        + צור פרויקט
+      </button>
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+          <div className="bg-[#23263a] p-8 rounded-2xl shadow-lg w-96 flex flex-col items-center">
+            <h2 className="text-xl font-bold mb-4 text-white">צור פרויקט חדש</h2>
+            <input
+              type="text"
+              className="w-full p-3 rounded-lg bg-[#3a3a4d] border-none focus:outline-none text-white text-right mb-4"
+              placeholder="שם הפרויקט"
+              value={newProjectName}
+              onChange={e => setNewProjectName(e.target.value)}
+              autoFocus
+            />
+            {error && <div className="text-red-400 mb-2 w-full text-right">{error}</div>}
+            <div className="flex gap-2 w-full">
+              <button
+                className="flex-1 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors flex items-center justify-center"
+                onClick={handleCreateProject}
+                disabled={createProjectMutation.isPending}
+              >
+                {createProjectMutation.isPending ? (
+                  <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                ) : (
+                  'צור פרויקט'
+                )}
+              </button>
+              <button
+                className="flex-1 bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors"
+                onClick={handleCloseModal}
+                disabled={createProjectMutation.isPending}
+              >
+                ביטול
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+};
+
+export default CreateProjectButton; 
