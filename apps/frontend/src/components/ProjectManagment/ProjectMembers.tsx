@@ -114,7 +114,7 @@ const ProjectMembers = () => {
                 value={searchValue}
                 onChange={(e) => handleInputChange(e.target.value)}
               />
-              {filteredUsers && filteredUsers.length > 0 && searchValue && (
+              {filteredUsers && filteredUsers.length > 0 && (
                 <ul className="bg-[#3a3a4d] rounded-md max-h-32 overflow-auto text-sm text-right">
                   {filteredUsers.map((user, idx) => (
                     <li
