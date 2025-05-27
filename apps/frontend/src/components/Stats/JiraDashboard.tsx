@@ -199,7 +199,7 @@ export const JiraDashboard = () => {
       {/* Dashboard Text */}
       <div className="h-96 w-full bg-gray-900 p-4 rounded flex items-center justify-center relative">
         {isLoading ? (
-          <div className="absolute inset-0 bg-[#151921] bg-opacity-90 flex items-center justify-center z-50">
+          <div className="absolute inset-0 bg-[#151921] bg-opacity-90 flex items-center justify-center z-0">
             <div className="flex flex-col items-center gap-4">
               <div className="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
               <span className="text-white text-lg">טוען מידע...</span>
