@@ -44,7 +44,7 @@ export class GithubRemoteService {
     projectManagmentSettings: any,
     projectId: string
   ): Promise<SprintCommentsPerUser[]> {
-    const {repoName: name, repoOwner :owner, token} = projectManagmentSettings?.codeRepositoryCredentials;
+    const {name, owner, token} = projectManagmentSettings?.codeRepositoryCredentials;
 
     const cacheKey = `project-stats-${owner}-${name}`;
 
