@@ -1,4 +1,4 @@
-import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { JiraTaskDto } from './dto/jira-task.dto';
@@ -44,9 +44,9 @@ export class JiraRepository {
       return response.data.issues.map((issue: any) =>
         jiraDataTypeTransformation[dataType].transformFunction(issue.fields)
       );
-    } catch (error) {
-      console.error('Error fetching Jira issues:', error);
-      return [];
+    } catch (error: any) {
+      console.log('Error', error.status);
+      throw error;
     }
   }
 
@@ -68,9 +68,9 @@ export class JiraRepository {
       );
 
       return response.data.values;
-    } catch (error) {
-      console.error('Error fetching Jira issues:', error);
-      return [];
+    } catch (error: any) {
+      console.log('Error', error.status);
+      throw error;
     }
   }
 
@@ -101,9 +101,7 @@ export class JiraRepository {
         refreshToken: data.refresh_token,
       };
     } catch (error: any) {
-      if (error.response?.status === 401) {
-        throw new UnauthorizedException('Invalid Jira token');
-      }
+      console.log('Error', error.status);
       throw error;
     }
   }
@@ -134,9 +132,7 @@ export class JiraRepository {
         refreshToken: data.refresh_token,
       };
     } catch (error: any) {
-      if (error.response?.status === 401) {
-        throw new UnauthorizedException('Invalid Jira token');
-      }
+      console.log('Error', error.status);
       throw error;
     }
   }
@@ -153,7 +149,10 @@ export class JiraRepository {
       );
 
       return data;
-    } catch (e) {}
+    } catch (e: any) {
+      console.log('Error', e.status);
+      throw e;
+    }
   }
 
   async getIssueChangelog(issueId: string, projectSettings: JiraSettings) {

@@ -9,12 +9,12 @@ export const StatsPage = () => {
       <h1 className="text-xl font-bold text-white mb-4 text-right">
         מבט על הצוות
       </h1>
-      <div className="grid grid-cols-1 gap-4 mb-10 h-[85vh]">
+      <div className="grid grid-cols-1 gap-4  h-[85vh]">
         <div className="h-full">
           <JiraDashboard />
         </div>
       </div>
-      <div className="grid grid-cols-1 gap-4 mb-4 h-[45vh]">
+      <div className="grid grid-cols-1 gap-4 mb-4 h-[55vh]">
         <div className="h-full">
           <CommentsPerUser />
         </div>

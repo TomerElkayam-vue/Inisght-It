@@ -75,6 +75,7 @@ export const JiraDashboard = () => {
       if (!currentProject) return;
 
       try {
+        setIsLoading(true);
         const statsResponse = await getJiraStats(
           currentProject.id,
           selectedDataType,
@@ -126,6 +127,13 @@ export const JiraDashboard = () => {
         : generateSingleGraphDataset(stats ?? {}),
     };
   }, [stats, sprints, isMultipleDataGraph, selectedSprint]);
+
+  const DataChart = () =>
+    isMultipleDataGraph ? (
+      <Bar options={generateGraphOptions('Issue Data')} data={chartData} />
+    ) : (
+      <Line options={generateGraphOptions('Issue Data')} data={chartData} />
+    );
 
   return (
     <div className="flex flex-col items-center justify-center p-6 space-y-6 bg-gray-900 rounded-lg">
@@ -189,11 +197,16 @@ export const JiraDashboard = () => {
         </button>
       </div>
       {/* Dashboard Text */}
-      <div className="h-96 w-full bg-gray-900 p-4 rounded flex items-center justify-center">
-        {isMultipleDataGraph ? (
-          <Bar options={generateGraphOptions('Issue Data')} data={chartData} />
+      <div className="h-96 w-full bg-gray-900 p-4 rounded flex items-center justify-center relative">
+        {isLoading ? (
+          <div className="absolute inset-0 bg-[#151921] bg-opacity-90 flex items-center justify-center z-50">
+            <div className="flex flex-col items-center gap-4">
+              <div className="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+              <span className="text-white text-lg">טוען מידע...</span>
+            </div>
+          </div>
         ) : (
-          <Line options={generateGraphOptions('Issue Data')} data={chartData} />
+          <DataChart />
         )}
       </div>
     </div>
