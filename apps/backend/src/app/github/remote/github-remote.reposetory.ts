@@ -125,6 +125,7 @@ export class GithubRemoteRepository {
       throw error;
     }
   }
+
   async getPullRequests(
     owner: string,
     repo: string,
@@ -353,6 +354,24 @@ export class GithubRemoteRepository {
           });
         }
       }
+    }
+  }
+
+  async getUsersRepositories(ghoToken: string) {
+    try {
+      const url = 'https://api.github.com/user/repos';
+      const { data } = await firstValueFrom(
+        this.httpService.get(url, {
+          headers: this.headers,
+        })
+      );
+
+      return data.map((item: { id: string, name: string; owner: { login: string; }; }) => ({id: item.id, name: item.name, owner: item.owner.login}));
+    } catch (error: any) {
+      if (error.response?.status === 401) {
+        throw new UnauthorizedException("Invalid GitHub token");
+      }
+      throw error;
     }
   }
 }

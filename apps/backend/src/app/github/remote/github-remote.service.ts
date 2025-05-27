@@ -210,4 +210,8 @@ export class GithubRemoteService {
       })),
     }));
   }
+
+  async getUsersRepositories(ghoToken: string) {
+    return this.GithubRemoteRepository.getUsersRepositories(ghoToken);
+  }
 }
