@@ -17,24 +17,13 @@ import { PrismaService } from "../../prisma/prisma.service";
 @Injectable()
 export class GithubRemoteRepository {
   private readonly baseUrl = "https://api.github.com";
-  private readonly headers: Record<string, string>;
 
   constructor(
     @Inject(githubConfig.KEY)
     private githubConfigValues: config.ConfigType<typeof githubConfig>,
     private httpService: HttpService,
     private readonly prisma: PrismaService
-  ) {
-    const token = this.githubConfigValues.token;
-    if (!token) {
-      throw new Error("GitHub token not found in environment variables");
-    }
-
-    this.headers = {
-      Authorization: `Bearer ${token}`,
-      Accept: "application/vnd.github.v3+json",
-    };
-  }
+  ) {}
 
   private calculateCommentsStats(
     reviewComments: GitHubComment[]
@@ -60,6 +49,7 @@ export class GithubRemoteRepository {
   async getCommentsRecivedForUser(
     owner: string,
     repo: string,
+    token: string,
     startDate: string | null,
     endDate: string | null,
     username: string
@@ -69,6 +59,7 @@ export class GithubRemoteRepository {
       const pullRequests = await this.getPullRequests(
         owner,
         repo,
+        token,
         startDate,
         endDate,
         "all"
@@ -129,6 +120,7 @@ export class GithubRemoteRepository {
   async getPullRequests(
     owner: string,
     repo: string,
+    token: string,
     startDate: string | null,
     endDate: string | null,
     state: "open" | "closed" | "all" = "all"
@@ -137,7 +129,10 @@ export class GithubRemoteRepository {
       const url = `${this.baseUrl}/repos/${owner}/${repo}/pulls`;
       const { data } = await firstValueFrom(
         this.httpService.get<GitHubPullRequest[]>(url, {
-          headers: this.headers,
+          headers: {
+              Authorization: `Bearer ${token}`,
+              Accept: "application/vnd.github.v3+json",
+            },
           params: {
             state,
             sort: "updated",
@@ -158,7 +153,7 @@ export class GithubRemoteRepository {
       const pullRequestsWithComments = await Promise.all(
         filtered.map(async (pr) => {
           const [reviewComments] = await Promise.all([
-            this.getPullRequestComments(owner, repo, pr.number),
+            this.getPullRequestComments(owner, repo, token, pr.number),
           ]);
 
           return {
@@ -188,12 +183,15 @@ export class GithubRemoteRepository {
     }
   }
 
-  async getPullRequestComments(owner: string, repo: string, prNumber: number) {
+  async getPullRequestComments(owner: string, repo: string, token: string, prNumber: number) {
     try {
       const url = `${this.baseUrl}/repos/${owner}/${repo}/pulls/${prNumber}/comments`;
       const { data } = await firstValueFrom(
         this.httpService.get<GitHubComment[]>(url, {
-          headers: this.headers,
+          headers: {
+              Authorization: `Bearer ${token}`,
+              Accept: "application/vnd.github.v3+json",
+            },
         })
       );
 
@@ -208,13 +206,17 @@ export class GithubRemoteRepository {
 
   async getRepositoryContributors(
     owner: string,
-    repo: string
+    repo: string,
+    token: string,
   ): Promise<RepositoryContributor[]> {
     try {
       const url = `${this.baseUrl}/repos/${owner}/${repo}/contributors`;
       const { data } = await firstValueFrom(
         this.httpService.get<RepositoryContributor[]>(url, {
-          headers: this.headers,
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/vnd.github.v3+json",
+          },
         })
       );
 
@@ -260,6 +262,7 @@ export class GithubRemoteRepository {
   async getOpenPullRequestsBetweenDates(
     owner: string,
     repo: string,
+    token: string,
     startDate: string,
     endDate: string,
     username: string
@@ -268,7 +271,10 @@ export class GithubRemoteRepository {
       const url = `${this.baseUrl}/search/issues?q=type:pr+author:${username}+repo:${owner}/${repo}+created:${startDate}..${endDate}`;
       const { data } = await firstValueFrom(
         this.httpService.get(url, {
-          headers: this.headers,
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/vnd.github.v3+json",
+          },
         })
       );
 
@@ -357,12 +363,15 @@ export class GithubRemoteRepository {
     }
   }
 
-  async getUsersRepositories(ghoToken: string) {
+  async getUsersRepositories(token: string) {
     try {
       const url = 'https://api.github.com/user/repos';
       const { data } = await firstValueFrom(
         this.httpService.get(url, {
-          headers: this.headers,
+          headers: {
+              Authorization: `Bearer ${token}`,
+              Accept: "application/vnd.github.v3+json",
+            },
         })
       );
 

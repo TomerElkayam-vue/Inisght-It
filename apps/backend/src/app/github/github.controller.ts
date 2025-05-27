@@ -1,24 +1,21 @@
-import { Controller, Get, Param, Query, Res, Req, Body, Post } from '@nestjs/common';
+import { Controller, Get, Query, Res, Req, Body, Post } from '@nestjs/common';
 import { GithubRemoteService } from './remote/github-remote.service';
+import { GithubService } from './db/github.service';
 import { SprintCommentsPerUser } from '@packages/github';
 
 @Controller('github')
 export class GithubController {
   constructor(
     private readonly GithubRemoteService: GithubRemoteService,
+    private readonly GithubService: GithubService,
   ) {}
   //TODO: REPLACE WITH PATH WITH ONLY PROJECT ID
-  @Get(':owner/:repo/project-stats')
+  @Get('/project-stats')
   async getProjectStats(
-    @Param('owner') owner: string,
-    @Param('repo') repo: string,
     @Query('projectId') projectId: string,
     @Req() req: any
   ): Promise<SprintCommentsPerUser[]> {
-    //@ts-ignore
     return this.GithubRemoteService.getProjectStats(
-      owner,
-      repo,
       req.projectCredentials,
       projectId
     );
@@ -28,16 +25,15 @@ export class GithubController {
   async getUsersRepositories(
     @Query('projectId') projectId: string, 
     @Req() req: any) {
-    return this.GithubRemoteService.getUsersRepositories(req.projectCredentials.ghoToken);
+    return this.GithubRemoteService.getUsersRepositories(req.projectCredentials.codeRepositoryCredentials.token);
   }
 
   @Post('/update-github-project')
   async updateGithubProject(
     @Query('projectId') projectId: string, 
-    @Body() githubProject: any,
+    @Body() githubProject: {id: string; name: string; owner: string;},
     @Req() req: any) {
-      console.log(githubProject);
-      return;
+      return this.GithubService.updateGithubProjectOnProject(projectId, githubProject);
   }
 
   @Get('/callback')

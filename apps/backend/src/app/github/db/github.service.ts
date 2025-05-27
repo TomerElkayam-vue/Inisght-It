@@ -2,17 +2,20 @@ import { Injectable } from "@nestjs/common";
 import { GithubRemoteRepository } from "../remote/github-remote.reposetory";
 import { RepositoryContributor } from "@packages/github";
 import { PrismaService } from "../../prisma/prisma.service";
+import { ProjectsSerivce } from "../../projects/project.service";
 
 @Injectable()
 export class GithubService {
   constructor(
     private readonly GithubRemoteRepository: GithubRemoteRepository,
-    private readonly prisma: PrismaService
+    private readonly prisma: PrismaService,
+    private readonly projectsService: ProjectsSerivce
   ) {}
 
   async getUserPullRequests(
     owner: string,
     repo: string,
+    token: string,
     startDate: string,
     endDate: string,
     username: string
@@ -20,6 +23,7 @@ export class GithubService {
     return this.GithubRemoteRepository.getOpenPullRequestsBetweenDates(
       owner,
       repo,
+      token,
       startDate,
       endDate,
       username
@@ -63,5 +67,24 @@ export class GithubService {
         })),
       })),
     }));
+  }
+
+  async updateGithubProjectOnProject(
+    projectId: string,
+    githubProject: { id: string; name: string; owner: string }
+  ) {
+    const currentCodeRepositoryCredentials = (
+      await this.projectsService.getProject({ id: projectId })
+    )?.codeRepositoryCredentials as any;
+
+    const settings = {
+      ...currentCodeRepositoryCredentials,
+      ...githubProject
+    };
+
+    await this.projectsService.updateProject({
+      where: { id: projectId },
+      data: { codeRepositoryCredentials: settings },
+    });
   }
 }
