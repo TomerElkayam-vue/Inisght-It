@@ -161,7 +161,7 @@ export const Navbar = () => {
               )}`}
               onClick={() => setDrawerOpen(false)}
             >
-              תובנות צוותיות
+              תובנות
             </Link>
             <Link
               to="/project-management"
