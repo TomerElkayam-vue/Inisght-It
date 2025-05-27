@@ -16,71 +16,53 @@ export class JiraService {
     private readonly employeeService: EmployeeService
   ) {}
 
+  private async executeWithRefresh<T>(
+    jiraSettings: JiraSettings,
+    projectId: string,
+    operation: (settings: JiraSettings) => Promise<T>
+  ): Promise<T> {
+    try {
+      return await operation(jiraSettings);
+    } catch (err: any) {
+      if (err.status === 401 || err.response?.status === 401) {
+        console.log('Refreshing Jira token...');
+        const newToken = await this.refreshJiraToken(
+          jiraSettings.refreshToken,
+          projectId
+        );
+        const updatedSettings = { ...jiraSettings, token: newToken };
+        return await operation(updatedSettings);
+      }
+      throw err;
+    }
+  }
+
   async getJiraIssues(
     jiraSettings: JiraSettings,
     jiraDataType: JiraDataType,
     projectId: string
   ) {
-    try {
-      const issues = await this.jiraRepository.getJiraIssues(
-        jiraSettings,
-        jiraDataType
-      );
-
-      return issues;
-    } catch (err: any) {
-      if (err.status === 401) {
-        const newToken = await this.refreshJiraToken(
-          jiraSettings.refreshToken,
-          projectId
-        );
-        this.jiraRepository.getJiraIssues(
-          { ...jiraSettings, token: newToken },
-          jiraDataType
-        );
-      }
-    }
-    return [];
+    return this.executeWithRefresh(jiraSettings, projectId, (settings) =>
+      this.jiraRepository.getJiraIssues(settings, jiraDataType)
+    );
   }
 
   async getJiraSprints(jiraSettings: JiraSettings, projectId: string) {
+    const jiraSprints = await this.executeWithRefresh(
+      jiraSettings,
+      projectId,
+      (settings) => this.jiraRepository.getJiraSprints(settings)
+    );
 
-
-    let jiraSprints = [];
-    try {
-      jiraSprints = await this.jiraRepository.getJiraSprints(jiraSettings);
-      const mappedSprints = jiraSprints.map(
-        (sprint: any): JiraSprintDto => ({
-          id: sprint.id,
-          name: sprint.name,
-          startDate: sprint.startDate ?? null,
-          endDate: sprint.endDate ?? null,
-          state: sprint.state,
-        })
-      );
-
-      return mappedSprints;
-    } catch (err: any) {
-      const newToken = await this.refreshJiraToken(
-        jiraSettings.refreshToken,
-        projectId
-      );
-      jiraSprints = await this.jiraRepository.getJiraSprints({
-        ...jiraSettings,
-        token: newToken,
-      });
-      const mappedSprints = jiraSprints.map(
-        (sprint: any): JiraSprintDto => ({
-          id: sprint.id,
-          name: sprint.name,
-          startDate: sprint.startDate ?? null,
-          endDate: sprint.endDate ?? null,
-          state: sprint.state,
-        })
-      );
-
-      return mappedSprints;
-    }
+    return jiraSprints.map(
+      (sprint: any): JiraSprintDto => ({
+        id: sprint.id,
+        name: sprint.name,
+        startDate: sprint.startDate ?? null,
+        endDate: sprint.endDate ?? null,
+        state: sprint.state,
+      })
+    );
   }
 
   async countJiraStatsPerUser(
@@ -208,17 +190,9 @@ export class JiraService {
   }
 
   async getJiraProjects(jiraSettings: JiraSettings, projectId: string) {
-    try {
-      return this.jiraRepository.getJiraProjects(jiraSettings.token);
-    } catch (err: any) {
-      if (err.status === '401') {
-        const newToken = await this.refreshJiraToken(
-          jiraSettings.refreshToken,
-          projectId
-        );
-        return this.jiraRepository.getJiraProjects(newToken);
-      }
-    }
+    return this.executeWithRefresh(jiraSettings, projectId, (settings) =>
+      this.jiraRepository.getJiraProjects(settings.token)
+    );
   }
 
   async updateJiraProjectOnProject(
