@@ -6,7 +6,7 @@ import { AuthGuard } from '../components/auth/AuthGuard';
 import { PublicRoute } from '../components/auth/PublicRoute';
 import { Navigate } from 'react-router-dom';
 import { getToken } from '../services/auth.service';
-import { UserInsights } from '../components/insights/UserInsights';
+import { Insights } from '../components/insights/Insights';
 import ProjectManagement from '../components/ProjectManagment/ProjectManagment';
 import { ProjectManagementProvider } from '../context/ProjectManagementContext';
 import NoProjects from '../components/NoProjects';
@@ -40,7 +40,7 @@ export const routes: RouteObject[] = [
       },
       {
         path: '/insights',
-        element: <UserInsights />,
+        element: <Insights />,
       },
       {
         path: '/project-management',

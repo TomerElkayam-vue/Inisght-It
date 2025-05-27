@@ -138,16 +138,17 @@ export const JiraDashboard = () => {
   return (
     <div className="flex flex-col items-center justify-center p-6 space-y-6 bg-gray-900 rounded-lg">
       {/* Top Buttons */}
-      <div className="flex gap-2">
+      <div className="flex gap-3">
         {Object.entries(dataTypeToText).map(([dataType, text]) => (
           <button
             key={dataType}
             onClick={() => setSelectedDataType(dataType as JiraDataType)}
-            className={`px-3 py-1 text-sm rounded-lg shadow hover:bg-blue-600 ${
-              selectedDataType === dataType
-                ? 'bg-blue-500 text-white'
-                : 'bg-white text-gray-700'
-            }`}
+            className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-200
+        ${
+          selectedDataType === dataType
+            ? 'bg-[#f8d94e] text-black shadow-md'
+            : 'bg-[#2a2f4a] text-gray-300 hover:bg-[#3a3f5c]'
+        }`}
           >
             {text}
           </button>
@@ -156,16 +157,17 @@ export const JiraDashboard = () => {
 
       {/* Sprint Buttons */}
       {isMultipleDataGraph && toggle !== 'team' && (
-        <div className="flex gap-2">
+        <div className="flex gap-3">
           {sprints.map((sprint) => (
             <button
               key={sprint}
               onClick={() => setSelectedSprint(sprint)}
-              className={`px-3 py-1 text-sm rounded-lg shadow hover:bg-blue-600 ${
-                selectedSprint === sprint
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-white text-gray-700'
-              }`}
+              className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-200
+          ${
+            selectedSprint === sprint
+              ? 'bg-[#f8d94e] text-black shadow-md'
+              : 'bg-[#2a2f4a] text-gray-300 hover:bg-[#3a3f5c]'
+          }`}
             >
               {sprint}
             </button>
@@ -175,26 +177,30 @@ export const JiraDashboard = () => {
 
       {/* Toggle */}
       <div className="flex border rounded-full overflow-hidden shadow">
-        <button
-          onClick={() => setToggle('team')}
-          className={`px-3 py-1 text-sm font-medium ${
-            toggle === 'team'
-              ? 'bg-blue-500 text-white'
-              : 'bg-white text-gray-700'
-          }`}
-        >
-          By Team
-        </button>
-        <button
-          onClick={() => setToggle('user')}
-          className={`px-3 py-1 text-sm font-medium ${
-            toggle === 'user'
-              ? 'bg-blue-500 text-white'
-              : 'bg-white text-gray-700'
-          }`}
-        >
-          By User
-        </button>
+        <div className="inline-flex rounded-full overflow-hidden border border-[#444] bg-[#1e2235]">
+          <button
+            type="button"
+            onClick={() => setToggle('team')}
+            className={`px-4 py-1.5 text-sm font-medium transition-all duration-150 ${
+              toggle === 'team'
+                ? 'bg-[#f8d94e] text-black'
+                : 'text-gray-200 hover:bg-[#2a2f4a]'
+            }`}
+          >
+            By Team
+          </button>
+          <button
+            type="button"
+            onClick={() => setToggle('user')}
+            className={`px-4 py-1.5 text-sm font-medium transition-all duration-150 ${
+              toggle === 'user'
+                ? 'bg-[#f8d94e] text-black'
+                : 'text-gray-200 hover:bg-[#2a2f4a]'
+            }`}
+          >
+            By User
+          </button>
+        </div>
       </div>
       {/* Dashboard Text */}
       <div className="h-96 w-full bg-gray-900 p-4 rounded flex items-center justify-center relative">
