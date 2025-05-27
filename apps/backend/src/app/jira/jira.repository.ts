@@ -155,4 +155,20 @@ export class JiraRepository {
       return data;
     } catch (e) {}
   }
+
+  async getIssueChangelog(issueId: string, projectSettings: JiraSettings) {
+    const response = await firstValueFrom(
+      this.httpService.get(
+        `https://api.atlassian.com/ex/jira/${projectSettings.id}/rest/api/3/issue/${issueId}?expand=changelog`,
+        {
+          headers: {
+            Authorization: `Bearer ${projectSettings.token}`,
+            Accept: 'application/json',
+          },
+        }
+      )
+    );
+    const changelog = response.data.changelog.histories;
+    return changelog;
+  }
 }
