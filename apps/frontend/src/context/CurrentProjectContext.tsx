@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { Project } from '@packages/projects';
 
 type ProjectContextType = {
@@ -17,11 +17,23 @@ export const CurrentProjectProvider = ({
 }) => {
   const [currentProject, setCurrentProject] = useState<Project | null>(null);
 
+  const changeProject = (project: Project | null) => {
+    localStorage.setItem('currentProject', JSON.stringify(project));
+    setCurrentProject(project);
+  };
+
+  useEffect(() => {
+    const storedProject = localStorage.getItem('currentProject');
+    if (storedProject) {
+      setCurrentProject(JSON.parse(storedProject));
+    }
+  }, []);
+
   return (
     <CurrentProjectContext.Provider
       value={{
         currentProject,
-        setCurrentProject: setCurrentProject,
+        setCurrentProject: changeProject,
       }}
     >
       {children}

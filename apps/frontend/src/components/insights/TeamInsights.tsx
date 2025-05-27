@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { getAiRecommendation } from '../../services/ai.service';
 import { useUserData } from '../hooks/UseUserData';
 
-export const UserInsights = () => {
+export const TeamInsights = () => {
   const { userData } = useUserData();
   const [recommendation, setRecommendation] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
@@ -39,19 +39,13 @@ export const UserInsights = () => {
       <div className="text-white">טוען נתונים...</div>
     </div>
   ) : (
-    <div className="container mx-auto px-4 py-6">
-      <h1 className="text-2xl font-bold text-white mb-6 text-right">
-        תובנות אישיות
-      </h1>
+    <div className="bg-gray-900 rounded-xl p-6">
+      <h2 className="text-xl font-bold text-white mb-4 text-right">
+        תומר אלקיים
+      </h2>
 
-      <div className="bg-gray-900 rounded-xl p-6">
-        <h2 className="text-xl font-bold text-white mb-4 text-right">
-          תומר אלקיים
-        </h2>
-
-        <div dir="rtl" className="space-y-4 text-white mb-4">
-          {recommendation}
-        </div>
+      <div dir="rtl" className="space-y-4 text-white mb-4">
+        {recommendation}
       </div>
     </div>
   );

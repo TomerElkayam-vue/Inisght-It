@@ -20,7 +20,6 @@ import { UsersModule } from './users/user.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import { EmployeeModule } from './employee/employee.module';
 import { ScheduleModule } from '@nestjs/schedule';
-import { CronModule } from './cron/cron.module';
 import { ProjectSettingsMiddleware } from './middleware/project-settings.middleware';
 import { JiraController } from './jira/jira.controller';
 import { GithubController } from './github/github.controller';
@@ -36,7 +35,6 @@ import { ProjectsController } from './projects/project.controller';
     AuthModule,
     AiModule,
     EmployeeModule,
-    CronModule,
     ScheduleModule.forRoot(),
     CacheModule.register({
       isGlobal: true,

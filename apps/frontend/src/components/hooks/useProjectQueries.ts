@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, UseQueryResult } from '@tanstack/react-query';
 import { Project, ProjectUpdateInput } from '@packages/projects';
 import { projectsService } from '../../services/projects.service';
 import { ucs2 } from 'punycode';
@@ -20,7 +20,7 @@ export const useProjects = () => {
 };
 
 // Hook for fetching a single project
-export const useProject = (id?: string) => {
+export const useProject = (id?: string): UseQueryResult<Project, Error> => {
   return useQuery({
     queryKey: projectKeys.detail(id || ''),
     queryFn: () =>

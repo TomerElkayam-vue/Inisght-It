@@ -1,5 +1,6 @@
 import { createContext, useContext, useState } from 'react';
 import { simpleUser } from '../components/ProjectManagment/interfaces';
+import { projectsService } from '../services/projects.service';
 
 type CodeBaseCredentials = {
   repoOwner?: string;

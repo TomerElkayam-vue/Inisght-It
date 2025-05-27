@@ -30,6 +30,7 @@ const ProjectContent = () => {
 
       // Initialize employees list from project permissions
       // Filter out owners (roleId === 1) from the employees list
+
       if (currentProject.projectPermissions) {
         const memberEmployees = currentProject.projectPermissions
           .filter((permission) => permission.roleId !== 1)
@@ -46,10 +47,18 @@ const ProjectContent = () => {
     try {
       const projectPermissions = {
         deleteMany: {},
-        create: employees.map((employee) => ({
-          userId: employee.id,
-          roleId: 2, // Member role
-        })),
+        create: [
+          ...employees.map((employee) => ({
+            userId: employee.id,
+            roleId: 2, // Member role
+          })),
+          ...(currentProject.projectPermissions
+            ?.filter((permission) => permission.roleId == 1)
+            ?.map((user) => ({
+              userId: user.userId,
+              roleId: 1,
+            })) ?? []),
+        ],
       };
 
       await updateProjectMutation.mutateAsync({
