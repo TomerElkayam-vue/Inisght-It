@@ -195,6 +195,22 @@ export class JiraService {
     );
   }
 
+  async getJiraRawIssues(jiraSettings: JiraSettings, projectId: string) {
+    return this.executeWithRefresh(jiraSettings, projectId, (settings) =>
+      this.jiraRepository.getJiraIssues(settings, JiraDataType.ISSUES)
+    );
+  }
+
+  async getJiraIssueChangelog(
+    issueId: string,
+    jiraSettings: JiraSettings,
+    projectId: string
+  ) {
+    return this.executeWithRefresh(jiraSettings, projectId, (settings) =>
+      this.jiraRepository.getIssueChangelog(issueId, settings)
+    );
+  }
+
   async updateJiraProjectOnProject(
     projectId: string,
     jiraProject: { projectName: string; projectId: string }

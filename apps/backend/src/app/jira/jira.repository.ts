@@ -41,9 +41,10 @@ export class JiraRepository {
         )
       );
 
-      return response.data.issues.map((issue: any) =>
-        jiraDataTypeTransformation[dataType].transformFunction(issue.fields)
-      );
+      return response.data.issues.map((issue: any) => ({
+        ...jiraDataTypeTransformation[dataType].transformFunction(issue.fields),
+        id: issue.id,
+      }));
     } catch (error: any) {
       console.log('Error', error.status);
       throw error;
@@ -155,7 +156,15 @@ export class JiraRepository {
     }
   }
 
-  async getIssueChangelog(issueId: string, projectSettings: JiraSettings) {
+  async getIssueChangelog(
+    issueId: string,
+    projectSettings: JiraSettings
+  ): Promise<{
+    created: string;
+    toDo?: string;
+    inProgress?: string;
+    done?: string;
+  }> {
     const response = await firstValueFrom(
       this.httpService.get(
         `https://api.atlassian.com/ex/jira/${projectSettings.id}/rest/api/3/issue/${issueId}?expand=changelog`,
@@ -167,7 +176,30 @@ export class JiraRepository {
         }
       )
     );
+
     const changelog = response.data.changelog.histories;
-    return changelog;
+    const created = response.data.fields.created;
+
+    let toDo: string | undefined;
+    let inProgress: string | undefined;
+    let done: string | undefined;
+
+    for (const entry of changelog) {
+      for (const item of entry.items) {
+        if (item.field === 'status') {
+          if (!toDo && item.toString === 'To Do') {
+            toDo = entry.created;
+          }
+          if (!inProgress && item.toString === 'In Progress') {
+            inProgress = entry.created;
+          }
+          if (!done && item.toString === 'Done') {
+            done = entry.created;
+          }
+        }
+      }
+    }
+
+    return { created, toDo, inProgress, done };
   }
 }

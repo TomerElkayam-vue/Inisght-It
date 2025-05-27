@@ -7,7 +7,11 @@ export const jiraDataTypeTransformation: Record<
   [JiraDataType.ISSUES]: {
     fields: 'assignee,sprint',
     transformFunction: (fields: any) => {
-      return { assignee: fields.assignee, sprint: fields.sprint };
+      return {
+        assignee: fields.assignee,
+        sprint: fields.sprint,
+        id: fields.id,
+      };
     },
   },
   [JiraDataType.STORY_POINTS]: {

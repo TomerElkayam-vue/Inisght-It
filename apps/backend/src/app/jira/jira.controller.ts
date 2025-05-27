@@ -40,6 +40,35 @@ export class JiraController {
     return [];
   }
 
+  @Get('issues')
+  getJiraIssues(@Query('projectId') projectId: string, @Req() req: any) {
+    if (req.projectCredentials?.missionManagementCredentials?.id) {
+      return this.jiraService.getJiraRawIssues(
+        req.projectCredentials?.missionManagementCredentials,
+        projectId
+      );
+    } else {
+      return [];
+    }
+  }
+
+  @Get('issues/changelog/:id')
+  getJiraIssueChangelog(
+    @Param('id') issueId: string,
+    @Query('projectId') projectId: string,
+    @Req() req: any
+  ) {
+    if (req.projectCredentials?.missionManagementCredentials?.id) {
+      return this.jiraService.getJiraIssueChangelog(
+        issueId,
+        req.projectCredentials?.missionManagementCredentials,
+        projectId
+      );
+    } else {
+      return [];
+    }
+  }
+
   @Get('sprints')
   getJiraSprints(@Query('projectId') projectId: string, @Req() req: any) {
     if (req.projectCredentials?.missionManagementCredentials?.id) {
