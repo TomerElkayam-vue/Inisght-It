@@ -9,7 +9,7 @@ export type GithubProjectSelectorProps = {
 
 const GithubProjectSelector = ({ githubSuccess, currentProject, onSelectProject }: GithubProjectSelectorProps) => {
   const [githubProjects, setGithubProjects] = useState<any[]>([]);
-  const [selectedGithubProject,] = useState<any>(null);
+  const [selectedGithubProject] = useState<any>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -19,10 +19,10 @@ const GithubProjectSelector = ({ githubSuccess, currentProject, onSelectProject 
     };
 
     fetchData();
-  }, [githubSuccess, currentProject]);
+  }, [currentProject]);
 
   return (
-    githubProjects.length > 0 && (
+    githubProjects.length > 0 ? (
       <div className="mt-4">
         <label className="block mb-2">בחר פרויקט מגיטהאב</label>
         <select
@@ -37,8 +37,7 @@ const GithubProjectSelector = ({ githubSuccess, currentProject, onSelectProject 
             </option>
           ))}
         </select>
-      </div>
-    )
+      </div>) : <div>{currentProject?.codeRepositoryCredentials?.name ?? ""}</div>
   );
 };
 
