@@ -29,29 +29,31 @@ export class GithubRemoteService {
   async getPullRequestComments(
     owner: string,
     repo: string,
+    token: string,
     prNumber: number
   ): Promise<GitHubComment[]> {
     return this.GithubRemoteRepository.getPullRequestComments(
       owner,
       repo,
+      token,
       prNumber
     );
   }
 
   async getProjectStats(
-    owner: string,
-    repo: string,
     projectManagmentSettings: any,
     projectId: string
   ): Promise<SprintCommentsPerUser[]> {
-    const cacheKey = `project-stats-${owner}-${repo}`;
+    const {name, owner, token} = projectManagmentSettings?.codeRepositoryCredentials;
+
+    const cacheKey = `project-stats-${owner}-${name}`;
 
     const sprints = await this.jiraService.getJiraSprints(
       projectManagmentSettings?.missionManagementCredentials,
       projectId
     );
 
-    const users = await this.getRepositoryContributors(owner, repo);
+    const users = await this.getRepositoryContributors(owner, name, token);
 
     const sprintStats = await Promise.all(
       sprints.map(async (sprint) => {
@@ -59,7 +61,8 @@ export class GithubRemoteService {
           users.map((user) =>
             this.getUserStatsPerSprint(
               owner,
-              repo,
+              name,
+              token,
               user.login,
               sprint.startDate,
               sprint.endDate
@@ -118,6 +121,7 @@ export class GithubRemoteService {
   async getUserStatsPerSprint(
     owner: string,
     repo: string,
+    token: string,
     username: string,
     startDate: string | null,
     endDate: string | null
@@ -129,6 +133,7 @@ export class GithubRemoteService {
       await this.GithubRemoteRepository.getCommentsRecivedForUser(
         owner,
         repo,
+        token,
         startDate,
         endDate,
         username
@@ -140,9 +145,10 @@ export class GithubRemoteService {
 
   async getRepositoryContributors(
     owner: string,
-    repo: string
+    repo: string,
+    token: string
   ): Promise<RepositoryContributor[]> {
-    return this.GithubRemoteRepository.getRepositoryContributors(owner, repo);
+    return this.GithubRemoteRepository.getRepositoryContributors(owner, repo, token);
   }
 
   async getUserGithubToken(code: string, projectId: string) {
@@ -159,6 +165,7 @@ export class GithubRemoteService {
   async getUserPullRequests(
     owner: string,
     repo: string,
+    token: string,
     startDate: string,
     endDate: string,
     username: string
@@ -166,6 +173,7 @@ export class GithubRemoteService {
     return this.GithubRemoteRepository.getOpenPullRequestsBetweenDates(
       owner,
       repo,
+      token,
       startDate,
       endDate,
       username
@@ -209,5 +217,9 @@ export class GithubRemoteService {
         })),
       })),
     }));
+  }
+
+  async getUsersRepositories(token: string) {
+    return this.GithubRemoteRepository.getUsersRepositories(token);
   }
 }

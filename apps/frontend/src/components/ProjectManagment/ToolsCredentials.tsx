@@ -4,11 +4,11 @@ import { JiraProjectList } from './JiraProjectList';
 import { updateJiraProjectOnProject } from '../../services/jira.service';
 import { useCurrentProjectContext } from '../../context/CurrentProjectContext';
 import { Project } from '@prisma/client';
+import GithubProjectSelector from './GithubProjectSelector';
+import { updateGithubProject } from '../../services/github.service';
 
 const ToolCredentials = () => {
   const {
-    codeBaseCredentials,
-    setCodeBaseCredentials,
     managementCredentials,
     setManagementCredentials: setJiraCredentials,
   } = useProjectManagementContext();
@@ -18,12 +18,7 @@ const ToolCredentials = () => {
   const [searchParams] = useSearchParams();
 
   const jiraSuccess = searchParams.get('jira-successs');
-
-  const handleGithubChange =
-    (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
-      const newValue = { ...codeBaseCredentials, [field]: e.target.value };
-      setCodeBaseCredentials(newValue);
-    };
+  const githubSuccess = searchParams.get('github-successs');
 
   const handleJiraChange =
     (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -68,24 +63,27 @@ const ToolCredentials = () => {
             חבר את גיטהאב
           </button>
         </div>
-        <div className="mt-4">
-          <label className="block mb-2">Repo Owner</label>
-          <input
-            type="text"
-            value={codeBaseCredentials?.repoOwner ?? ''}
-            onChange={handleGithubChange('repoOwner')}
-            className="w-full p-3 rounded-lg bg-[#3a3a4d] border-none focus:outline-none text-white text-right"
-          />
-        </div>
-        <div className="mt-4">
-          <label className="block mb-2">Repo Name</label>
-          <input
-            type="text"
-            value={codeBaseCredentials?.repoName ?? ''}
-            onChange={handleGithubChange('repoName')}
-            className="w-full p-3 rounded-lg bg-[#3a3a4d] border-none focus:outline-none text-white text-right"
-          />
-        </div>
+        <GithubProjectSelector
+          githubSuccess={githubSuccess}
+          currentProject={currentProject}
+          onSelectProject={async (project: string) => {
+            const selectedRepo = JSON.parse(project);
+            try {
+              //@ts-ignore
+              setCurrentProject((prev: Project) => ({
+                ...prev,
+                codeRepositoryCredentials: {
+                  //@ts-ignore
+                  ...prev.codeRepositoryCredentials,
+                  ...selectedRepo
+                },
+              }));
+              await updateGithubProject(currentProject?.id ?? "", selectedRepo);
+            } catch (err) {
+              console.log(err);
+            }
+          }}
+        />
       </div>
 
       <div
