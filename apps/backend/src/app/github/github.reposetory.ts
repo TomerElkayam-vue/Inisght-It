@@ -11,8 +11,8 @@ import {
   RepositoryContributor,
   SprintCommentsPerUser,
 } from "@packages/github";
-import { githubConfig } from "../../../config/github-config";
-import { PrismaService } from "../../prisma/prisma.service";
+import { githubConfig } from "../../config/github-config";
+import { PrismaService } from "../prisma/prisma.service";
 
 @Injectable()
 export class GithubRemoteRepository {

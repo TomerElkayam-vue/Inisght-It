@@ -1,5 +1,5 @@
 import { Controller, Get, Query, Res, Req, Body, Post, Param } from '@nestjs/common';
-import { GithubRemoteService } from './remote/github-remote.service';
+import { GithubRemoteService } from './github.service';
 import { SprintCommentsPerUser } from '@packages/github';
 import { GithubDataType } from './enums/github-data-type.enum';
 

@@ -1,17 +1,17 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
-import { GithubRemoteRepository } from './github-remote.reposetory';
-import { ProjectsSerivce } from '../../projects/project.service';
+import { GithubRemoteRepository } from './github.reposetory';
+import { ProjectsSerivce } from '../projects/project.service';
 import {
   GitHubComment,
   UserSpecificStats,
   RepositoryContributor,
   SprintCommentsPerUser,
 } from '@packages/github';
-import { JiraService } from '../../jira/jira.service';
-import { EmployeeService } from '../../employee/employee.service';
-import { PrismaService } from '../../prisma/prisma.service';
+import { JiraService } from '../jira/jira.service';
+import { EmployeeService } from '../employee/employee.service';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class GithubRemoteService {
