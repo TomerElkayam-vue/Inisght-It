@@ -2,7 +2,6 @@ import { Injectable, Inject } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { GithubRemoteRepository } from './github-remote.reposetory';
-import { GithubRepository } from '../db/github.reposetory';
 import { ProjectsSerivce } from '../../projects/project.service';
 import {
   GitHubComment,
@@ -18,7 +17,6 @@ import { PrismaService } from '../../prisma/prisma.service';
 export class GithubRemoteService {
   constructor(
     private readonly GithubRemoteRepository: GithubRemoteRepository,
-    private readonly GithubRepository: GithubRepository,
     private projectsService: ProjectsSerivce,
     private readonly jiraService: JiraService,
     private readonly employeeService: EmployeeService,
@@ -104,15 +102,6 @@ export class GithubRemoteService {
           }),
       })
     );
-
-    try {
-      await this.GithubRepository.storeSprintStats(
-        projectId,
-        sprintStatsWithDispalyName
-      );
-    } catch (err) {
-      console.log('There was an error while storing the data');
-    }
 
     await this.cacheManager.set(cacheKey, sprintStatsWithDispalyName, 300000);
     return sprintStatsWithDispalyName;
@@ -221,5 +210,24 @@ export class GithubRemoteService {
 
   async getUsersRepositories(token: string) {
     return this.GithubRemoteRepository.getUsersRepositories(token);
+  }
+
+  async updateGithubProjectOnProject(
+    projectId: string,
+    githubProject: { id: string; name: string; owner: string }
+  ) {
+    const currentCodeRepositoryCredentials = (
+      await this.projectsService.getProject({ id: projectId })
+    )?.codeRepositoryCredentials as any;
+
+    const settings = {
+      ...currentCodeRepositoryCredentials,
+      ...githubProject
+    };
+
+    await this.projectsService.updateProject({
+      where: { id: projectId },
+      data: { codeRepositoryCredentials: settings },
+    });
   }
 }

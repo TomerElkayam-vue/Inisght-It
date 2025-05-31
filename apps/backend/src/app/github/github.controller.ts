@@ -1,15 +1,13 @@
-import { Controller, Get, Query, Res, Req, Body, Post } from '@nestjs/common';
+import { Controller, Get, Query, Res, Req, Body, Post, Param } from '@nestjs/common';
 import { GithubRemoteService } from './remote/github-remote.service';
-import { GithubService } from './db/github.service';
 import { SprintCommentsPerUser } from '@packages/github';
+import { GithubDataType } from './enums/github-data-type.enum';
 
 @Controller('github')
 export class GithubController {
   constructor(
     private readonly GithubRemoteService: GithubRemoteService,
-    private readonly GithubService: GithubService,
   ) {}
-  //TODO: REPLACE WITH PATH WITH ONLY PROJECT ID
   @Get('/project-stats')
   async getProjectStats(
     @Query('projectId') projectId: string,
@@ -19,6 +17,31 @@ export class GithubController {
       req.projectCredentials,
       projectId
     );
+  }
+
+  @Get('stats/:statType')
+  getJiraIssuesCountBySprint(
+    @Param('statType') statType: GithubDataType,
+    @Query('projectId') projectId: string,
+    @Query('teamStats') teamStats: boolean = false,
+    @Req() req: any
+  ) {
+    if (req.projectCredentials?.codeRepositoryCredentials?.id) {
+      if (teamStats) {
+        // return this.jiraService.countJiraStatsPerSprint(
+        //   req.projectCredentials?.missionManagementCredentials,
+        //   statType,
+        //   projectId
+        // );
+      } else {
+        // return this.jiraService.countJiraStatsPerUser(
+        //   req.projectCredentials?.missionManagementCredentials,
+        //   statType,
+        //   projectId
+        // );
+      }
+    }
+    return [];
   }
 
   @Get('/users/repos')
@@ -33,7 +56,7 @@ export class GithubController {
     @Query('projectId') projectId: string, 
     @Body() githubProject: {id: string; name: string; owner: string;},
     @Req() req: any) {
-      return this.GithubService.updateGithubProjectOnProject(projectId, githubProject);
+      return this.GithubRemoteService.updateGithubProjectOnProject(projectId, githubProject);
   }
 
   @Get('/callback')
