@@ -135,4 +135,26 @@ export class GithubService {
 
     return statsWithEmployeesUsername;
   }
+
+  async getProjectStatsBySprint(
+    codeReposityCredentials: any, dataType: GithubDataType, projectId: string
+  ): Promise<any[]> {
+    const {owner, name, token} = codeReposityCredentials.codeRepositoryCredentials;
+    
+    const stats : any = {}
+
+    const sprints = await this.jiraService.getJiraSprints(codeReposityCredentials.missionManagementCredentials, projectId);
+    sprints.forEach(sprint => stats[sprint.name] = GithubDtoTransformationMapper[dataType].sprintInitaliztionValue);
+
+    const pullRequests = await this.getProjectPullRequests(owner, name, token);
+    pullRequests.forEach((pullRequest) => {
+      const sprintName = this.findSprintName(sprints, pullRequest)
+
+      if (sprintName != 'Backlog')
+        stats[sprintName] = GithubDtoTransformationMapper[dataType].dataTransformation(
+          structuredClone(stats[sprintName]), pullRequest)
+    })
+
+    return stats;
+  }
 }

@@ -10,9 +10,13 @@ export class GithubController {
   @Get('/stats/:statType')
   async getProjectStats(
     @Query('projectId') projectId: string, 
+    @Query('teamStats') teamStats: boolean = false,
     @Param('statType') statType: GithubDataType,
     @Req() req: any) {
-    return this.GithubService.getProjectStatsByUser(req.projectCredentials, statType, projectId);
+      if (teamStats)
+        return this.GithubService.getProjectStatsBySprint(req.projectCredentials, statType, projectId);
+      else
+      return this.GithubService.getProjectStatsByUser(req.projectCredentials, statType, projectId);
   }
 
   // for Tommer
