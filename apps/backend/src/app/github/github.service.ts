@@ -127,10 +127,12 @@ export class GithubService {
     })
 
     const users = await this.GithubRepository.getRepositoryContributors(owner, name, token);
-    const statsWithEmployeesUsername = await Promise.all( users.map(async user => {
+    const statsWithEmployeesUsername : any = {}; 
+
+    await Promise.all(users.map(async user => {
       const employee = await this.employeeService.findEmployeeByGithubUsername(user.login);
       const displayName = employee?.displayName ?? user.login;
-      return {[displayName] : stats[user.login]};
+      statsWithEmployeesUsername[displayName] = stats[user.login];
     }));
 
     return statsWithEmployeesUsername;
