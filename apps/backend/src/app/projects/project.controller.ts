@@ -25,7 +25,7 @@ export class ProjectsController {
   }
 
   @Get('/user')
-  getEmployeeProjects(@Req() req: Request) {
+  getUserProjects(@Req() req: Request) {
     const userId = req.user?.sub; // Extract user ID from the token (populated by AuthMiddleware)
     if (!userId) {
       throw new Error('User ID is undefined');
@@ -35,7 +35,6 @@ export class ProjectsController {
         projectPermissions: {
           some: {
             userId: userId,
-            // TODO : add permission check
           },
         },
       },

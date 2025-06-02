@@ -26,11 +26,7 @@ export class ProjectSettingsMiddleware implements NestMiddleware {
     res: Response,
     next: NextFunction
   ) {
-    // Ensure the user is authenticated
-    if (req.originalUrl.includes('callback')) {
-      console.log('skipped');
-    } else {
-      if (!req.user || !req.user.sub) {
+    if ((!req.user || !req.user.sub) && !req.originalUrl.includes('callback')) {
         throw new HttpException(
           'Unauthorized - User not authenticated',
           HttpStatus.UNAUTHORIZED
@@ -71,7 +67,6 @@ export class ProjectSettingsMiddleware implements NestMiddleware {
           any
         > | null,
       };
-    }
 
     next();
   }

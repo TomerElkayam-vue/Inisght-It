@@ -11,7 +11,10 @@ export class ProjectsRepository {
   ): Promise<Project | null> {
     return this.prisma.project.findUnique({
       where: projectWhereUniqueInput,
-      include: { projectPermissions: { include: { user: true, role: true } } },
+      include: {
+        projectPermissions: { include: { user: true, role: true } },
+        employees: true,
+      },
     });
   }
 
@@ -29,7 +32,9 @@ export class ProjectsRepository {
       cursor,
       where,
       orderBy,
-      include: { projectPermissions: { include: { user: true, role: true } } },
+      include: {
+        projectPermissions: { include: { user: true, role: true } },
+      },
     });
   }
 
