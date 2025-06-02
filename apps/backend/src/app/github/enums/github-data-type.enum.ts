@@ -1,6 +1,6 @@
 export enum GithubDataType {
   PR = 'PR',
-  APPROVE = 'APPROVE',
+  COMMITS = 'COMMITS',
   FILE_CHANGES = 'FILE_CHANGES',
   COMMENTS = 'COMMENTS',
 }

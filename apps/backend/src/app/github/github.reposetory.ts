@@ -4,125 +4,26 @@ import { HttpService } from "@nestjs/axios";
 import { firstValueFrom } from "rxjs";
 import {
   GitHubPullRequest,
-  GitHubComment,
-  UserCommentsStats,
-  UserSpecificStats,
-  UserPullRequestStats,
   RepositoryContributor,
-  SprintCommentsPerUser,
 } from "@packages/github";
 import { githubConfig } from "../../config/github-config";
-import { PrismaService } from "../prisma/prisma.service";
 
 @Injectable()
-export class GithubRemoteRepository {
+export class GithubRepository {
   private readonly baseUrl = "https://api.github.com";
 
   constructor(
     @Inject(githubConfig.KEY)
     private githubConfigValues: config.ConfigType<typeof githubConfig>,
     private httpService: HttpService,
-    private readonly prisma: PrismaService
   ) {}
-
-  private calculateCommentsStats(
-    reviewComments: GitHubComment[]
-  ): UserCommentsStats[] {
-    const userStats = new Map<string, UserCommentsStats>();
-
-    // Count review comments
-    reviewComments.forEach((comment) => {
-      const login = comment.user?.login || "unknown";
-      if (!userStats.has(login)) {
-        userStats.set(login, {
-          login,
-          reviewComments: 0,
-        });
-      }
-      const stats = userStats.get(login)!;
-      stats.reviewComments++;
-    });
-
-    return Array.from(userStats.values());
-  }
-
-  async getCommentsRecivedForUser(
-    owner: string,
-    repo: string,
-    token: string,
-    startDate: string | null,
-    endDate: string | null,
-    username: string
-  ): Promise<UserSpecificStats> {
-    try {
-      // Get all pull requests
-      const pullRequests = await this.getPullRequests(
-        owner,
-        repo,
-        token,
-        startDate,
-        endDate,
-        "all"
-      );
-
-      let totalReviewComments = 0;
-      let totalPrTime = 0;
-      const userPRs: UserPullRequestStats[] = [];
-
-      // Process each PR
-      for (const pr of pullRequests) {
-        // Only process PRs created by the user
-        if (pr.user?.login === username && pr.commentsStats) {
-          // Sum up all comments from other users on this PR
-          const otherUsersComments = pr.commentsStats
-            .filter((stat) => stat.login !== username)
-            .reduce(
-              (acc, stat) => ({
-                reviewComments: acc.reviewComments + stat.reviewComments,
-              }),
-              { reviewComments: 0 }
-            );
-
-          userPRs.push({
-            prNumber: pr.number,
-            prTitle: pr.title,
-            reviewComments: otherUsersComments.reviewComments,
-          });
-
-          totalReviewComments += otherUsersComments.reviewComments;
-
-          if (pr.created_at && pr.closed_at) {
-            const createdAt = new Date(pr.created_at);
-            const closedAt = new Date(pr.closed_at);
-            const timeDiff = closedAt.getTime() - createdAt.getTime();
-            totalPrTime += timeDiff;
-          }
-        }
-      }
-      return {
-        login: username,
-        employeeId: "",
-        totalReviewComments,
-        totalPrTime,
-        pullRequests: userPRs,
-        averageCommentsPerPR:
-          userPRs.length > 0 ? totalReviewComments / userPRs.length : 0,
-        averagePrTime: userPRs.length > 0 ? totalPrTime / userPRs.length : 0,
-      };
-    } catch (error: any) {
-      if (error.response?.status === 401) {
-        throw new UnauthorizedException("Invalid GitHub token");
-      }
-      throw error;
-    }
-  }
 
   async getPullRequests(
     owner: string,
     repo: string,
     token: string,
-    startDate: string | null,
-    endDate: string | null,
+    startDate: string | null = null,
+    endDate: string | null = null,
     state: "open" | "closed" | "all" = "all"
   ) {
     try {
@@ -136,45 +37,20 @@ export class GithubRemoteRepository {
           params: {
             state,
             sort: "updated",
-            direction: "desc",
-            per_page: 100,
+            direction: "desc"
           },
         })
       );
 
-      // Manual filtering
-      const filtered = data.filter((pr) => {
+      if (startDate && endDate) 
+      return data.filter((pr) => {
         const createdAt = new Date(pr.created_at);
         const afterStart = !startDate || createdAt >= new Date(startDate);
         const beforeEnd = !endDate || createdAt <= new Date(endDate);
         return afterStart && beforeEnd;
       });
 
-      const pullRequestsWithComments = await Promise.all(
-        filtered.map(async (pr) => {
-          const [reviewComments] = await Promise.all([
-            this.getPullRequestComments(owner, repo, token, pr.number),
-          ]);
-
-          return {
-            id: pr.id,
-            number: pr.number,
-            title: pr.title,
-            state: pr.state,
-            created_at: pr.created_at,
-            updated_at: pr.updated_at,
-            closed_at: pr.closed_at,
-            user: pr.user,
-            draft: pr.draft || false,
-            html_url: pr.html_url,
-            review_comments_url: pr.review_comments_url,
-            comments_url: pr.comments_url,
-            commentsStats: this.calculateCommentsStats(reviewComments),
-          };
-        })
-      );
-
-      return pullRequestsWithComments;
+      return data;
     } catch (error: any) {
       if (error.response?.status === 401) {
         throw new UnauthorizedException("Invalid GitHub token");
@@ -183,11 +59,16 @@ export class GithubRemoteRepository {
     }
   }
 
-  async getPullRequestComments(owner: string, repo: string, token: string, prNumber: number) {
+  async getPullRequestByNumber(
+    owner: string,
+    repo: string,
+    token: string,
+    number: number
+  ) {
     try {
-      const url = `${this.baseUrl}/repos/${owner}/${repo}/pulls/${prNumber}/comments`;
+      const url = `${this.baseUrl}/repos/${owner}/${repo}/pulls/${number}`;
       const { data } = await firstValueFrom(
-        this.httpService.get<GitHubComment[]>(url, {
+        this.httpService.get<GitHubPullRequest>(url, {
           headers: {
               Authorization: `Bearer ${token}`,
               Accept: "application/vnd.github.v3+json",
@@ -195,7 +76,33 @@ export class GithubRemoteRepository {
         })
       );
 
-      return data;
+      const {
+        id, 
+        number : prNumber,
+        created_at,
+        updated_at, 
+        closed_at, 
+        user, 
+        review_comments, 
+        commits, 
+        additions, 
+        deletions, 
+        changed_files
+      } = data;
+
+      return {
+        id, 
+        number: prNumber,
+        created_at,
+        updated_at, 
+        closed_at, 
+        user, 
+        review_comments, 
+        commits, 
+        additions, 
+        deletions, 
+        changed_files
+      };
     } catch (error: any) {
       if (error.response?.status === 401) {
         throw new UnauthorizedException("Invalid GitHub token");
@@ -284,82 +191,6 @@ export class GithubRemoteRepository {
         throw new UnauthorizedException("Invalid GitHub token");
       }
       throw error;
-    }
-  }
-
-  async storeSprintStats(
-    projectId: string,
-    sprintStats: SprintCommentsPerUser[]
-  ) {
-    console.log("=---------");
-    for (const sprint of sprintStats) {
-      // Create or update sprint
-      await this.prisma.sprint.upsert({
-        where: {
-          id: sprint.sprintId,
-        },
-        update: {
-          name: sprint.sprintName,
-          startDate: new Date(sprint.startDate),
-          endDate: new Date(sprint.endDate),
-          projectId,
-        },
-        create: {
-          id: sprint.sprintId,
-          name: sprint.sprintName,
-          startDate: new Date(sprint.startDate),
-          endDate: new Date(sprint.endDate),
-          projectId,
-        },
-      });
-
-      // Store user stats for each user in the sprint
-      for (const userStat of sprint.userStats) {
-        const userStatsRecord = await this.prisma.userStats.upsert({
-          where: {
-            sprintId_employeeId: {
-              sprintId: sprint.sprintId,
-              employeeId: userStat.employeeId,
-            },
-          },
-          update: {
-            totalReviewComments: userStat.totalReviewComments,
-            totalPrTime: userStat.totalPrTime,
-            averageCommentsPerPR: userStat.averageCommentsPerPR,
-            averagePrTime: userStat.averagePrTime,
-          },
-          create: {
-            sprintId: sprint.sprintId,
-            employeeId: userStat.employeeId,
-            totalReviewComments: userStat.totalReviewComments,
-            totalPrTime: userStat.totalPrTime,
-            averageCommentsPerPR: userStat.averageCommentsPerPR,
-            averagePrTime: userStat.averagePrTime,
-          },
-        });
-
-        // Store pull requests for each user
-        for (const pr of userStat.pullRequests) {
-          await this.prisma.pullRequest.upsert({
-            where: {
-              prNumber_userStatsId: {
-                prNumber: pr.prNumber,
-                userStatsId: userStatsRecord.id,
-              },
-            },
-            update: {
-              prTitle: pr.prTitle,
-              reviewComments: pr.reviewComments,
-            },
-            create: {
-              prNumber: pr.prNumber,
-              prTitle: pr.prTitle,
-              reviewComments: pr.reviewComments,
-              userStatsId: userStatsRecord.id,
-            },
-          });
-        }
-      }
     }
   }
 

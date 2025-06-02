@@ -1,54 +1,36 @@
 import { Controller, Get, Query, Res, Req, Body, Post, Param } from '@nestjs/common';
-import { GithubRemoteService } from './github.service';
-import { SprintCommentsPerUser } from '@packages/github';
+import { GithubService } from './github.service';
 import { GithubDataType } from './enums/github-data-type.enum';
 
 @Controller('github')
 export class GithubController {
   constructor(
-    private readonly GithubRemoteService: GithubRemoteService,
+    private readonly GithubService: GithubService,
   ) {}
-  @Get('/project-stats')
+  @Get('/stats/:statType')
   async getProjectStats(
-    @Query('projectId') projectId: string,
-    @Req() req: any
-  ): Promise<SprintCommentsPerUser[]> {
-    return this.GithubRemoteService.getProjectStats(
-      req.projectCredentials,
-      projectId
-    );
+    @Query('projectId') projectId: string, 
+    @Param('statType') statType: GithubDataType,
+    @Req() req: any) {
+    return this.GithubService.getProjectStatsByUser(req.projectCredentials, statType, projectId);
   }
 
-  @Get('stats/:statType')
-  getJiraIssuesCountBySprint(
-    @Param('statType') statType: GithubDataType,
-    @Query('projectId') projectId: string,
-    @Query('teamStats') teamStats: boolean = false,
-    @Req() req: any
-  ) {
-    if (req.projectCredentials?.codeRepositoryCredentials?.id) {
-      if (teamStats) {
-        // return this.jiraService.countJiraStatsPerSprint(
-        //   req.projectCredentials?.missionManagementCredentials,
-        //   statType,
-        //   projectId
-        // );
-      } else {
-        // return this.jiraService.countJiraStatsPerUser(
-        //   req.projectCredentials?.missionManagementCredentials,
-        //   statType,
-        //   projectId
-        // );
-      }
-    }
-    return [];
+  // for Tommer
+  @Get('/pull-requests/')
+  async getProjectPullsRequests(
+    @Query('projectId') projectId: string, 
+    @Query('startDate') startDate: string, 
+    @Query('endDate') endDate: string, 
+    @Req() req: any) {
+      const {owner, name, token} = req.projectCredentials.codeRepositoryCredentials;
+    return this.GithubService.getProjectPullRequests(owner, name, token, startDate, endDate);
   }
 
   @Get('/users/repos')
   async getUsersRepositories(
     @Query('projectId') projectId: string, 
     @Req() req: any) {
-    return this.GithubRemoteService.getUsersRepositories(req.projectCredentials.codeRepositoryCredentials.token);
+    return this.GithubService.getUsersRepositories(req.projectCredentials.codeRepositoryCredentials.token);
   }
 
   @Post('/update-github-project')
@@ -56,7 +38,7 @@ export class GithubController {
     @Query('projectId') projectId: string, 
     @Body() githubProject: {id: string; name: string; owner: string;},
     @Req() req: any) {
-      return this.GithubRemoteService.updateGithubProjectOnProject(projectId, githubProject);
+      return this.GithubService.updateGithubProjectOnProject(projectId, githubProject);
   }
 
   @Get('/callback')
@@ -67,7 +49,7 @@ export class GithubController {
     @Res() res: any,
     @Req() req: any
   ) {
-    const token = await this.GithubRemoteService.getUserGithubToken(
+    const token = await this.GithubService.getUserGithubToken(
       code,
       projectId
     );

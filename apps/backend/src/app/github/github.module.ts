@@ -2,8 +2,8 @@ import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { HttpModule } from "@nestjs/axios";
 import { GithubController } from "./github.controller";
-import { GithubRemoteService } from "./github.service";
-import { GithubRemoteRepository } from "./github.reposetory";
+import { GithubService } from "./github.service";
+import { GithubRepository } from "./github.reposetory";
 import { githubConfig } from "../../config/github-config";
 import { ProjectsModule } from "../projects/project.module";
 import { JiraModule } from "../jira/jira.module";
@@ -21,9 +21,9 @@ import { PrismaModule } from "../prisma/prisma.module";
   ],
   controllers: [GithubController],
   providers: [
-    GithubRemoteService,
-    GithubRemoteRepository,
+    GithubService,
+    GithubRepository,
   ],
-  exports: [GithubRemoteService],
+  exports: [GithubService],
 })
 export class GithubModule {}
