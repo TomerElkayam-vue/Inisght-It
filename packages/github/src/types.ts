@@ -19,29 +19,6 @@ export type GitHubUser = {
   site_admin?: boolean;
 };
 
-export type RepositoryUser = {
-  login: string;
-  id: number;
-  type: string;
-  site_admin: boolean;
-  contributions: number;
-  pullRequests: number;
-  comments: number;
-  reviews: number;
-};
-
-export type PullRequestDuration = {
-  days: number;
-  hours: number;
-  minutes: number;
-  isOpen: boolean;
-};
-
-export type UserCommentsStats = {
-  login: string;
-  reviewComments: number;
-};
-
 export type UserPullRequestStats = {
   prNumber: number;
   prTitle: string;
@@ -66,51 +43,20 @@ export type SprintCommentsPerUser = {
   userStats: UserSpecificStats[];
 };
 
-export interface ProjectCommentsStats {
-  totalPullRequests: number;
-  totalComments: number;
-  userStats: UserSpecificStats[];
-  averageCommentsPerPR: number;
-  mostActiveReviewer: {
-    login: string;
-    totalComments: number;
-  };
-}
-
 export type GitHubPullRequest = {
+  title: string;
   id: number;
   number: number;
-  title: string;
-  state: string;
   created_at: string;
   updated_at: string;
   closed_at?: string;
   user?: GitHubUser;
-  draft?: boolean;
-  html_url: string;
-  review_comments_url: string;
-  comments_url: string;
-  duration?: PullRequestDuration;
-  commentsStats?: UserCommentsStats[];
-};
-
-export type GitHubReview = {
-  id: number;
-  user?: GitHubUser;
-  state: string;
-  submitted_at: string;
-  body?: string;
-  commit_id: string;
-};
-
-export type GitHubComment = {
-  id: number;
-  user?: GitHubUser;
-  body: string;
-  created_at: string;
-  updated_at: string;
-  path: string;
-  line?: number;
+  userName?: string;
+  review_comments: number;
+  commits: number;
+  additions: number;
+  deletions: number;
+  changed_files: number;
 };
 
 export type RepositoryContributor = {

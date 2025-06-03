@@ -4,7 +4,7 @@ import { JiraSprintDto } from './dto/jira-sprint.dto';
 import { ProjectsSerivce } from '../projects/project.service';
 import { EmployeeService } from '../employee/employee.service';
 import { JiraSettings } from './types/jira-settings.type';
-import { JiraUserStatsDTO } from './dto/jira-issue-count';
+import { JiraUserStatsDTO } from './dto/jira-user-stats.dto';
 import { JiraDataType } from './enums/jira-data-type.enum';
 import { JiraDtoTransformationMapper } from './mappers/jira-dto-transformation-mapper';
 
