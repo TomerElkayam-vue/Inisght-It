@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useCurrentProjectContext } from '../../context/CurrentProjectContext';
 import { EmployeeInsights } from './EmployeeInsights';
 import { TeamInsights } from './TeamInsights';
+import { Prompt } from './Prompt';
 
 export const Insights = () => {
   const { currentProject } = useCurrentProjectContext();
@@ -47,6 +48,11 @@ export const Insights = () => {
             תובנות אישיות
           </h1>
           <EmployeeInsights employee={currentEmployee} />
+
+          <h1 className="text-2xl font-bold text-white mb-6 text-right mt-8">
+            שאלות ותשובות
+          </h1>
+          <Prompt />
         </div>
       )}
     </>

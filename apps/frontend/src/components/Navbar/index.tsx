@@ -152,7 +152,7 @@ export const Navbar = () => {
               )}`}
               onClick={() => setDrawerOpen(false)}
             >
-              סטטיסטיקות
+              תובנות צוותיות
             </Link>
             <Link
               to="/insights"
@@ -161,7 +161,7 @@ export const Navbar = () => {
               )}`}
               onClick={() => setDrawerOpen(false)}
             >
-              תובנות
+              פרופיל עובד
             </Link>
             <Link
               to="/project-management"
