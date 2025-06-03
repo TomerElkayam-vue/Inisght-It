@@ -1,4 +1,4 @@
-import { GithubDataType } from '../enums/github-data-type.enum';
+import { GithubDataType } from "../enums/github-data-type";
 
 export const GithubDtoTransformationMapper: Record<
   GithubDataType,

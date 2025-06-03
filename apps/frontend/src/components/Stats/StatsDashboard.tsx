@@ -1,12 +1,9 @@
-import { Sprint } from '@prisma/client';
 import { useEffect, useMemo, useState } from 'react';
 import {
-  getJiraStats,
   getSprints,
   SprintResponse,
 } from '../../services/jira.service';
 import { useCurrentProjectContext } from '../../context/CurrentProjectContext';
-import randomColor from 'randomcolor';
 import { Bar, Line } from 'react-chartjs-2';
 import { generateGraphOptions } from './jira/graphOptions/generateGraphOptions';
 import {
@@ -40,24 +37,24 @@ ChartJS.register(
   Legend
 );
 
-export enum JiraDataType {
-  ISSUES = 'ISSUES',
-  STORY_POINTS = 'STORY_POINTS',
-  ISSUE_STATUS = 'ISSUE_STATUS',
-  ISSUE_TYPE = 'ISSUE_TYPE',
+interface StatsDashboardProps {
+  dataTypeToText: Record<string, string>;
+  initialSelectedDataType: string;
+  fetchData: (
+    projectId: string,
+    statType: string | any,
+    teamStats: boolean
+  ) => Promise<Record<string, Record<string, any>>>;
 }
 
-const dataTypeToText: Record<JiraDataType, string> = {
-  [JiraDataType.ISSUES]: 'Issues',
-  [JiraDataType.STORY_POINTS]: 'Story Points',
-  [JiraDataType.ISSUE_STATUS]: 'Issue Status',
-  [JiraDataType.ISSUE_TYPE]: 'Issue Type',
-};
-
-export const JiraDashboard = () => {
+export const StatsDashboard = ({
+  dataTypeToText,
+  initialSelectedDataType,
+  fetchData,
+}: StatsDashboardProps) => {
   const [toggle, setToggle] = useState('user');
-  const [selectedDataType, setSelectedDataType] = useState<JiraDataType>(
-    JiraDataType.ISSUES
+  const [selectedDataType, setSelectedDataType] = useState<string>(
+    initialSelectedDataType
   );
 
   const [isLoading, setIsLoading] = useState(true);
@@ -71,12 +68,12 @@ export const JiraDashboard = () => {
   const { currentProject } = useCurrentProjectContext();
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchStats = async () => {
       if (!currentProject) return;
 
       try {
         setIsLoading(true);
-        const statsResponse = await getJiraStats(
+        const statsResponse = await fetchData(
           currentProject.id,
           selectedDataType,
           toggle === 'team'
@@ -95,8 +92,8 @@ export const JiraDashboard = () => {
       }
     };
 
-    fetchData();
-  }, [currentProject, selectedDataType, toggle]);
+    fetchStats();
+  }, [currentProject, selectedDataType, toggle, fetchData]);
 
   const isMultipleDataGraph = useMemo(() => {
     if (stats && Object.values(stats).length > 0) {
@@ -142,8 +139,8 @@ export const JiraDashboard = () => {
         {Object.entries(dataTypeToText).map(([dataType, text]) => (
           <button
             key={dataType}
-            onClick={() => setSelectedDataType(dataType as JiraDataType)}
-            className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-200
+            onClick={() => setSelectedDataType(dataType)}
+            className={`px-3 py-1.5 text-sm font-semibold rounded-md transition-all duration-200
         ${
           selectedDataType === dataType
             ? 'bg-[#f8d94e] text-black shadow-md'
@@ -162,7 +159,7 @@ export const JiraDashboard = () => {
             <button
               key={sprint}
               onClick={() => setSelectedSprint(sprint)}
-              className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-200
+              className={`px-3 py-1.5 text-sm font-semibold rounded-md transition-all duration-200
           ${
             selectedSprint === sprint
               ? 'bg-[#f8d94e] text-black shadow-md'
@@ -181,7 +178,7 @@ export const JiraDashboard = () => {
           <button
             type="button"
             onClick={() => setToggle('team')}
-            className={`px-4 py-1.5 text-sm font-medium transition-all duration-150 ${
+            className={`px-3 py-1.5 text-sm font-medium transition-all duration-150 ${
               toggle === 'team'
                 ? 'bg-[#f8d94e] text-black'
                 : 'text-gray-200 hover:bg-[#2a2f4a]'
@@ -192,7 +189,7 @@ export const JiraDashboard = () => {
           <button
             type="button"
             onClick={() => setToggle('user')}
-            className={`px-4 py-1.5 text-sm font-medium transition-all duration-150 ${
+            className={`px-3 py-1.5 text-sm font-medium transition-all duration-150 ${
               toggle === 'user'
                 ? 'bg-[#f8d94e] text-black'
                 : 'text-gray-200 hover:bg-[#2a2f4a]'
@@ -203,7 +200,7 @@ export const JiraDashboard = () => {
         </div>
       </div>
       {/* Dashboard Text */}
-      <div className="h-96 w-full bg-gray-900 p-4 rounded flex items-center justify-center relative">
+      <div className="flex-1 min-h-[20rem] w-full bg-gray-900 p-4 rounded flex items-center justify-center relative">
         {isLoading ? (
           <div className="absolute inset-0 bg-[#151921] bg-opacity-90 flex items-center justify-center z-0">
             <div className="flex flex-col items-center gap-4">
