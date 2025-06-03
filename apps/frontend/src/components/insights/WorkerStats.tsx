@@ -24,7 +24,6 @@ interface WorkerInsights {
 
 export const WorkerStats = ({ employee }: WorkerStatsProps) => {
   const { currentProject } = useCurrentProjectContext();
-  const [isHebrew, setIsHebrew] = useState(true);
   const [insights, setInsights] = useState<WorkerInsights | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -62,25 +61,6 @@ export const WorkerStats = ({ employee }: WorkerStatsProps) => {
     fetchInsights();
   }, [currentProject, employee]);
 
-  const handleLanguageToggle = async () => {
-    if (!currentProject || !insights) return;
-
-    try {
-      setIsLoading(true);
-      const response = await api.get<WorkerInsights>(
-        `/ai/worker-insights/${
-          currentProject.id
-        }/${employee}?isHebrew=${!isHebrew}`
-      );
-      setInsights(response.data);
-      setIsHebrew(!isHebrew);
-    } catch (error) {
-      console.error('Error toggling language:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   return (
     <div className="space-y-6">
       {/* GitHub and Jira Stats */}
@@ -99,38 +79,11 @@ export const WorkerStats = ({ employee }: WorkerStatsProps) => {
         />
       </div>
 
-      {/* Scroll Indicator */}
-      <div className="flex flex-col items-center gap-2 text-[#f8d94e] animate-bounce">
-        <span className="text-lg">גלול למטה לתובנות</span>
-        <svg
-          className="w-8 h-8"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M19 14l-7 7m0 0l-7-7m7 7V3"
-          />
-        </svg>
-      </div>
-
       {/* Worker Performance Summary */}
       <div className="bg-[#2a2f4a] p-6 rounded-lg">
-        <div className="flex justify-between items-center mb-4">
-          <button
-            onClick={handleLanguageToggle}
-            className="px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-200 bg-[#f8d94e] text-black hover:bg-[#e6c73d]"
-          >
-            {isHebrew ? 'Switch to English' : 'עבור לעברית'}
-          </button>
-          <h2 className="text-xl font-bold text-white text-right">
-            סיכום ביצועי העובד
-          </h2>
-        </div>
+        <h2 className="text-xl font-bold text-white mb-4 text-right">
+          סיכום ביצועי העובד
+        </h2>
         {isLoading ? (
           <div className="flex items-center justify-center py-8">
             <div className="w-8 h-8 border-4 border-[#f8d94e] border-t-transparent rounded-full animate-spin"></div>

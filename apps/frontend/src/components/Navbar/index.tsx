@@ -32,6 +32,11 @@ export const Navbar = () => {
   // Get current project context
   const { currentProject, setCurrentProject } = useCurrentProjectContext();
 
+  // Check if current user is an owner (role ID 1)
+  const isOwner = currentProject?.projectPermissions?.some(
+    (permission) => permission.roleId === 1
+  );
+
   // Handle project change
   const handleProjectChange = (projectId: string) => {
     const selectedProject = projects?.find((p) => p.id === projectId);
@@ -145,15 +150,17 @@ export const Navbar = () => {
             >
               ×
             </button>
-            <Link
-              to="/stats"
-              className={`block px-4 py-3 rounded-lg text-white text-lg font-medium transition-colors ${isActive(
-                '/stats'
-              )}`}
-              onClick={() => setDrawerOpen(false)}
-            >
-              תובנות צוותיות
-            </Link>
+            {isOwner && (
+              <Link
+                to="/stats"
+                className={`block px-4 py-3 rounded-lg text-white text-lg font-medium transition-colors ${isActive(
+                  '/stats'
+                )}`}
+                onClick={() => setDrawerOpen(false)}
+              >
+                תובנות צוותיות
+              </Link>
+            )}
             <Link
               to="/insights"
               className={`block px-4 py-3 rounded-lg text-white text-lg font-medium transition-colors ${isActive(
