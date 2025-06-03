@@ -13,7 +13,6 @@ export class ProjectsRepository {
       where: projectWhereUniqueInput,
       include: {
         projectPermissions: { include: { user: true, role: true } },
-        employees: true,
       },
     });
   }

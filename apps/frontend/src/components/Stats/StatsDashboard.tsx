@@ -1,8 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import {
-  getSprints,
-  SprintResponse,
-} from '../../services/jira.service';
+import { getSprints, SprintResponse } from '../../services/jira.service';
 import { useCurrentProjectContext } from '../../context/CurrentProjectContext';
 import { Bar, Line } from 'react-chartjs-2';
 import { generateGraphOptions } from './jira/graphOptions/generateGraphOptions';
@@ -45,14 +42,15 @@ interface StatsDashboardProps {
     statType: string | any,
     teamStats: boolean
   ) => Promise<Record<string, Record<string, any>>>;
+  isWorkerView?: boolean;
 }
 
 export const StatsDashboard = ({
   dataTypeToText,
   initialSelectedDataType,
   fetchData,
+  isWorkerView = false,
 }: StatsDashboardProps) => {
-  const [toggle, setToggle] = useState('user');
   const [selectedDataType, setSelectedDataType] = useState<string>(
     initialSelectedDataType
   );
@@ -76,7 +74,7 @@ export const StatsDashboard = ({
         const statsResponse = await fetchData(
           currentProject.id,
           selectedDataType,
-          toggle === 'team'
+          false // Always fetch user stats in worker view
         );
         setstats(statsResponse);
 
@@ -93,34 +91,23 @@ export const StatsDashboard = ({
     };
 
     fetchStats();
-  }, [currentProject, selectedDataType, toggle, fetchData]);
+  }, [currentProject, selectedDataType, fetchData]);
 
   const isMultipleDataGraph = useMemo(() => {
     if (stats && Object.values(stats).length > 0) {
-      return toggle === 'user'
-        ? typeof Object.values(Object.values(stats || {})[0])[0] === 'object'
-        : typeof Object.values(stats || {})[0] === 'object';
+      return (
+        typeof Object.values(Object.values(stats || {})[0])[0] === 'object'
+      );
     } else {
       return false;
     }
-  }, [stats, toggle]);
+  }, [stats]);
 
   const chartData = useMemo(() => {
     return {
-      labels:
-        toggle === 'team'
-          ? sprints
-          : isMultipleDataGraph
-          ? Object.keys(stats ?? [])
-          : sprints || [],
+      labels: isMultipleDataGraph ? Object.keys(stats ?? []) : sprints || [],
       datasets: isMultipleDataGraph
-        ? toggle === 'team'
-          ? generateTeamMultipleGraphDataset(stats ?? {})
-          : generateMultipleGraphDataset(stats ?? {}, selectedSprint ?? '')
-        : toggle === 'team'
-        ? generateTeamSingleGraphDataset(
-            (stats as any as Record<string, number>) ?? {}
-          )
+        ? generateMultipleGraphDataset(stats ?? {}, selectedSprint ?? '')
         : generateSingleGraphDataset(stats ?? {}),
     };
   }, [stats, sprints, isMultipleDataGraph, selectedSprint]);
@@ -134,18 +121,18 @@ export const StatsDashboard = ({
 
   return (
     <div className="flex flex-col items-center justify-center p-6 space-y-6 bg-gray-900 rounded-lg">
-      {/* Top Buttons */}
+      {/* Data Type Buttons */}
       <div className="flex gap-3">
         {Object.entries(dataTypeToText).map(([dataType, text]) => (
           <button
             key={dataType}
             onClick={() => setSelectedDataType(dataType)}
             className={`px-3 py-1.5 text-sm font-semibold rounded-md transition-all duration-200
-        ${
-          selectedDataType === dataType
-            ? 'bg-[#f8d94e] text-black shadow-md'
-            : 'bg-[#2a2f4a] text-gray-300 hover:bg-[#3a3f5c]'
-        }`}
+              ${
+                selectedDataType === dataType
+                  ? 'bg-[#f8d94e] text-black shadow-md'
+                  : 'bg-[#2a2f4a] text-gray-300 hover:bg-[#3a3f5c]'
+              }`}
           >
             {text}
           </button>
@@ -153,18 +140,18 @@ export const StatsDashboard = ({
       </div>
 
       {/* Sprint Buttons */}
-      {isMultipleDataGraph && toggle !== 'team' && (
+      {isMultipleDataGraph && (
         <div className="flex gap-3">
           {sprints.map((sprint) => (
             <button
               key={sprint}
               onClick={() => setSelectedSprint(sprint)}
               className={`px-3 py-1.5 text-sm font-semibold rounded-md transition-all duration-200
-          ${
-            selectedSprint === sprint
-              ? 'bg-[#f8d94e] text-black shadow-md'
-              : 'bg-[#2a2f4a] text-gray-300 hover:bg-[#3a3f5c]'
-          }`}
+                ${
+                  selectedSprint === sprint
+                    ? 'bg-[#f8d94e] text-black shadow-md'
+                    : 'bg-[#2a2f4a] text-gray-300 hover:bg-[#3a3f5c]'
+                }`}
             >
               {sprint}
             </button>
@@ -172,34 +159,7 @@ export const StatsDashboard = ({
         </div>
       )}
 
-      {/* Toggle */}
-      <div className="flex border rounded-full overflow-hidden shadow">
-        <div className="inline-flex rounded-full overflow-hidden border border-[#444] bg-[#1e2235]">
-          <button
-            type="button"
-            onClick={() => setToggle('team')}
-            className={`px-3 py-1.5 text-sm font-medium transition-all duration-150 ${
-              toggle === 'team'
-                ? 'bg-[#f8d94e] text-black'
-                : 'text-gray-200 hover:bg-[#2a2f4a]'
-            }`}
-          >
-            By Team
-          </button>
-          <button
-            type="button"
-            onClick={() => setToggle('user')}
-            className={`px-3 py-1.5 text-sm font-medium transition-all duration-150 ${
-              toggle === 'user'
-                ? 'bg-[#f8d94e] text-black'
-                : 'text-gray-200 hover:bg-[#2a2f4a]'
-            }`}
-          >
-            By User
-          </button>
-        </div>
-      </div>
-      {/* Dashboard Text */}
+      {/* Dashboard Chart */}
       <div className="flex-1 min-h-[20rem] w-full bg-gray-900 p-4 rounded flex items-center justify-center relative">
         {isLoading ? (
           <div className="absolute inset-0 bg-[#151921] bg-opacity-90 flex items-center justify-center z-0">
