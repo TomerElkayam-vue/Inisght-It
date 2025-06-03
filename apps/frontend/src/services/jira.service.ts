@@ -1,5 +1,11 @@
-import { JiraDataType } from '../components/Stats/JiraDashboard';
 import { api } from './api.config';
+
+export enum JiraDataType {
+  ISSUES = 'ISSUES',
+  STORY_POINTS = 'STORY_POINTS',
+  ISSUE_STATUS = 'ISSUE_STATUS',
+  ISSUE_TYPE = 'ISSUE_TYPE',
+}
 
 export type IssuesCountResponse = [
   {

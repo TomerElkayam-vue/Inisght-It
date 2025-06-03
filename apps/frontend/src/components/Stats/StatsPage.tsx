@@ -1,21 +1,42 @@
-// import { CommentsPerUser } from './CommentsPerUser';
 import { CircularProgress } from './CircularProgress';
 import { circularStats } from '../../data/mockStats';
-import { JiraDashboard } from './JiraDashboard';
-import { CodeRepositoryDashboard } from './CodeRepositoryDashboard';
+import { StatsDashboard } from './StatsDashboard';
+import { getGithubStats, GithubDataType } from '../../services/github.service';
+import { getJiraStats, JiraDataType } from '../../services/jira.service';
 
 export const StatsPage = () => {
+  const githubDataTypeToText: Record<string, string> = {
+    [GithubDataType.PR]: 'Pull Request',
+    [GithubDataType.COMMENTS]: 'Comments Review',
+    [GithubDataType.COMMITS]: 'Commits',
+    [GithubDataType.FILE_CHANGES]: 'File Changes',
+  };
+
+  const jiraDataTypeToText: Record<string, string> = {
+    [JiraDataType.ISSUES]: 'Issues',
+    [JiraDataType.STORY_POINTS]: 'Story Points',
+    [JiraDataType.ISSUE_STATUS]: 'Issue Status',
+    [JiraDataType.ISSUE_TYPE]: 'Issue Type',
+  };
+
   return (
     <div className="container mx-auto px-4 py-4">
       <div className="grid grid-cols-1 gap-4  h-[85vh]">
         <div className="h-full">
-          <JiraDashboard />
+          <StatsDashboard
+            dataTypeToText={jiraDataTypeToText}
+            initialSelectedDataType={JiraDataType.ISSUES}
+            fetchData={getJiraStats}
+          />
         </div>
       </div>
       <div className="grid grid-cols-1 gap-4 mb-4 h-[55vh]">
         <div className="h-full">
-          <CodeRepositoryDashboard/>
-          {/* <CommentsPerUser /> */}
+          <StatsDashboard
+            dataTypeToText={githubDataTypeToText}
+            initialSelectedDataType={GithubDataType.PR}
+            fetchData={getGithubStats}
+          />
         </div>
       </div>
 

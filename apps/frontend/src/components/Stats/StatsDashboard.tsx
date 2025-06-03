@@ -1,12 +1,9 @@
-import { Sprint } from '@prisma/client';
 import { useEffect, useMemo, useState } from 'react';
 import {
-  getJiraStats,
   getSprints,
   SprintResponse,
 } from '../../services/jira.service';
 import { useCurrentProjectContext } from '../../context/CurrentProjectContext';
-import randomColor from 'randomcolor';
 import { Bar, Line } from 'react-chartjs-2';
 import { generateGraphOptions } from './jira/graphOptions/generateGraphOptions';
 import {
@@ -40,24 +37,25 @@ ChartJS.register(
   Legend
 );
 
-export enum JiraDataType {
-  ISSUES = 'ISSUES',
-  STORY_POINTS = 'STORY_POINTS',
-  ISSUE_STATUS = 'ISSUE_STATUS',
-  ISSUE_TYPE = 'ISSUE_TYPE',
+// Add prop types
+interface StatsDashboardProps {
+  dataTypeToText: Record<string, string>;
+  initialSelectedDataType: string;
+  fetchData: (
+    projectId: string,
+    statType: string | any,
+    teamStats: boolean
+  ) => Promise<Record<string, Record<string, any>>>;
 }
 
-const dataTypeToText: Record<JiraDataType, string> = {
-  [JiraDataType.ISSUES]: 'Issues',
-  [JiraDataType.STORY_POINTS]: 'Story Points',
-  [JiraDataType.ISSUE_STATUS]: 'Issue Status',
-  [JiraDataType.ISSUE_TYPE]: 'Issue Type',
-};
-
-export const JiraDashboard = () => {
+export const StatsDashboard = ({
+  dataTypeToText,
+  initialSelectedDataType,
+  fetchData,
+}: StatsDashboardProps) => {
   const [toggle, setToggle] = useState('user');
-  const [selectedDataType, setSelectedDataType] = useState<JiraDataType>(
-    JiraDataType.ISSUES
+  const [selectedDataType, setSelectedDataType] = useState<string>(
+    initialSelectedDataType
   );
 
   const [isLoading, setIsLoading] = useState(true);
@@ -71,12 +69,12 @@ export const JiraDashboard = () => {
   const { currentProject } = useCurrentProjectContext();
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchStats = async () => {
       if (!currentProject) return;
 
       try {
         setIsLoading(true);
-        const statsResponse = await getJiraStats(
+        const statsResponse = await fetchData(
           currentProject.id,
           selectedDataType,
           toggle === 'team'
@@ -95,8 +93,8 @@ export const JiraDashboard = () => {
       }
     };
 
-    fetchData();
-  }, [currentProject, selectedDataType, toggle]);
+    fetchStats();
+  }, [currentProject, selectedDataType, toggle, fetchData]);
 
   const isMultipleDataGraph = useMemo(() => {
     if (stats && Object.values(stats).length > 0) {
@@ -142,7 +140,7 @@ export const JiraDashboard = () => {
         {Object.entries(dataTypeToText).map(([dataType, text]) => (
           <button
             key={dataType}
-            onClick={() => setSelectedDataType(dataType as JiraDataType)}
+            onClick={() => setSelectedDataType(dataType)}
             className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-200
         ${
           selectedDataType === dataType
