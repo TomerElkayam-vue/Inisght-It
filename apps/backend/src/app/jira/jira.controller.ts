@@ -52,6 +52,21 @@ export class JiraController {
     }
   }
 
+  @Get('issues-with-merge-requests')
+  getJiraIssuesWithMergeRequests(
+    @Query('projectId') projectId: string,
+    @Req() req: any
+  ) {
+    if (req.projectCredentials?.missionManagementCredentials?.id) {
+      return this.jiraService.getJiraIssuesWithMergeReqests(
+        req.projectCredentials,
+        projectId
+      );
+    } else {
+      return [];
+    }
+  }
+
   @Get('issues/changelog/:id')
   getJiraIssueChangelog(
     @Param('id') issueId: string,

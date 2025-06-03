@@ -29,7 +29,7 @@ export class AiRepository {
 
   async getRelatedMergeRequestTitle(
     mergeRequests: {
-      title: string;
+      title: string | undefined;
       owner: string | undefined;
       createdAt: string;
       mergedAt: string;

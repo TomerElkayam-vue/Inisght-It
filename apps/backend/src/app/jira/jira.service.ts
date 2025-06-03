@@ -7,12 +7,14 @@ import { JiraSettings } from './types/jira-settings.type';
 import { JiraUserStatsDTO } from './dto/jira-user-stats.dto';
 import { JiraDataType } from './enums/jira-data-type.enum';
 import { JiraDtoTransformationMapper } from './mappers/jira-dto-transformation-mapper';
+import { AiService } from '../ai/ai.service';
 
 @Injectable()
 export class JiraService {
   constructor(
     private readonly jiraRepository: JiraRepository,
     private projectsService: ProjectsSerivce,
+    private aiService: AiService,
     private readonly employeeService: EmployeeService
   ) {}
 
@@ -201,10 +203,12 @@ export class JiraService {
     );
   }
 
-  async getJiraRawIssues(projectSettings: ) {
-    return this.executeWithRefresh(jiraSettings, projectId, (settings) =>
-      this.jiraRepository.getJiraIssues(settings, JiraDataType.ISSUES)
+  async getJiraIssuesWithMergeReqests(projectId: string, projectSettings: any) {
+    const jiraIssues = await this.getJiraRawIssues(
+      projectSettings?.missionManagementCredentials,
+      projectId
     );
+    return this.aiService.getMergeRequestByIssue(jiraIssues, projectSettings?.codeRepositoryCredentials)
   }
 
   async getJiraIssueChangelog(

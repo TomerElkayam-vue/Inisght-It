@@ -44,7 +44,7 @@ export type SprintCommentsPerUser = {
 };
 
 export type GitHubPullRequest = {
-  title: string;
+  title?: string;
   id: number;
   number: number;
   created_at: string;

@@ -1,14 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { AiRepository } from './ai.repository';
 import { UserInfo } from './types/user-info.type';
-
-import { GithubRemoteService } from '../github/remote/github-remote.service';
+import { GithubService } from '../github/github.service';
 
 @Injectable()
 export class AiService {
   constructor(
     private readonly aiRepository: AiRepository,
-    private githubService: GithubRemoteService
+    private githubService: GithubService
   ) {}
 
   async getAiRecoomendation(userInfo: UserInfo) {
@@ -19,9 +18,6 @@ export class AiService {
     const mergeRequests = await this.githubService.getAllPullRequests(
       codeRepositoryCredentials
     );
-    return this.aiRepository.getRelatedMergeRequestTitle(
-      mergeRequests,
-      issues
-    );
+    return this.aiRepository.getRelatedMergeRequestTitle(mergeRequests, issues);
   }
 }
