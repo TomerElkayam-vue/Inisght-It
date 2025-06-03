@@ -21,7 +21,7 @@ export const StatsPage = () => {
 
   return (
     <div className="container mx-auto px-4 py-4">
-      <div className="grid grid-cols-1 gap-4  h-[85vh]">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="h-full">
           <StatsDashboard
             dataTypeToText={jiraDataTypeToText}
@@ -29,8 +29,6 @@ export const StatsPage = () => {
             fetchData={getJiraStats}
           />
         </div>
-      </div>
-      <div className="grid grid-cols-1 gap-4 mb-4 h-[55vh]">
         <div className="h-full">
           <StatsDashboard
             dataTypeToText={githubDataTypeToText}
@@ -39,8 +37,7 @@ export const StatsPage = () => {
           />
         </div>
       </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
         <CircularProgress
           value={circularStats.backlogTasks.value}
           total={circularStats.backlogTasks.total}

@@ -37,7 +37,6 @@ ChartJS.register(
   Legend
 );
 
-// Add prop types
 interface StatsDashboardProps {
   dataTypeToText: Record<string, string>;
   initialSelectedDataType: string;
@@ -141,7 +140,7 @@ export const StatsDashboard = ({
           <button
             key={dataType}
             onClick={() => setSelectedDataType(dataType)}
-            className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-200
+            className={`px-3 py-1.5 text-sm font-semibold rounded-md transition-all duration-200
         ${
           selectedDataType === dataType
             ? 'bg-[#f8d94e] text-black shadow-md'
@@ -160,7 +159,7 @@ export const StatsDashboard = ({
             <button
               key={sprint}
               onClick={() => setSelectedSprint(sprint)}
-              className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-200
+              className={`px-3 py-1.5 text-sm font-semibold rounded-md transition-all duration-200
           ${
             selectedSprint === sprint
               ? 'bg-[#f8d94e] text-black shadow-md'
@@ -179,7 +178,7 @@ export const StatsDashboard = ({
           <button
             type="button"
             onClick={() => setToggle('team')}
-            className={`px-4 py-1.5 text-sm font-medium transition-all duration-150 ${
+            className={`px-3 py-1.5 text-sm font-medium transition-all duration-150 ${
               toggle === 'team'
                 ? 'bg-[#f8d94e] text-black'
                 : 'text-gray-200 hover:bg-[#2a2f4a]'
@@ -190,7 +189,7 @@ export const StatsDashboard = ({
           <button
             type="button"
             onClick={() => setToggle('user')}
-            className={`px-4 py-1.5 text-sm font-medium transition-all duration-150 ${
+            className={`px-3 py-1.5 text-sm font-medium transition-all duration-150 ${
               toggle === 'user'
                 ? 'bg-[#f8d94e] text-black'
                 : 'text-gray-200 hover:bg-[#2a2f4a]'
@@ -201,7 +200,7 @@ export const StatsDashboard = ({
         </div>
       </div>
       {/* Dashboard Text */}
-      <div className="h-96 w-full bg-gray-900 p-4 rounded flex items-center justify-center relative">
+      <div className="flex-1 min-h-[20rem] w-full bg-gray-900 p-4 rounded flex items-center justify-center relative">
         {isLoading ? (
           <div className="absolute inset-0 bg-[#151921] bg-opacity-90 flex items-center justify-center z-0">
             <div className="flex flex-col items-center gap-4">
