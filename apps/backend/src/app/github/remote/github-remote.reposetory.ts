@@ -1,7 +1,7 @@
-import { Inject, Injectable, UnauthorizedException } from "@nestjs/common";
-import * as config from "@nestjs/config";
-import { HttpService } from "@nestjs/axios";
-import { firstValueFrom } from "rxjs";
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import * as config from '@nestjs/config';
+import { HttpService } from '@nestjs/axios';
+import { firstValueFrom } from 'rxjs';
 import {
   GitHubPullRequest,
   GitHubComment,
@@ -10,13 +10,13 @@ import {
   UserPullRequestStats,
   RepositoryContributor,
   SprintCommentsPerUser,
-} from "@packages/github";
-import { githubConfig } from "../../../config/github-config";
-import { PrismaService } from "../../prisma/prisma.service";
+} from '@packages/github';
+import { githubConfig } from '../../../config/github-config';
+import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
 export class GithubRemoteRepository {
-  private readonly baseUrl = "https://api.github.com";
+  private readonly baseUrl = 'https://api.github.com';
 
   constructor(
     @Inject(githubConfig.KEY)
@@ -32,7 +32,7 @@ export class GithubRemoteRepository {
 
     // Count review comments
     reviewComments.forEach((comment) => {
-      const login = comment.user?.login || "unknown";
+      const login = comment.user?.login || 'unknown';
       if (!userStats.has(login)) {
         userStats.set(login, {
           login,
@@ -62,7 +62,7 @@ export class GithubRemoteRepository {
         token,
         startDate,
         endDate,
-        "all"
+        'all'
       );
 
       let totalReviewComments = 0;
@@ -101,7 +101,7 @@ export class GithubRemoteRepository {
       }
       return {
         login: username,
-        employeeId: "",
+        employeeId: '',
         totalReviewComments,
         totalPrTime,
         pullRequests: userPRs,
@@ -111,7 +111,7 @@ export class GithubRemoteRepository {
       };
     } catch (error: any) {
       if (error.response?.status === 401) {
-        throw new UnauthorizedException("Invalid GitHub token");
+        throw new UnauthorizedException('Invalid GitHub token');
       }
       throw error;
     }
@@ -123,20 +123,20 @@ export class GithubRemoteRepository {
     token: string,
     startDate: string | null,
     endDate: string | null,
-    state: "open" | "closed" | "all" = "all"
+    state: 'open' | 'closed' | 'all' = 'all'
   ) {
     try {
       const url = `${this.baseUrl}/repos/${owner}/${repo}/pulls`;
       const { data } = await firstValueFrom(
         this.httpService.get<GitHubPullRequest[]>(url, {
           headers: {
-              Authorization: `Bearer ${token}`,
-              Accept: "application/vnd.github.v3+json",
-            },
+            Authorization: `Bearer ${token}`,
+            Accept: 'application/vnd.github.v3+json',
+          },
           params: {
             state,
-            sort: "updated",
-            direction: "desc",
+            sort: 'updated',
+            direction: 'desc',
             per_page: 100,
           },
         })
@@ -177,28 +177,54 @@ export class GithubRemoteRepository {
       return pullRequestsWithComments;
     } catch (error: any) {
       if (error.response?.status === 401) {
-        throw new UnauthorizedException("Invalid GitHub token");
+        throw new UnauthorizedException('Invalid GitHub token');
       }
       throw error;
     }
   }
 
-  async getPullRequestComments(owner: string, repo: string, token: string, prNumber: number) {
+  async getPullRequestComments(
+    owner: string,
+    repo: string,
+    token: string,
+    prNumber: number
+  ) {
     try {
       const url = `${this.baseUrl}/repos/${owner}/${repo}/pulls/${prNumber}/comments`;
       const { data } = await firstValueFrom(
         this.httpService.get<GitHubComment[]>(url, {
           headers: {
-              Authorization: `Bearer ${token}`,
-              Accept: "application/vnd.github.v3+json",
-            },
+            Authorization: `Bearer ${token}`,
+            Accept: 'application/vnd.github.v3+json',
+          },
         })
       );
 
       return data;
     } catch (error: any) {
       if (error.response?.status === 401) {
-        throw new UnauthorizedException("Invalid GitHub token");
+        throw new UnauthorizedException('Invalid GitHub token');
+      }
+      throw error;
+    }
+  }
+
+  async getAllPullRequests(owner: string, repo: string, token: string) {
+    try {
+      const url = `${this.baseUrl}/repos/${owner}/${repo}/pulls?state=all`;
+      const { data } = await firstValueFrom(
+        this.httpService.get<GitHubPullRequest[]>(url, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: 'application/vnd.github.v3+json',
+          },
+        })
+      );
+
+      return data;
+    } catch (error: any) {
+      if (error.response?.status === 401) {
+        throw new UnauthorizedException('Invalid GitHub token');
       }
       throw error;
     }
@@ -207,7 +233,7 @@ export class GithubRemoteRepository {
   async getRepositoryContributors(
     owner: string,
     repo: string,
-    token: string,
+    token: string
   ): Promise<RepositoryContributor[]> {
     try {
       const url = `${this.baseUrl}/repos/${owner}/${repo}/contributors`;
@@ -215,7 +241,7 @@ export class GithubRemoteRepository {
         this.httpService.get<RepositoryContributor[]>(url, {
           headers: {
             Authorization: `Bearer ${token}`,
-            Accept: "application/vnd.github.v3+json",
+            Accept: 'application/vnd.github.v3+json',
           },
         })
       );
@@ -223,7 +249,7 @@ export class GithubRemoteRepository {
       return data;
     } catch (error: any) {
       if (error.response?.status === 401) {
-        throw new UnauthorizedException("Invalid GitHub token");
+        throw new UnauthorizedException('Invalid GitHub token');
       }
       throw error;
     }
@@ -243,8 +269,8 @@ export class GithubRemoteRepository {
           },
           {
             headers: {
-              Accept: "application/json",
-              "Content-Type": "application/json",
+              Accept: 'application/json',
+              'Content-Type': 'application/json',
             },
           }
         )
@@ -253,7 +279,7 @@ export class GithubRemoteRepository {
       return data.access_token;
     } catch (error: any) {
       if (error.response?.status === 401) {
-        throw new UnauthorizedException("Invalid GitHub token");
+        throw new UnauthorizedException('Invalid GitHub token');
       }
       throw error;
     }
@@ -273,7 +299,7 @@ export class GithubRemoteRepository {
         this.httpService.get(url, {
           headers: {
             Authorization: `Bearer ${token}`,
-            Accept: "application/vnd.github.v3+json",
+            Accept: 'application/vnd.github.v3+json',
           },
         })
       );
@@ -281,7 +307,7 @@ export class GithubRemoteRepository {
       return data.items;
     } catch (error: any) {
       if (error.response?.status === 401) {
-        throw new UnauthorizedException("Invalid GitHub token");
+        throw new UnauthorizedException('Invalid GitHub token');
       }
       throw error;
     }
@@ -291,7 +317,7 @@ export class GithubRemoteRepository {
     projectId: string,
     sprintStats: SprintCommentsPerUser[]
   ) {
-    console.log("=---------");
+    console.log('=---------');
     for (const sprint of sprintStats) {
       // Create or update sprint
       await this.prisma.sprint.upsert({
@@ -369,16 +395,22 @@ export class GithubRemoteRepository {
       const { data } = await firstValueFrom(
         this.httpService.get(url, {
           headers: {
-              Authorization: `Bearer ${token}`,
-              Accept: "application/vnd.github.v3+json",
-            },
+            Authorization: `Bearer ${token}`,
+            Accept: 'application/vnd.github.v3+json',
+          },
         })
       );
 
-      return data.map((item: { id: string, name: string; owner: { login: string; }; }) => ({id: item.id, name: item.name, owner: item.owner.login}));
+      return data.map(
+        (item: { id: string; name: string; owner: { login: string } }) => ({
+          id: item.id,
+          name: item.name,
+          owner: item.owner.login,
+        })
+      );
     } catch (error: any) {
       if (error.response?.status === 401) {
-        throw new UnauthorizedException("Invalid GitHub token");
+        throw new UnauthorizedException('Invalid GitHub token');
       }
       throw error;
     }

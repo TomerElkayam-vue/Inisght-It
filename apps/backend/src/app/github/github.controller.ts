@@ -7,7 +7,7 @@ import { SprintCommentsPerUser } from '@packages/github';
 export class GithubController {
   constructor(
     private readonly GithubRemoteService: GithubRemoteService,
-    private readonly GithubService: GithubService,
+    private readonly GithubService: GithubService
   ) {}
   //TODO: REPLACE WITH PATH WITH ONLY PROJECT ID
   @Get('/project-stats')
@@ -23,17 +23,34 @@ export class GithubController {
 
   @Get('/users/repos')
   async getUsersRepositories(
-    @Query('projectId') projectId: string, 
-    @Req() req: any) {
-    return this.GithubRemoteService.getUsersRepositories(req.projectCredentials.codeRepositoryCredentials.token);
+    @Query('projectId') projectId: string,
+    @Req() req: any
+  ) {
+    return this.GithubRemoteService.getUsersRepositories(
+      req.projectCredentials.codeRepositoryCredentials.token
+    );
+  }
+
+  @Get('/all/pull')
+  async getAllPullRequests(
+    @Query('projectId') projectId: string,
+    @Req() req: any
+  ) {
+    return this.GithubRemoteService.getAllPullRequests(
+      req.projectCredentials.codeRepositoryCredentials
+    );
   }
 
   @Post('/update-github-project')
   async updateGithubProject(
-    @Query('projectId') projectId: string, 
-    @Body() githubProject: {id: string; name: string; owner: string;},
-    @Req() req: any) {
-      return this.GithubService.updateGithubProjectOnProject(projectId, githubProject);
+    @Query('projectId') projectId: string,
+    @Body() githubProject: { id: string; name: string; owner: string },
+    @Req() req: any
+  ) {
+    return this.GithubService.updateGithubProjectOnProject(
+      projectId,
+      githubProject
+    );
   }
 
   @Get('/callback')
@@ -50,6 +67,8 @@ export class GithubController {
     );
 
     // For dev: pass token in URL (insecure for prod)
-    return res.redirect(`http://localhost:4200/project-management?github-successs=${true}&token=${token}`);
+    return res.redirect(
+      `http://localhost:4200/project-management?github-successs=${true}&token=${token}`
+    );
   }
 }

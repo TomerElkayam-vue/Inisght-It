@@ -40,11 +40,27 @@ export class GithubRemoteService {
     );
   }
 
+  async getAllPullRequests(codeRepositoryCredentials: any) {
+    const { name, owner, token } = codeRepositoryCredentials;
+    const data = await this.GithubRemoteRepository.getAllPullRequests(
+      owner,
+      name,
+      token
+    );
+    return data.map((pullRequest) => ({
+      title: pullRequest.title,
+      owner: pullRequest.user?.login,
+      createdAt: pullRequest.created_at,
+      mergedAt: (pullRequest as unknown as any).merged_at,
+    }));
+  }
+
   async getProjectStats(
     projectManagmentSettings: any,
     projectId: string
   ): Promise<SprintCommentsPerUser[]> {
-    const {name, owner, token} = projectManagmentSettings?.codeRepositoryCredentials;
+    const { name, owner, token } =
+      projectManagmentSettings?.codeRepositoryCredentials;
 
     const cacheKey = `project-stats-${owner}-${name}`;
 
@@ -128,7 +144,6 @@ export class GithubRemoteService {
   ): Promise<UserSpecificStats> {
     const cacheKey = `user-stats-${owner}-${repo}-${username}-${startDate}-${endDate}`;
 
-
     const userSpecificStats =
       await this.GithubRemoteRepository.getCommentsRecivedForUser(
         owner,
@@ -148,7 +163,11 @@ export class GithubRemoteService {
     repo: string,
     token: string
   ): Promise<RepositoryContributor[]> {
-    return this.GithubRemoteRepository.getRepositoryContributors(owner, repo, token);
+    return this.GithubRemoteRepository.getRepositoryContributors(
+      owner,
+      repo,
+      token
+    );
   }
 
   async getUserGithubToken(code: string, projectId: string) {

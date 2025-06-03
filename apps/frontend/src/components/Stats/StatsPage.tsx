@@ -2,6 +2,7 @@ import { CommentsPerUser } from './CommentsPerUser';
 import { CircularProgress } from './CircularProgress';
 import { circularStats } from '../../data/mockStats';
 import { JiraDashboard } from './JiraDashboard';
+import { IssueTimeline } from '../UserPage/IssueTimeline';
 
 export const StatsPage = () => {
   return (
@@ -14,6 +15,12 @@ export const StatsPage = () => {
       <div className="grid grid-cols-1 gap-4 mb-4 h-[55vh]">
         <div className="h-full">
           <CommentsPerUser />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 mb-4 h-[55vh]">
+        <div className="h-full">
+          <IssueTimeline />
         </div>
       </div>
 

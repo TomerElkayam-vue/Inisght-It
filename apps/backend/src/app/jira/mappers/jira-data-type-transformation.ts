@@ -5,12 +5,13 @@ export const jiraDataTypeTransformation: Record<
   { fields: string; transformFunction: (fields: any) => any }
 > = {
   [JiraDataType.ISSUES]: {
-    fields: 'assignee,sprint',
+    fields: 'assignee,sprint,summary',
     transformFunction: (fields: any) => {
       return {
         assignee: fields.assignee,
         sprint: fields.sprint,
         id: fields.id,
+        name: fields.summary,
       };
     },
   },
