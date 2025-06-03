@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useCurrentProjectContext } from '../../context/CurrentProjectContext';
 import { WorkerStats } from './WorkerStats';
 import { Prompt } from './Prompt';
@@ -6,6 +6,26 @@ import { Prompt } from './Prompt';
 export const Insights = () => {
   const { currentProject } = useCurrentProjectContext();
   const [selectedEmployee, setSelectedEmployee] = useState<string | null>(null);
+
+  // Check if current user is an owner (role ID 1)
+  const isOwner = currentProject?.projectPermissions?.some(
+    (permission) => permission.roleId === 1
+  );
+
+  // Get current user's name if they are a member
+  const memberPermission = currentProject?.projectPermissions?.find(
+    (permission) => permission.roleId === 2
+  );
+  const currentUserName = memberPermission
+    ? `${memberPermission.user.firstName} ${memberPermission.user.lastName}`
+    : null;
+
+  // Set current user as selected employee for members
+  useEffect(() => {
+    if (!isOwner && currentUserName) {
+      setSelectedEmployee(currentUserName);
+    }
+  }, [isOwner, currentUserName]);
 
   const employees =
     currentProject?.projectPermissions?.map(
@@ -16,32 +36,43 @@ export const Insights = () => {
     return null;
   }
 
+  if (!isOwner && !currentUserName) {
+    return (
+      <div className="flex items-center justify-center p-6 bg-gray-900 rounded-lg min-h-[80vh]">
+        <p className="text-xl text-gray-400 text-center">
+          לא נמצא מידע על המשתמש הנוכחי
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col items-center justify-center p-6 space-y-6 bg-gray-900 rounded-lg min-h-[80vh]">
-      {/* Employee Selection */}
-      <div className="w-full max-w-xl text-center">
-        <h1 className="text-2xl font-bold text-white mb-4">בחירת עובד</h1>
-        <div className="flex flex-wrap gap-2 justify-center">
-          {employees.map((employee) => (
-            <button
-              key={employee}
-              onClick={() => setSelectedEmployee(employee)}
-              className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-200
-                ${
-                  selectedEmployee === employee
-                    ? 'bg-[#f8d94e] text-black shadow-lg scale-105'
-                    : 'bg-[#2a2f4a] text-gray-300 hover:bg-[#3a3f5c] hover:scale-105'
-                }`}
-            >
-              {employee}
-            </button>
-          ))}
+      {/* Employee Selection - Only show for owners */}
+      {isOwner && (
+        <div className="w-full max-w-xl text-center">
+          <h1 className="text-2xl font-bold text-white mb-4">בחירת עובד</h1>
+          <div className="flex flex-wrap gap-2 justify-center">
+            {employees.map((employee) => (
+              <button
+                key={employee}
+                onClick={() => setSelectedEmployee(employee)}
+                className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-200
+                  ${
+                    selectedEmployee === employee
+                      ? 'bg-[#f8d94e] text-black shadow-lg scale-105'
+                      : 'bg-[#2a2f4a] text-gray-300 hover:bg-[#3a3f5c] hover:scale-105'
+                  }`}
+              >
+                {employee}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {selectedEmployee ? (
         <>
-          {' '}
           {/* Worker Stats and AI Insights */}
           <div className="w-full max-w-4xl">
             <h1 className="text-xl font-bold text-white mb-4 text-right">
