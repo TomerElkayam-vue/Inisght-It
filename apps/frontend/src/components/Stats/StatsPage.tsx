@@ -1,7 +1,8 @@
-import { CommentsPerUser } from './CommentsPerUser';
+// import { CommentsPerUser } from './CommentsPerUser';
 import { CircularProgress } from './CircularProgress';
 import { circularStats } from '../../data/mockStats';
 import { JiraDashboard } from './JiraDashboard';
+import { CodeRepositoryDashboard } from './CodeRepositoryDashboard';
 
 export const StatsPage = () => {
   return (
@@ -13,7 +14,8 @@ export const StatsPage = () => {
       </div>
       <div className="grid grid-cols-1 gap-4 mb-4 h-[55vh]">
         <div className="h-full">
-          <CommentsPerUser />
+          <CodeRepositoryDashboard/>
+          {/* <CommentsPerUser /> */}
         </div>
       </div>
 

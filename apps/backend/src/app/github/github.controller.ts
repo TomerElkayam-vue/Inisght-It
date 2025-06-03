@@ -1,6 +1,6 @@
 import { Controller, Get, Query, Res, Req, Body, Post, Param } from '@nestjs/common';
 import { GithubService } from './github.service';
-import { GithubDataType } from './enums/github-data-type.enum';
+import { GithubDataType } from './enums/github-data-type';
 
 @Controller('github')
 export class GithubController {
