@@ -20,6 +20,8 @@ const ToolCredentials = () => {
   const jiraSuccess = searchParams.get('jira-successs');
   const githubSuccess = searchParams.get('github-successs');
 
+  const apiEndpoint = import.meta.env.VITE_API_URL;
+
   const handleJiraChange =
     (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
       const newValue = { ...managementCredentials, [field]: e.target.value };
@@ -28,14 +30,14 @@ const ToolCredentials = () => {
 
   const redirectToGitHub = () => {
     const clientId = 'Ov23liBqFboVyeJfPkKc';
-    const redirectUri = `http://localhost:3000/api/github/callback/?projectId=${currentProject?.id}`;
+    const redirectUri = `${apiEndpoint}/github/callback/?projectId=${currentProject?.id}`;
     const scope = 'repo';
     window.location.href = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}`;
   };
 
   const redirectToJira = () => {
     const clientId = 'At6ejbAFMkAUdSJ25XfbMLSJiMLpxVHe';
-    const redirectUri = `http://localhost:3000/api/jira/callback?projectId=${currentProject?.id}`;
+    const redirectUri = `${apiEndpoint}/jira/callback?projectId=${currentProject?.id}`;
     const scopes =
       'read:jira-user read:jira-work read:board-scope:jira-software read:project:jira read:board-scope.admin:jira-software read:issue-details:jira read:sprint:jira-software offline_access';
 

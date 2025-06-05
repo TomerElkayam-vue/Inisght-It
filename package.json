@@ -5,7 +5,9 @@
   "scripts": {
     "postinstall": "prisma generate",
     "start:ui": "npx nx serve frontend",
-    "start:server": "npx nx serve backend --watch"
+    "start:server": "npx nx serve backend --watch",
+    "build:ui": "npx nx build frontend",
+    "build:server": "npx nx build backend"
   },
   "private": true,
   "dependencies": {
