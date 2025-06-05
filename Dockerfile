@@ -54,9 +54,11 @@ RUN apk add --no-cache nginx supervisor && \
     mkdir -p /var/log/supervisor && \
     mkdir -p /var/log/nginx && \
     mkdir -p /var/run && \
+    mkdir -p /etc/nginx/ssl && \
     chmod -R 755 /var/log/supervisor && \
     chmod -R 755 /var/log/nginx && \
-    chmod -R 755 /var/run
+    chmod -R 755 /var/run && \
+    chmod -R 755 /etc/nginx/ssl
 
 # Copy built frontend to Nginx html dir
 COPY --from=frontend-builder /app ./
@@ -70,6 +72,11 @@ COPY --from=backend-builder /app/package*.json ./
 # Install only production dependencies for backend
 RUN npm install --only=production --legacy-peer-deps
 
+# Copy SSL certificates
+COPY CSB.crt /etc/nginx/ssl/cert.pem
+COPY myserver.key /etc/nginx/ssl/key.pem
+RUN chmod 600 /etc/nginx/ssl/key.pem
+
 # Nginx config
 COPY nginx.conf /etc/nginx/nginx.conf
 
@@ -77,7 +84,7 @@ COPY nginx.conf /etc/nginx/nginx.conf
 COPY supervisord.conf /etc/supervisord.conf
 
 # Expose ports
-EXPOSE 80
+EXPOSE 80 443
 
 # Start both backend and Nginx
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]

@@ -11,8 +11,6 @@ import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  const clientEndpoint = process.env.CLIENT_ENDPOINT || "http://localhost:4200";
-
   app.enableCors({
     origin: "http://localhost:4200",
     credentials: true,

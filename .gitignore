@@ -46,3 +46,5 @@ vitest.config.*.timestamp*
 
 .env
 .env.*
+
+certificates
