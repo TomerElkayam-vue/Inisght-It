@@ -73,8 +73,8 @@ COPY --from=backend-builder /app/package*.json ./
 RUN npm install --only=production --legacy-peer-deps
 
 # Copy SSL certificates
-COPY CSB.crt /etc/nginx/ssl/cert.pem
-COPY myserver.key /etc/nginx/ssl/key.pem
+COPY certificates/CSB.crt /etc/nginx/ssl/cert.pem
+COPY certificates/myserver.key /etc/nginx/ssl/key.pem
 RUN chmod 600 /etc/nginx/ssl/key.pem
 
 # Nginx config
