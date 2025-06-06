@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import logoDark from '../../assets/logo-dark.png';
-import { removeToken } from '../../services/auth.service';
+import { removeTokens } from '../../services/auth.service';
 import { useEffect, useState } from 'react';
 import { useProjects } from '../hooks/useProjectQueries';
 import { useCurrentProjectContext } from '../../context/CurrentProjectContext';
@@ -18,7 +18,7 @@ export const Navbar = () => {
   };
 
   const handleLogout = () => {
-    removeToken();
+    removeTokens();
     navigate('/');
   };
 

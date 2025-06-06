@@ -1,14 +1,14 @@
 import { Navigate, Outlet } from 'react-router-dom';
-import { getToken } from '../../services/auth.service';
+import { getRefreshToken } from '../../services/auth.service';
 
 export const PublicRoute = () => {
-  const token = getToken();
+  const refreshToken = getRefreshToken();
 
-  if (token) {
+  if (refreshToken) {
     // Redirect to stats if already authenticated
     return <Navigate to="/stats" replace />;
   }
 
   // Render child routes if not authenticated
   return <Outlet />;
-}; 
+};
