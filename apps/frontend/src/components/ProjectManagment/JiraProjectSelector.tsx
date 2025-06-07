@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { getProjects, updateJiraProjectOnProject } from '../../services/jira.service';
 import { useCurrentProjectContext } from '../../context/CurrentProjectContext';
 import { Project } from '@prisma/client';
@@ -13,10 +13,11 @@ const JiraProjectSelector = ({ jiraSuccess, currentProject }: JiraProjectSelecto
   const [selectedJiraProject, setSelectedJiraProject] = useState<any>(null);
   const { setCurrentProject } = useCurrentProjectContext();
   const [isLoading, setIsLoading] = useState(false);
+  const prevRef = useRef(selectedJiraProject);
 
   useEffect(() => {
     const fetchData = async () => {
-      if ((jiraSuccess && currentProject?.id)) {
+      if (jiraSuccess && currentProject?.id && prevRef.current === selectedJiraProject) {
         setIsLoading(true);
         setProjects(await getProjects(currentProject.id));
         setIsLoading(false);
@@ -24,7 +25,11 @@ const JiraProjectSelector = ({ jiraSuccess, currentProject }: JiraProjectSelecto
     };
 
     fetchData();
-  }, [currentProject]);
+  }, [currentProject, selectedJiraProject]);
+
+  useEffect(() => {
+    prevRef.current = selectedJiraProject
+  }, [selectedJiraProject]);
 
   const handleSelectProject = async (value: string) => {
     try {

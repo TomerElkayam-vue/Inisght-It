@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { getUsersRepositories, updateGithubProject } from '../../services/github.service';
 import { useCurrentProjectContext } from '../../context/CurrentProjectContext';
 import { Project } from '@prisma/client';
@@ -13,18 +13,24 @@ const GithubProjectSelector = ({ githubSuccess, currentProject }: GithubProjectS
   const [selectedGithubProject, setSelectedGithubProject] = useState<any>(null);
   const { setCurrentProject } = useCurrentProjectContext();
   const [isLoading, setIsLoading] = useState(false);
+  const prevRef = useRef(selectedGithubProject);
 
   useEffect(() => {
     const fetchData = async () => {
-      if ((githubSuccess && currentProject?.id)) {
+      if (githubSuccess && currentProject?.id && prevRef.current === selectedGithubProject) {
         setIsLoading(true);
+        setSelectedGithubProject("")
         setGithubProjects(await getUsersRepositories(currentProject.id));
         setIsLoading(false);
       }
     };
 
     fetchData();
-  }, [currentProject]);
+  }, [currentProject, selectedGithubProject]);
+
+  useEffect(() => {
+    prevRef.current = selectedGithubProject
+  }, [selectedGithubProject]);
 
   const handleSelectProject = async (value: string) => {
     try {
