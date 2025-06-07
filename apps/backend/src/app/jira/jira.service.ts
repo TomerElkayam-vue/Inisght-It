@@ -8,6 +8,7 @@ import { JiraUserStatsDTO } from './dto/jira-user-stats.dto';
 import { JiraDataType } from './enums/jira-data-type.enum';
 import { JiraDtoTransformationMapper } from './mappers/jira-dto-transformation-mapper';
 import { JiraAvgDataType } from './enums/jira-avg-data-type.enum';
+import { AvgStats } from '@packages/projects';
 
 @Injectable()
 export class JiraService {
@@ -110,7 +111,7 @@ export class JiraService {
     jiraSettings: JiraSettings,
     jiraAvgDataType: JiraAvgDataType,
     projectId: string
-  ): Promise<{ avg: number; max: number }> {
+  ): Promise<AvgStats> {
     const stats = Object.values(
       await this.countJiraStatsPerSprint(
         jiraSettings,

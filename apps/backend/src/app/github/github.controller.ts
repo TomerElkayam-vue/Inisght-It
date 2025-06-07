@@ -1,7 +1,7 @@
 import { Controller, Get, Query, Res, Req, Body, Post, Param } from '@nestjs/common';
 import { GithubService } from './github.service';
 import { GithubDataType } from './enums/github-data-type';
-import { GithubAvgDataType } from './enums/github-data-type copy';
+import { GithubAvgDataType } from './enums/github-avg-data-type';
 
 @Controller('github')
 export class GithubController {
