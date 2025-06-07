@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { getProjects, updateJiraProjectOnProject } from '../../services/jira.service';
 import { useCurrentProjectContext } from '../../context/CurrentProjectContext';
 import { Project } from '@prisma/client';
+import { useQueryClient } from '@tanstack/react-query';
 
 export type JiraProjectSelectorProps = {
   jiraSuccess: string | null;
@@ -14,11 +15,21 @@ const JiraProjectSelector = ({ jiraSuccess, currentProject }: JiraProjectSelecto
   const { setCurrentProject } = useCurrentProjectContext();
   const [isLoading, setIsLoading] = useState(false);
   const prevRef = useRef(selectedJiraProject);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const fetchData = async () => {
       if (jiraSuccess && currentProject?.id && prevRef.current === selectedJiraProject) {
         setIsLoading(true);
+
+        try {
+          const {id, name} = currentProject?.missionManagementCredentials;
+          setSelectedJiraProject(JSON.stringify({id, name}));
+        }
+        catch {
+          setSelectedJiraProject("")
+        }
+        
         setProjects(await getProjects(currentProject.id));
         setIsLoading(false);
       }
@@ -33,8 +44,8 @@ const JiraProjectSelector = ({ jiraSuccess, currentProject }: JiraProjectSelecto
 
   const handleSelectProject = async (value: string) => {
     try {
-      const selected = JSON.parse(value);
       setSelectedJiraProject(value);
+      const selected = JSON.parse(value);
       //@ts-ignore
       setCurrentProject((prev: Project | null) => {
         if (!prev) return prev;
@@ -50,6 +61,7 @@ const JiraProjectSelector = ({ jiraSuccess, currentProject }: JiraProjectSelecto
         projectId: selected.id,
         projectName: selected.name,
       });
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
     } catch (err) {
       console.log(err);
     }

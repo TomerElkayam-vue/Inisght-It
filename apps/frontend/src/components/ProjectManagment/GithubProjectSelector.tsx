@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { getUsersRepositories, updateGithubProject } from '../../services/github.service';
 import { useCurrentProjectContext } from '../../context/CurrentProjectContext';
 import { Project } from '@prisma/client';
+import { useQueryClient } from '@tanstack/react-query';
 
 export type GithubProjectSelectorProps = {
   githubSuccess: string | null;
@@ -14,12 +15,21 @@ const GithubProjectSelector = ({ githubSuccess, currentProject }: GithubProjectS
   const { setCurrentProject } = useCurrentProjectContext();
   const [isLoading, setIsLoading] = useState(false);
   const prevRef = useRef(selectedGithubProject);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const fetchData = async () => {
       if (githubSuccess && currentProject?.id && prevRef.current === selectedGithubProject) {
         setIsLoading(true);
-        setSelectedGithubProject("")
+
+        try {
+          const {id, name, owner} = currentProject?.codeRepositoryCredentials;
+          setSelectedGithubProject(JSON.stringify({id, name, owner}));
+        }
+        catch {
+          setSelectedGithubProject("")
+        }
+
         setGithubProjects(await getUsersRepositories(currentProject.id));
         setIsLoading(false);
       }
@@ -34,8 +44,8 @@ const GithubProjectSelector = ({ githubSuccess, currentProject }: GithubProjectS
 
   const handleSelectProject = async (value: string) => {
     try {
-      const selectedRepo = JSON.parse(value);
       setSelectedGithubProject(value);
+      const selectedRepo = JSON.parse(value);
       //@ts-ignore
       setCurrentProject((prev: Project | null) => {
         if (!prev) return prev;
@@ -48,6 +58,7 @@ const GithubProjectSelector = ({ githubSuccess, currentProject }: GithubProjectS
         };
       });
       await updateGithubProject(currentProject?.id ?? '', selectedRepo);
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
     } catch (err) {
       console.log(err);
     }
