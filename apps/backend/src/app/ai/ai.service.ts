@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { AiRepository } from './ai.repository';
 import { UserInfo } from './types/user-info.type';
 import { GithubService } from '../github/github.service';
@@ -7,6 +7,7 @@ import { GithubService } from '../github/github.service';
 export class AiService {
   constructor(
     private readonly aiRepository: AiRepository,
+    @Inject(forwardRef(() => GithubService))
     private githubService: GithubService
   ) {}
 

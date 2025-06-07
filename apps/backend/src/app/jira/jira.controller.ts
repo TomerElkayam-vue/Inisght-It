@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Param,
+  ParseIntPipe,
   Post,
   Query,
   Req,
@@ -52,15 +53,17 @@ export class JiraController {
     }
   }
 
-  @Get('issues-with-merge-requests')
+  @Get('issues-with-merge-requests/:sprintId')
   getJiraIssuesWithMergeRequests(
     @Query('projectId') projectId: string,
+    @Param('sprintId', ParseIntPipe) sprintId: number,
     @Req() req: any
   ) {
-    if (req.projectCredentials?.missionManagementCredentials?.id) {
+    if (req.projectCredentials?.missionManagementCredentials) {
       return this.jiraService.getJiraIssuesWithMergeReqests(
         req.projectCredentials,
-        projectId
+        projectId,
+        sprintId
       );
     } else {
       return [];

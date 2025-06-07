@@ -1,4 +1,4 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, forwardRef } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { GithubRepository } from './github.reposetory';
@@ -15,6 +15,7 @@ export class GithubService {
   constructor(
     private readonly GithubRepository: GithubRepository,
     private projectsService: ProjectsSerivce,
+    @Inject(forwardRef(() => JiraService))
     private readonly jiraService: JiraService,
     private readonly employeeService: EmployeeService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { JiraRepository } from './jira.repository';
 import { JiraSprintDto } from './dto/jira-sprint.dto';
 import { ProjectsSerivce } from '../projects/project.service';
@@ -14,6 +14,7 @@ export class JiraService {
   constructor(
     private readonly jiraRepository: JiraRepository,
     private projectsService: ProjectsSerivce,
+    @Inject(forwardRef(() => AiService))
     private aiService: AiService,
     private readonly employeeService: EmployeeService
   ) {}
@@ -203,12 +204,46 @@ export class JiraService {
     );
   }
 
-  async getJiraIssuesWithMergeReqests(projectId: string, projectSettings: any) {
+  async getJiraIssuesWithMergeReqests(
+    projectSettings: any,
+    projectId: string,
+    sprintId: number
+  ) {
     const jiraIssues = await this.getJiraRawIssues(
       projectSettings?.missionManagementCredentials,
       projectId
     );
-    return this.aiService.getMergeRequestByIssue(jiraIssues, projectSettings?.codeRepositoryCredentials)
+
+    const issuesForPromt = jiraIssues
+      .map((issue) => ({
+        assignee: issue?.assignee?.displayName,
+        sprint: issue?.sprint?.id,
+        id: issue?.id,
+        name: issue?.name,
+      }))
+      .filter((issue) => {
+        return issue.sprint === sprintId;
+      });
+
+    const issuesWithMergeRequests = await this.aiService.getMergeRequestByIssue(
+      issuesForPromt,
+      projectSettings?.codeRepositoryCredentials
+    );
+
+    if (issuesWithMergeRequests) {
+      return await Promise.all(
+        issuesWithMergeRequests?.map(async (issueWithMergeRequest) => ({
+          ...issueWithMergeRequest,
+          ...(await this.getJiraIssueChangelog(
+            issueWithMergeRequest.id,
+            projectSettings?.missionManagementCredentials,
+            projectId
+          )),
+        }))
+      );
+    } else {
+      return [];
+    }
   }
 
   async getJiraIssueChangelog(

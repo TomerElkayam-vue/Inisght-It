@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { AiController } from './ai.controller';
 import { AiService } from './ai.service';
 import { AiRepository } from './ai.repository';
@@ -8,6 +8,6 @@ import { GithubModule } from '../github/github.module';
   controllers: [AiController],
   providers: [AiService, AiRepository],
   exports: [AiService],
-  imports: [GithubModule],
+  imports: [forwardRef(() => GithubModule)],
 })
 export class AiModule {}

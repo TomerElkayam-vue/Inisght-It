@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { HttpModule } from '@nestjs/axios';
 import { GithubController } from './github.controller';
@@ -15,7 +15,7 @@ import { PrismaModule } from '../prisma/prisma.module';
     ProjectsModule,
     ConfigModule.forFeature(githubConfig),
     HttpModule,
-    JiraModule,
+    forwardRef(() => JiraModule),
     EmployeeModule,
     PrismaModule,
   ],

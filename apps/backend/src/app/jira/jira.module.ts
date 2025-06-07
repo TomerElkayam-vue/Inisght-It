@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { JiraController } from './jira.controller';
 import { JiraService } from './jira.service';
 import { JiraRepository } from './jira.repository';
@@ -10,7 +10,12 @@ import { AiModule } from '../ai/ai.module';
 @Module({
   controllers: [JiraController],
   providers: [JiraService, JiraRepository],
-  imports: [ProjectsModule, EmployeeModule, HttpModule, AiModule],
+  imports: [
+    ProjectsModule,
+    EmployeeModule,
+    HttpModule,
+    forwardRef(() => AiModule),
+  ],
   exports: [JiraService],
 })
 export class JiraModule {}
