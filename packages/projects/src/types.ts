@@ -55,3 +55,8 @@ export type InsiteitUser = {
   lastName: string;
   createdAt?: Date;
 };
+
+export type AvgStats = {
+  avg: number;
+  max: number;
+}

@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import { GithubService } from './github.service';
 import { GithubDataType } from './enums/github-data-type';
+import { GithubAvgDataType } from './enums/github-avg-data-type';
 
 @Controller('github')
 export class GithubController {
@@ -33,6 +34,14 @@ export class GithubController {
         statType,
         projectId
       );
+  }
+
+  @Get('/avg-stats/:avgDataType')
+  async getGithubAvgStats(
+    @Query('projectId') projectId: string, 
+    @Param('avgDataType') avgDataType: GithubAvgDataType,
+    @Req() req: any) {
+      return this.GithubService.getAvgStatsBySprint(req.projectCredentials, avgDataType, projectId);
   }
 
   // for Tommer

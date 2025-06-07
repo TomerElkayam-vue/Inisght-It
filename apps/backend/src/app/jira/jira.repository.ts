@@ -8,6 +8,7 @@ import axios from 'axios';
 import { JiraSettings } from './types/jira-settings.type';
 import { JiraDataType } from './enums/jira-data-type.enum';
 import { jiraDataTypeTransformation } from './mappers/jira-data-type-transformation';
+import { JiraAvgDataType } from './enums/jira-avg-data-type.enum';
 
 @Injectable()
 export class JiraRepository {
@@ -19,7 +20,7 @@ export class JiraRepository {
 
   async getJiraIssues(
     projectSettings: JiraSettings,
-    dataType: JiraDataType
+    dataType: JiraDataType | JiraAvgDataType
   ): Promise<JiraTaskDto['fields'][]> {
     try {
       // TODO - replace 1 with boardId
