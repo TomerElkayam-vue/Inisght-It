@@ -110,16 +110,19 @@ export class JiraService {
     jiraSettings: JiraSettings,
     jiraAvgDataType: JiraAvgDataType,
     projectId: string
-  ): Promise<number> {
+  ): Promise<{ avg: number; max: number }> {
     const stats = Object.values(
       await this.countJiraStatsPerSprint(
         jiraSettings,
         jiraAvgDataType as unknown as JiraDataType,
         projectId
       )
-    );
+    ) as unknown as number[];
 
-    return (stats as unknown as number[]).reduce((sum, val) => sum + val, 0) / stats.length;
+    return {
+      avg: stats.reduce((sum, val) => sum + val, 0) / stats.length,
+      max: Math.max(...stats),
+    };
   }
 
   async countJiraStatsPerSprint(

@@ -165,18 +165,18 @@ export class GithubService {
     codeReposityCredentials: any,
     avgDataType: GithubAvgDataType,
     projectId: string
-  ): Promise<number> {
+  ): Promise<{ avg: number; max: number }> {
     const stats = Object.values(
       await this.getProjectStatsBySprint(
         codeReposityCredentials,
         avgDataType as unknown as GithubDataType,
         projectId
       )
-    );
+    ) as unknown as number[];
 
-    return (
-      (stats as unknown as number[]).reduce((sum, val) => sum + val, 0) /
-      stats.length
-    );
+    return {
+      avg: stats.reduce((sum, val) => sum + val, 0) / stats.length,
+      max: Math.max(...stats),
+    };
   }
 }
