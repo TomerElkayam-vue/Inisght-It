@@ -1,6 +1,6 @@
 import React, { useState, FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import { login, saveToken } from "../../services/auth.service";
+import { login, saveTokens } from "../../services/auth.service";
 
 const LoginForm: React.FC = () => {
   const navigate = useNavigate();
@@ -15,8 +15,8 @@ const LoginForm: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const response = await login({ username, password });
-      saveToken(response);
+      const { accessToken, refreshToken } = await login({ username, password });
+      saveTokens(accessToken, refreshToken);
       navigate('/stats');
     } catch (err) {
       setError("שם משתמש או סיסמא שגויים");
@@ -90,4 +90,4 @@ const LoginForm: React.FC = () => {
   );
 };
 
-export default LoginForm; 
+export default LoginForm;

@@ -13,10 +13,11 @@ import { UsersModule } from "../users/user.module";
     UsersModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: "60m" },
+      signOptions: { expiresIn: "15m" },
     }),
   ],
   providers: [AuthService, JwtStrategy, AppService],
   controllers: [AuthController],
+  exports: [AuthService],
 })
 export class AuthModule {}
