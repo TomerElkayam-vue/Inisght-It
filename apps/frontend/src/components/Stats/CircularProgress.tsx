@@ -40,11 +40,13 @@ export const CircularProgress = <T extends JiraAvgDataType | GithubAvgDataType>(
 
   useEffect(() => {
     const getData = async () => {
-      setIsLoading(true);
-      const data = await fetchData(currentProject?.id ?? '', statsType);
-      setTotal(data.max);
-      setValue(data.avg);
-      setIsLoading(false);
+      if (currentProject?.id) {
+        setIsLoading(true);
+        const data = await fetchData(currentProject?.id ?? '', statsType);
+        setTotal(data.max);
+        setValue(data.avg);
+        setIsLoading(false);
+      }
     };
 
     getData();
