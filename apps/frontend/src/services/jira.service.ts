@@ -51,6 +51,21 @@ export const getSprints = async (
   return response.data.map((sprint: { name: string }) => sprint.name);
 };
 
+export const getDetailedSprints = async (projectId: string): Promise<any> => {
+  const response = await api.get(`/jira/sprints?projectId=${projectId}`);
+  return response.data;
+};
+
+export const getSprintsIssuesChangelog = async (
+  projectId: string,
+  sprintId: string
+): Promise<any> => {
+  const response = await api.get(
+    `/jira/issues-with-merge-requests/${sprintId}?projectId=${projectId}`
+  );
+  return response.data;
+};
+
 export const getProjects = async (projectId: string): Promise<any> => {
   const response = await api.get(`/jira/projects?projectId=${projectId}`);
   return response.data.map((project : any) => ({

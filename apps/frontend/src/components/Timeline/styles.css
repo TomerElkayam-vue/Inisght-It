@@ -1,0 +1,66 @@
+@import url('https://fonts.googleapis.com/css?family=Work+Sans');
+@import './items.css';
+body {
+  font-family: 'Work Sans', sans-serif;
+  font-size: 18px;
+}
+
+.rct-item-content {
+  border: dotted 1px deepskyblue;
+}
+
+.react-calendar-timeline .rct-horizontal-lines .rct-hl-even,
+.react-calendar-timeline .rct-horizontal-lines .rct-hl-odd {
+  border-bottom: none;
+}
+
+/* Main area where items appear */
+
+/* The scrolling area */
+.rct-scroll {
+  background-color: white !important;
+}
+
+.react-calendar-timeline .rct-sidebar .rct-sidebar-row {
+  border-bottom: none;
+}
+
+.react-calendar-timeline .rct-header .rct-label {
+  border-bottom: none;
+}
+
+.rct-dateHeader {
+  background-color: #f8d94e !important;
+}
+
+.rct-header-root {
+  background: #f8d94e !important;
+  border-bottom: 1px solid #e5e7eb !important;
+}
+
+.react-calendar-timeline .rct-vertical-lines .rct-vl.rct-vl-first {
+  border-color: #ccc;
+}
+
+.react-calendar-timeline .rct-vertical-lines .rct-vl {
+  border-left: 1px solid #eeeeee87;
+}
+
+.react-calendar-timeline .rct-header .rct-label-group {
+  font-family: 'Work Sans', sans-serif;
+
+  color: #ffffff;
+  font-size: 1rem;
+}
+
+.react-calendar-timeline .rct-sidebar-header {
+  color: #ffffff;
+  text-align: center;
+  padding-top: 1rem;
+  border: none;
+  border-right: solid 2px #ccc !important;
+}
+
+.rct-sidebar {
+  color: #ffffff;
+}

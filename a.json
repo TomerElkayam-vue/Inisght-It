@@ -1,0 +1,711 @@
+[
+    {
+        "assignee": {
+            "self": "https://api.atlassian.com/ex/jira/e8b88b3a-e6f8-429b-8cd9-312a1940a176/rest/api/2/user?accountId=70121%3A05e3562b-baca-4675-969a-eeac4328c442",
+            "accountId": "70121:05e3562b-baca-4675-969a-eeac4328c442",
+            "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/fea83a939603c84e9104d282756e8f6b?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FN-4.png",
+                "24x24": "https://secure.gravatar.com/avatar/fea83a939603c84e9104d282756e8f6b?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FN-4.png",
+                "16x16": "https://secure.gravatar.com/avatar/fea83a939603c84e9104d282756e8f6b?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FN-4.png",
+                "32x32": "https://secure.gravatar.com/avatar/fea83a939603c84e9104d282756e8f6b?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FN-4.png"
+            },
+            "displayName": "Noam",
+            "active": true,
+            "timeZone": "Asia/Jerusalem",
+            "accountType": "atlassian"
+        },
+        "sprint": {
+            "id": 1,
+            "self": "https://api.atlassian.com/ex/jira/e8b88b3a-e6f8-429b-8cd9-312a1940a176/rest/agile/1.0/sprint/1",
+            "state": "future",
+            "name": "Sprint 2",
+            "startDate": "2025-03-31T21:00:00.000Z",
+            "endDate": "2025-04-29T21:00:00.000Z",
+            "createdDate": "2025-04-30T10:01:14.335Z",
+            "originBoardId": 1,
+            "goal": ""
+        },
+        "id": "10002",
+        "name": "basic connection"
+    },
+    {
+        "assignee": {
+            "self": "https://api.atlassian.com/ex/jira/e8b88b3a-e6f8-429b-8cd9-312a1940a176/rest/api/2/user?accountId=70121%3A4187cefb-1564-4e75-878b-0b2c201d2903",
+            "accountId": "70121:4187cefb-1564-4e75-878b-0b2c201d2903",
+            "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/4fd255c522123c0c0bffe83d8e07216c?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FSS-6.png",
+                "24x24": "https://secure.gravatar.com/avatar/4fd255c522123c0c0bffe83d8e07216c?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FSS-6.png",
+                "16x16": "https://secure.gravatar.com/avatar/4fd255c522123c0c0bffe83d8e07216c?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FSS-6.png",
+                "32x32": "https://secure.gravatar.com/avatar/4fd255c522123c0c0bffe83d8e07216c?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FSS-6.png"
+            },
+            "displayName": "Shachar Shemesh",
+            "active": true,
+            "timeZone": "Asia/Jerusalem",
+            "accountType": "atlassian"
+        },
+        "sprint": {
+            "id": 1,
+            "self": "https://api.atlassian.com/ex/jira/e8b88b3a-e6f8-429b-8cd9-312a1940a176/rest/agile/1.0/sprint/1",
+            "state": "future",
+            "name": "Sprint 2",
+            "startDate": "2025-03-31T21:00:00.000Z",
+            "endDate": "2025-04-29T21:00:00.000Z",
+            "createdDate": "2025-04-30T10:01:14.335Z",
+            "originBoardId": 1,
+            "goal": ""
+        },
+        "id": "10018",
+        "name": "Basic insights from worker's data"
+    },
+    {
+        "assignee": {
+            "self": "https://api.atlassian.com/ex/jira/e8b88b3a-e6f8-429b-8cd9-312a1940a176/rest/api/2/user?accountId=70121%3A4187cefb-1564-4e75-878b-0b2c201d2903",
+            "accountId": "70121:4187cefb-1564-4e75-878b-0b2c201d2903",
+            "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/4fd255c522123c0c0bffe83d8e07216c?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FSS-6.png",
+                "24x24": "https://secure.gravatar.com/avatar/4fd255c522123c0c0bffe83d8e07216c?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FSS-6.png",
+                "16x16": "https://secure.gravatar.com/avatar/4fd255c522123c0c0bffe83d8e07216c?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FSS-6.png",
+                "32x32": "https://secure.gravatar.com/avatar/4fd255c522123c0c0bffe83d8e07216c?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FSS-6.png"
+            },
+            "displayName": "Shachar Shemesh",
+            "active": true,
+            "timeZone": "Asia/Jerusalem",
+            "accountType": "atlassian"
+        },
+        "sprint": {
+            "id": 1,
+            "self": "https://api.atlassian.com/ex/jira/e8b88b3a-e6f8-429b-8cd9-312a1940a176/rest/agile/1.0/sprint/1",
+            "state": "future",
+            "name": "Sprint 2",
+            "startDate": "2025-03-31T21:00:00.000Z",
+            "endDate": "2025-04-29T21:00:00.000Z",
+            "createdDate": "2025-04-30T10:01:14.335Z",
+            "originBoardId": 1,
+            "goal": ""
+        },
+        "id": "10017",
+        "name": "Basic connection  "
+    },
+    {
+        "assignee": {
+            "self": "https://api.atlassian.com/ex/jira/e8b88b3a-e6f8-429b-8cd9-312a1940a176/rest/api/2/user?accountId=70121%3A4187cefb-1564-4e75-878b-0b2c201d2903",
+            "accountId": "70121:4187cefb-1564-4e75-878b-0b2c201d2903",
+            "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/4fd255c522123c0c0bffe83d8e07216c?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FSS-6.png",
+                "24x24": "https://secure.gravatar.com/avatar/4fd255c522123c0c0bffe83d8e07216c?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FSS-6.png",
+                "16x16": "https://secure.gravatar.com/avatar/4fd255c522123c0c0bffe83d8e07216c?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FSS-6.png",
+                "32x32": "https://secure.gravatar.com/avatar/4fd255c522123c0c0bffe83d8e07216c?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FSS-6.png"
+            },
+            "displayName": "Shachar Shemesh",
+            "active": true,
+            "timeZone": "Asia/Jerusalem",
+            "accountType": "atlassian"
+        },
+        "sprint": {
+            "id": 1,
+            "self": "https://api.atlassian.com/ex/jira/e8b88b3a-e6f8-429b-8cd9-312a1940a176/rest/agile/1.0/sprint/1",
+            "state": "future",
+            "name": "Sprint 2",
+            "startDate": "2025-03-31T21:00:00.000Z",
+            "endDate": "2025-04-29T21:00:00.000Z",
+            "createdDate": "2025-04-30T10:01:14.335Z",
+            "originBoardId": 1,
+            "goal": ""
+        },
+        "id": "10025",
+        "name": "jira statistics per sprint"
+    },
+    {
+        "assignee": {
+            "self": "https://api.atlassian.com/ex/jira/e8b88b3a-e6f8-429b-8cd9-312a1940a176/rest/api/2/user?accountId=70121%3A05e3562b-baca-4675-969a-eeac4328c442",
+            "accountId": "70121:05e3562b-baca-4675-969a-eeac4328c442",
+            "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/fea83a939603c84e9104d282756e8f6b?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FN-4.png",
+                "24x24": "https://secure.gravatar.com/avatar/fea83a939603c84e9104d282756e8f6b?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FN-4.png",
+                "16x16": "https://secure.gravatar.com/avatar/fea83a939603c84e9104d282756e8f6b?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FN-4.png",
+                "32x32": "https://secure.gravatar.com/avatar/fea83a939603c84e9104d282756e8f6b?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FN-4.png"
+            },
+            "displayName": "Noam",
+            "active": true,
+            "timeZone": "Asia/Jerusalem",
+            "accountType": "atlassian"
+        },
+        "sprint": {
+            "id": 1,
+            "self": "https://api.atlassian.com/ex/jira/e8b88b3a-e6f8-429b-8cd9-312a1940a176/rest/agile/1.0/sprint/1",
+            "state": "future",
+            "name": "Sprint 2",
+            "startDate": "2025-03-31T21:00:00.000Z",
+            "endDate": "2025-04-29T21:00:00.000Z",
+            "createdDate": "2025-04-30T10:01:14.335Z",
+            "originBoardId": 1,
+            "goal": ""
+        },
+        "id": "10026",
+        "name": "github statistics per sprint"
+    },
+    {
+        "assignee": {
+            "self": "https://api.atlassian.com/ex/jira/e8b88b3a-e6f8-429b-8cd9-312a1940a176/rest/api/2/user?accountId=712020%3A72fafe25-c0df-4aa8-81c2-c12a0b74f72c",
+            "accountId": "712020:72fafe25-c0df-4aa8-81c2-c12a0b74f72c",
+            "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/a2ef293a1a2c44f90443ed91153f2e69?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FR-4.png",
+                "24x24": "https://secure.gravatar.com/avatar/a2ef293a1a2c44f90443ed91153f2e69?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FR-4.png",
+                "16x16": "https://secure.gravatar.com/avatar/a2ef293a1a2c44f90443ed91153f2e69?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FR-4.png",
+                "32x32": "https://secure.gravatar.com/avatar/a2ef293a1a2c44f90443ed91153f2e69?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FR-4.png"
+            },
+            "displayName": "ron80098",
+            "active": true,
+            "timeZone": "Asia/Jerusalem",
+            "accountType": "atlassian"
+        },
+        "sprint": {
+            "id": 67,
+            "self": "https://api.atlassian.com/ex/jira/e8b88b3a-e6f8-429b-8cd9-312a1940a176/rest/agile/1.0/sprint/67",
+            "state": "future",
+            "name": "Sprint 5",
+            "startDate": "2025-05-16T21:00:00.000Z",
+            "endDate": "2025-05-29T21:00:00.000Z",
+            "createdDate": "2025-05-27T21:23:21.466Z",
+            "originBoardId": 1,
+            "goal": ""
+        },
+        "id": "10258",
+        "name": "only project owner can excess project management page"
+    },
+    {
+        "assignee": {
+            "self": "https://api.atlassian.com/ex/jira/e8b88b3a-e6f8-429b-8cd9-312a1940a176/rest/api/2/user?accountId=70121%3A05e3562b-baca-4675-969a-eeac4328c442",
+            "accountId": "70121:05e3562b-baca-4675-969a-eeac4328c442",
+            "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/fea83a939603c84e9104d282756e8f6b?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FN-4.png",
+                "24x24": "https://secure.gravatar.com/avatar/fea83a939603c84e9104d282756e8f6b?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FN-4.png",
+                "16x16": "https://secure.gravatar.com/avatar/fea83a939603c84e9104d282756e8f6b?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FN-4.png",
+                "32x32": "https://secure.gravatar.com/avatar/fea83a939603c84e9104d282756e8f6b?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FN-4.png"
+            },
+            "displayName": "Noam",
+            "active": true,
+            "timeZone": "Asia/Jerusalem",
+            "accountType": "atlassian"
+        },
+        "sprint": {
+            "id": 67,
+            "self": "https://api.atlassian.com/ex/jira/e8b88b3a-e6f8-429b-8cd9-312a1940a176/rest/agile/1.0/sprint/67",
+            "state": "future",
+            "name": "Sprint 5",
+            "startDate": "2025-05-16T21:00:00.000Z",
+            "endDate": "2025-05-29T21:00:00.000Z",
+            "createdDate": "2025-05-27T21:23:21.466Z",
+            "originBoardId": 1,
+            "goal": ""
+        },
+        "id": "10020",
+        "name": "insights from team's data"
+    },
+    {
+        "assignee": {
+            "self": "https://api.atlassian.com/ex/jira/e8b88b3a-e6f8-429b-8cd9-312a1940a176/rest/api/2/user?accountId=712020%3A72fafe25-c0df-4aa8-81c2-c12a0b74f72c",
+            "accountId": "712020:72fafe25-c0df-4aa8-81c2-c12a0b74f72c",
+            "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/a2ef293a1a2c44f90443ed91153f2e69?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FR-4.png",
+                "24x24": "https://secure.gravatar.com/avatar/a2ef293a1a2c44f90443ed91153f2e69?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FR-4.png",
+                "16x16": "https://secure.gravatar.com/avatar/a2ef293a1a2c44f90443ed91153f2e69?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FR-4.png",
+                "32x32": "https://secure.gravatar.com/avatar/a2ef293a1a2c44f90443ed91153f2e69?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FR-4.png"
+            },
+            "displayName": "ron80098",
+            "active": true,
+            "timeZone": "Asia/Jerusalem",
+            "accountType": "atlassian"
+        },
+        "sprint": null,
+        "id": "10021",
+        "name": "manage team"
+    },
+    {
+        "assignee": {
+            "self": "https://api.atlassian.com/ex/jira/e8b88b3a-e6f8-429b-8cd9-312a1940a176/rest/api/2/user?accountId=62906c97c65b7200696389ff",
+            "accountId": "62906c97c65b7200696389ff",
+            "emailAddress": "tomerelkm@gmail.com",
+            "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/de762c518b5f4ea07c27138ca627fafa?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FTE-1.png",
+                "24x24": "https://secure.gravatar.com/avatar/de762c518b5f4ea07c27138ca627fafa?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FTE-1.png",
+                "16x16": "https://secure.gravatar.com/avatar/de762c518b5f4ea07c27138ca627fafa?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FTE-1.png",
+                "32x32": "https://secure.gravatar.com/avatar/de762c518b5f4ea07c27138ca627fafa?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FTE-1.png"
+            },
+            "displayName": "Tomer Elkayam",
+            "active": true,
+            "timeZone": "Asia/Jerusalem",
+            "accountType": "atlassian"
+        },
+        "sprint": null,
+        "id": "10028",
+        "name": "add-numeric-stats"
+    },
+    {
+        "assignee": {
+            "self": "https://api.atlassian.com/ex/jira/e8b88b3a-e6f8-429b-8cd9-312a1940a176/rest/api/2/user?accountId=5fbe2574cbead50069307513",
+            "accountId": "5fbe2574cbead50069307513",
+            "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/207f79789602d9bec858de254416cee6?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNH-0.png",
+                "24x24": "https://secure.gravatar.com/avatar/207f79789602d9bec858de254416cee6?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNH-0.png",
+                "16x16": "https://secure.gravatar.com/avatar/207f79789602d9bec858de254416cee6?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNH-0.png",
+                "32x32": "https://secure.gravatar.com/avatar/207f79789602d9bec858de254416cee6?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNH-0.png"
+            },
+            "displayName": "Nitzan Hamzani",
+            "active": true,
+            "timeZone": "Asia/Jerusalem",
+            "accountType": "atlassian"
+        },
+        "sprint": {
+            "id": 3,
+            "self": "https://api.atlassian.com/ex/jira/e8b88b3a-e6f8-429b-8cd9-312a1940a176/rest/agile/1.0/sprint/3",
+            "state": "active",
+            "name": "Sprint 3",
+            "startDate": "2025-05-23T15:01:49.386Z",
+            "endDate": "2025-05-29T21:00:00.000Z",
+            "createdDate": "2025-05-01T12:32:30.199Z",
+            "originBoardId": 1,
+            "goal": ""
+        },
+        "id": "10059",
+        "name": "Authentication with DB"
+    },
+    {
+        "assignee": {
+            "self": "https://api.atlassian.com/ex/jira/e8b88b3a-e6f8-429b-8cd9-312a1940a176/rest/api/2/user?accountId=70121%3A05e3562b-baca-4675-969a-eeac4328c442",
+            "accountId": "70121:05e3562b-baca-4675-969a-eeac4328c442",
+            "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/fea83a939603c84e9104d282756e8f6b?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FN-4.png",
+                "24x24": "https://secure.gravatar.com/avatar/fea83a939603c84e9104d282756e8f6b?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FN-4.png",
+                "16x16": "https://secure.gravatar.com/avatar/fea83a939603c84e9104d282756e8f6b?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FN-4.png",
+                "32x32": "https://secure.gravatar.com/avatar/fea83a939603c84e9104d282756e8f6b?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FN-4.png"
+            },
+            "displayName": "Noam",
+            "active": true,
+            "timeZone": "Asia/Jerusalem",
+            "accountType": "atlassian"
+        },
+        "sprint": {
+            "id": 3,
+            "self": "https://api.atlassian.com/ex/jira/e8b88b3a-e6f8-429b-8cd9-312a1940a176/rest/agile/1.0/sprint/3",
+            "state": "active",
+            "name": "Sprint 3",
+            "startDate": "2025-05-23T15:01:49.386Z",
+            "endDate": "2025-05-29T21:00:00.000Z",
+            "createdDate": "2025-05-01T12:32:30.199Z",
+            "originBoardId": 1,
+            "goal": ""
+        },
+        "id": "10061",
+        "name": "improve fetches from jira and github"
+    },
+    {
+        "assignee": {
+            "self": "https://api.atlassian.com/ex/jira/e8b88b3a-e6f8-429b-8cd9-312a1940a176/rest/api/2/user?accountId=712020%3A72fafe25-c0df-4aa8-81c2-c12a0b74f72c",
+            "accountId": "712020:72fafe25-c0df-4aa8-81c2-c12a0b74f72c",
+            "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/a2ef293a1a2c44f90443ed91153f2e69?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FR-4.png",
+                "24x24": "https://secure.gravatar.com/avatar/a2ef293a1a2c44f90443ed91153f2e69?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FR-4.png",
+                "16x16": "https://secure.gravatar.com/avatar/a2ef293a1a2c44f90443ed91153f2e69?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FR-4.png",
+                "32x32": "https://secure.gravatar.com/avatar/a2ef293a1a2c44f90443ed91153f2e69?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FR-4.png"
+            },
+            "displayName": "ron80098",
+            "active": true,
+            "timeZone": "Asia/Jerusalem",
+            "accountType": "atlassian"
+        },
+        "sprint": {
+            "id": 3,
+            "self": "https://api.atlassian.com/ex/jira/e8b88b3a-e6f8-429b-8cd9-312a1940a176/rest/agile/1.0/sprint/3",
+            "state": "active",
+            "name": "Sprint 3",
+            "startDate": "2025-05-23T15:01:49.386Z",
+            "endDate": "2025-05-29T21:00:00.000Z",
+            "createdDate": "2025-05-01T12:32:30.199Z",
+            "originBoardId": 1,
+            "goal": ""
+        },
+        "id": "10063",
+        "name": "management page"
+    },
+    {
+        "assignee": {
+            "self": "https://api.atlassian.com/ex/jira/e8b88b3a-e6f8-429b-8cd9-312a1940a176/rest/api/2/user?accountId=5fbe2574cbead50069307513",
+            "accountId": "5fbe2574cbead50069307513",
+            "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/207f79789602d9bec858de254416cee6?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNH-0.png",
+                "24x24": "https://secure.gravatar.com/avatar/207f79789602d9bec858de254416cee6?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNH-0.png",
+                "16x16": "https://secure.gravatar.com/avatar/207f79789602d9bec858de254416cee6?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNH-0.png",
+                "32x32": "https://secure.gravatar.com/avatar/207f79789602d9bec858de254416cee6?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNH-0.png"
+            },
+            "displayName": "Nitzan Hamzani",
+            "active": true,
+            "timeZone": "Asia/Jerusalem",
+            "accountType": "atlassian"
+        },
+        "sprint": {
+            "id": 3,
+            "self": "https://api.atlassian.com/ex/jira/e8b88b3a-e6f8-429b-8cd9-312a1940a176/rest/agile/1.0/sprint/3",
+            "state": "active",
+            "name": "Sprint 3",
+            "startDate": "2025-05-23T15:01:49.386Z",
+            "endDate": "2025-05-29T21:00:00.000Z",
+            "createdDate": "2025-05-01T12:32:30.199Z",
+            "originBoardId": 1,
+            "goal": ""
+        },
+        "id": "10092",
+        "name": "change the names in the stats"
+    },
+    {
+        "assignee": {
+            "self": "https://api.atlassian.com/ex/jira/e8b88b3a-e6f8-429b-8cd9-312a1940a176/rest/api/2/user?accountId=5fbe2574cbead50069307513",
+            "accountId": "5fbe2574cbead50069307513",
+            "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/207f79789602d9bec858de254416cee6?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNH-0.png",
+                "24x24": "https://secure.gravatar.com/avatar/207f79789602d9bec858de254416cee6?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNH-0.png",
+                "16x16": "https://secure.gravatar.com/avatar/207f79789602d9bec858de254416cee6?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNH-0.png",
+                "32x32": "https://secure.gravatar.com/avatar/207f79789602d9bec858de254416cee6?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNH-0.png"
+            },
+            "displayName": "Nitzan Hamzani",
+            "active": true,
+            "timeZone": "Asia/Jerusalem",
+            "accountType": "atlassian"
+        },
+        "sprint": {
+            "id": 3,
+            "self": "https://api.atlassian.com/ex/jira/e8b88b3a-e6f8-429b-8cd9-312a1940a176/rest/agile/1.0/sprint/3",
+            "state": "active",
+            "name": "Sprint 3",
+            "startDate": "2025-05-23T15:01:49.386Z",
+            "endDate": "2025-05-29T21:00:00.000Z",
+            "createdDate": "2025-05-01T12:32:30.199Z",
+            "originBoardId": 1,
+            "goal": ""
+        },
+        "id": "10158",
+        "name": "register page"
+    },
+    {
+        "assignee": {
+            "self": "https://api.atlassian.com/ex/jira/e8b88b3a-e6f8-429b-8cd9-312a1940a176/rest/api/2/user?accountId=5fbe2574cbead50069307513",
+            "accountId": "5fbe2574cbead50069307513",
+            "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/207f79789602d9bec858de254416cee6?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNH-0.png",
+                "24x24": "https://secure.gravatar.com/avatar/207f79789602d9bec858de254416cee6?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNH-0.png",
+                "16x16": "https://secure.gravatar.com/avatar/207f79789602d9bec858de254416cee6?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNH-0.png",
+                "32x32": "https://secure.gravatar.com/avatar/207f79789602d9bec858de254416cee6?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNH-0.png"
+            },
+            "displayName": "Nitzan Hamzani",
+            "active": true,
+            "timeZone": "Asia/Jerusalem",
+            "accountType": "atlassian"
+        },
+        "sprint": {
+            "id": 3,
+            "self": "https://api.atlassian.com/ex/jira/e8b88b3a-e6f8-429b-8cd9-312a1940a176/rest/agile/1.0/sprint/3",
+            "state": "active",
+            "name": "Sprint 3",
+            "startDate": "2025-05-23T15:01:49.386Z",
+            "endDate": "2025-05-29T21:00:00.000Z",
+            "createdDate": "2025-05-01T12:32:30.199Z",
+            "originBoardId": 1,
+            "goal": ""
+        },
+        "id": "10159",
+        "name": "add salt and peper to password"
+    },
+    {
+        "assignee": {
+            "self": "https://api.atlassian.com/ex/jira/e8b88b3a-e6f8-429b-8cd9-312a1940a176/rest/api/2/user?accountId=70121%3A05e3562b-baca-4675-969a-eeac4328c442",
+            "accountId": "70121:05e3562b-baca-4675-969a-eeac4328c442",
+            "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/fea83a939603c84e9104d282756e8f6b?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FN-4.png",
+                "24x24": "https://secure.gravatar.com/avatar/fea83a939603c84e9104d282756e8f6b?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FN-4.png",
+                "16x16": "https://secure.gravatar.com/avatar/fea83a939603c84e9104d282756e8f6b?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FN-4.png",
+                "32x32": "https://secure.gravatar.com/avatar/fea83a939603c84e9104d282756e8f6b?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FN-4.png"
+            },
+            "displayName": "Noam",
+            "active": true,
+            "timeZone": "Asia/Jerusalem",
+            "accountType": "atlassian"
+        },
+        "sprint": {
+            "id": 3,
+            "self": "https://api.atlassian.com/ex/jira/e8b88b3a-e6f8-429b-8cd9-312a1940a176/rest/agile/1.0/sprint/3",
+            "state": "active",
+            "name": "Sprint 3",
+            "startDate": "2025-05-23T15:01:49.386Z",
+            "endDate": "2025-05-29T21:00:00.000Z",
+            "createdDate": "2025-05-01T12:32:30.199Z",
+            "originBoardId": 1,
+            "goal": ""
+        },
+        "id": "10191",
+        "name": "get projects list only for connected user"
+    },
+    {
+        "assignee": {
+            "self": "https://api.atlassian.com/ex/jira/e8b88b3a-e6f8-429b-8cd9-312a1940a176/rest/api/2/user?accountId=62906c97c65b7200696389ff",
+            "accountId": "62906c97c65b7200696389ff",
+            "emailAddress": "tomerelkm@gmail.com",
+            "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/de762c518b5f4ea07c27138ca627fafa?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FTE-1.png",
+                "24x24": "https://secure.gravatar.com/avatar/de762c518b5f4ea07c27138ca627fafa?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FTE-1.png",
+                "16x16": "https://secure.gravatar.com/avatar/de762c518b5f4ea07c27138ca627fafa?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FTE-1.png",
+                "32x32": "https://secure.gravatar.com/avatar/de762c518b5f4ea07c27138ca627fafa?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FTE-1.png"
+            },
+            "displayName": "Tomer Elkayam",
+            "active": true,
+            "timeZone": "Asia/Jerusalem",
+            "accountType": "atlassian"
+        },
+        "sprint": {
+            "id": 3,
+            "self": "https://api.atlassian.com/ex/jira/e8b88b3a-e6f8-429b-8cd9-312a1940a176/rest/agile/1.0/sprint/3",
+            "state": "active",
+            "name": "Sprint 3",
+            "startDate": "2025-05-23T15:01:49.386Z",
+            "endDate": "2025-05-29T21:00:00.000Z",
+            "createdDate": "2025-05-01T12:32:30.199Z",
+            "originBoardId": 1,
+            "goal": ""
+        },
+        "id": "10224",
+        "name": "Create generic stats for jira"
+    },
+    {
+        "assignee": {
+            "self": "https://api.atlassian.com/ex/jira/e8b88b3a-e6f8-429b-8cd9-312a1940a176/rest/api/2/user?accountId=62906c97c65b7200696389ff",
+            "accountId": "62906c97c65b7200696389ff",
+            "emailAddress": "tomerelkm@gmail.com",
+            "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/de762c518b5f4ea07c27138ca627fafa?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FTE-1.png",
+                "24x24": "https://secure.gravatar.com/avatar/de762c518b5f4ea07c27138ca627fafa?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FTE-1.png",
+                "16x16": "https://secure.gravatar.com/avatar/de762c518b5f4ea07c27138ca627fafa?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FTE-1.png",
+                "32x32": "https://secure.gravatar.com/avatar/de762c518b5f4ea07c27138ca627fafa?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FTE-1.png"
+            },
+            "displayName": "Tomer Elkayam",
+            "active": true,
+            "timeZone": "Asia/Jerusalem",
+            "accountType": "atlassian"
+        },
+        "sprint": {
+            "id": 3,
+            "self": "https://api.atlassian.com/ex/jira/e8b88b3a-e6f8-429b-8cd9-312a1940a176/rest/agile/1.0/sprint/3",
+            "state": "active",
+            "name": "Sprint 3",
+            "startDate": "2025-05-23T15:01:49.386Z",
+            "endDate": "2025-05-29T21:00:00.000Z",
+            "createdDate": "2025-05-01T12:32:30.199Z",
+            "originBoardId": 1,
+            "goal": ""
+        },
+        "id": "10225",
+        "name": "Fix queries of projectId that uses id as param"
+    },
+    {
+        "assignee": {
+            "self": "https://api.atlassian.com/ex/jira/e8b88b3a-e6f8-429b-8cd9-312a1940a176/rest/api/2/user?accountId=70121%3A4187cefb-1564-4e75-878b-0b2c201d2903",
+            "accountId": "70121:4187cefb-1564-4e75-878b-0b2c201d2903",
+            "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/4fd255c522123c0c0bffe83d8e07216c?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FSS-6.png",
+                "24x24": "https://secure.gravatar.com/avatar/4fd255c522123c0c0bffe83d8e07216c?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FSS-6.png",
+                "16x16": "https://secure.gravatar.com/avatar/4fd255c522123c0c0bffe83d8e07216c?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FSS-6.png",
+                "32x32": "https://secure.gravatar.com/avatar/4fd255c522123c0c0bffe83d8e07216c?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FSS-6.png"
+            },
+            "displayName": "Shachar Shemesh",
+            "active": true,
+            "timeZone": "Asia/Jerusalem",
+            "accountType": "atlassian"
+        },
+        "sprint": {
+            "id": 3,
+            "self": "https://api.atlassian.com/ex/jira/e8b88b3a-e6f8-429b-8cd9-312a1940a176/rest/agile/1.0/sprint/3",
+            "state": "active",
+            "name": "Sprint 3",
+            "startDate": "2025-05-23T15:01:49.386Z",
+            "endDate": "2025-05-29T21:00:00.000Z",
+            "createdDate": "2025-05-01T12:32:30.199Z",
+            "originBoardId": 1,
+            "goal": ""
+        },
+        "id": "10226",
+        "name": "project selection "
+    },
+    {
+        "assignee": {
+            "self": "https://api.atlassian.com/ex/jira/e8b88b3a-e6f8-429b-8cd9-312a1940a176/rest/api/2/user?accountId=70121%3A4187cefb-1564-4e75-878b-0b2c201d2903",
+            "accountId": "70121:4187cefb-1564-4e75-878b-0b2c201d2903",
+            "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/4fd255c522123c0c0bffe83d8e07216c?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FSS-6.png",
+                "24x24": "https://secure.gravatar.com/avatar/4fd255c522123c0c0bffe83d8e07216c?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FSS-6.png",
+                "16x16": "https://secure.gravatar.com/avatar/4fd255c522123c0c0bffe83d8e07216c?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FSS-6.png",
+                "32x32": "https://secure.gravatar.com/avatar/4fd255c522123c0c0bffe83d8e07216c?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FSS-6.png"
+            },
+            "displayName": "Shachar Shemesh",
+            "active": true,
+            "timeZone": "Asia/Jerusalem",
+            "accountType": "atlassian"
+        },
+        "sprint": {
+            "id": 3,
+            "self": "https://api.atlassian.com/ex/jira/e8b88b3a-e6f8-429b-8cd9-312a1940a176/rest/agile/1.0/sprint/3",
+            "state": "active",
+            "name": "Sprint 3",
+            "startDate": "2025-05-23T15:01:49.386Z",
+            "endDate": "2025-05-29T21:00:00.000Z",
+            "createdDate": "2025-05-01T12:32:30.199Z",
+            "originBoardId": 1,
+            "goal": ""
+        },
+        "id": "10227",
+        "name": "project settings middleware"
+    },
+    {
+        "assignee": {
+            "self": "https://api.atlassian.com/ex/jira/e8b88b3a-e6f8-429b-8cd9-312a1940a176/rest/api/2/user?accountId=70121%3A4187cefb-1564-4e75-878b-0b2c201d2903",
+            "accountId": "70121:4187cefb-1564-4e75-878b-0b2c201d2903",
+            "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/4fd255c522123c0c0bffe83d8e07216c?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FSS-6.png",
+                "24x24": "https://secure.gravatar.com/avatar/4fd255c522123c0c0bffe83d8e07216c?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FSS-6.png",
+                "16x16": "https://secure.gravatar.com/avatar/4fd255c522123c0c0bffe83d8e07216c?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FSS-6.png",
+                "32x32": "https://secure.gravatar.com/avatar/4fd255c522123c0c0bffe83d8e07216c?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FSS-6.png"
+            },
+            "displayName": "Shachar Shemesh",
+            "active": true,
+            "timeZone": "Asia/Jerusalem",
+            "accountType": "atlassian"
+        },
+        "sprint": {
+            "id": 3,
+            "self": "https://api.atlassian.com/ex/jira/e8b88b3a-e6f8-429b-8cd9-312a1940a176/rest/agile/1.0/sprint/3",
+            "state": "active",
+            "name": "Sprint 3",
+            "startDate": "2025-05-23T15:01:49.386Z",
+            "endDate": "2025-05-29T21:00:00.000Z",
+            "createdDate": "2025-05-01T12:32:30.199Z",
+            "originBoardId": 1,
+            "goal": ""
+        },
+        "id": "10228",
+        "name": "add project button "
+    },
+    {
+        "assignee": {
+            "self": "https://api.atlassian.com/ex/jira/e8b88b3a-e6f8-429b-8cd9-312a1940a176/rest/api/2/user?accountId=70121%3A4187cefb-1564-4e75-878b-0b2c201d2903",
+            "accountId": "70121:4187cefb-1564-4e75-878b-0b2c201d2903",
+            "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/4fd255c522123c0c0bffe83d8e07216c?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FSS-6.png",
+                "24x24": "https://secure.gravatar.com/avatar/4fd255c522123c0c0bffe83d8e07216c?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FSS-6.png",
+                "16x16": "https://secure.gravatar.com/avatar/4fd255c522123c0c0bffe83d8e07216c?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FSS-6.png",
+                "32x32": "https://secure.gravatar.com/avatar/4fd255c522123c0c0bffe83d8e07216c?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FSS-6.png"
+            },
+            "displayName": "Shachar Shemesh",
+            "active": true,
+            "timeZone": "Asia/Jerusalem",
+            "accountType": "atlassian"
+        },
+        "sprint": {
+            "id": 3,
+            "self": "https://api.atlassian.com/ex/jira/e8b88b3a-e6f8-429b-8cd9-312a1940a176/rest/agile/1.0/sprint/3",
+            "state": "active",
+            "name": "Sprint 3",
+            "startDate": "2025-05-23T15:01:49.386Z",
+            "endDate": "2025-05-29T21:00:00.000Z",
+            "createdDate": "2025-05-01T12:32:30.199Z",
+            "originBoardId": 1,
+            "goal": ""
+        },
+        "id": "10229",
+        "name": "fix navbar "
+    },
+    {
+        "assignee": {
+            "self": "https://api.atlassian.com/ex/jira/e8b88b3a-e6f8-429b-8cd9-312a1940a176/rest/api/2/user?accountId=62906c97c65b7200696389ff",
+            "accountId": "62906c97c65b7200696389ff",
+            "emailAddress": "tomerelkm@gmail.com",
+            "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/de762c518b5f4ea07c27138ca627fafa?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FTE-1.png",
+                "24x24": "https://secure.gravatar.com/avatar/de762c518b5f4ea07c27138ca627fafa?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FTE-1.png",
+                "16x16": "https://secure.gravatar.com/avatar/de762c518b5f4ea07c27138ca627fafa?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FTE-1.png",
+                "32x32": "https://secure.gravatar.com/avatar/de762c518b5f4ea07c27138ca627fafa?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FTE-1.png"
+            },
+            "displayName": "Tomer Elkayam",
+            "active": true,
+            "timeZone": "Asia/Jerusalem",
+            "accountType": "atlassian"
+        },
+        "sprint": {
+            "id": 3,
+            "self": "https://api.atlassian.com/ex/jira/e8b88b3a-e6f8-429b-8cd9-312a1940a176/rest/agile/1.0/sprint/3",
+            "state": "active",
+            "name": "Sprint 3",
+            "startDate": "2025-05-23T15:01:49.386Z",
+            "endDate": "2025-05-29T21:00:00.000Z",
+            "createdDate": "2025-05-01T12:32:30.199Z",
+            "originBoardId": 1,
+            "goal": ""
+        },
+        "id": "10257",
+        "name": "Fix Refresh Token and Store data in local storage"
+    },
+    {
+        "assignee": {
+            "self": "https://api.atlassian.com/ex/jira/e8b88b3a-e6f8-429b-8cd9-312a1940a176/rest/api/2/user?accountId=5fbe2574cbead50069307513",
+            "accountId": "5fbe2574cbead50069307513",
+            "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/207f79789602d9bec858de254416cee6?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNH-0.png",
+                "24x24": "https://secure.gravatar.com/avatar/207f79789602d9bec858de254416cee6?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNH-0.png",
+                "16x16": "https://secure.gravatar.com/avatar/207f79789602d9bec858de254416cee6?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNH-0.png",
+                "32x32": "https://secure.gravatar.com/avatar/207f79789602d9bec858de254416cee6?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNH-0.png"
+            },
+            "displayName": "Nitzan Hamzani",
+            "active": true,
+            "timeZone": "Asia/Jerusalem",
+            "accountType": "atlassian"
+        },
+        "sprint": {
+            "id": 34,
+            "self": "https://api.atlassian.com/ex/jira/e8b88b3a-e6f8-429b-8cd9-312a1940a176/rest/agile/1.0/sprint/34",
+            "state": "future",
+            "name": "Sprint 4 - testing",
+            "startDate": "2025-05-03T21:00:00.000Z",
+            "endDate": "2025-05-15T21:00:00.000Z",
+            "createdDate": "2025-05-07T13:07:18.335Z",
+            "originBoardId": 1,
+            "goal": ""
+        },
+        "id": "10290",
+        "name": "connect jira and github username"
+    },
+    {
+        "assignee": {
+            "self": "https://api.atlassian.com/ex/jira/e8b88b3a-e6f8-429b-8cd9-312a1940a176/rest/api/2/user?accountId=712020%3A72fafe25-c0df-4aa8-81c2-c12a0b74f72c",
+            "accountId": "712020:72fafe25-c0df-4aa8-81c2-c12a0b74f72c",
+            "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/a2ef293a1a2c44f90443ed91153f2e69?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FR-4.png",
+                "24x24": "https://secure.gravatar.com/avatar/a2ef293a1a2c44f90443ed91153f2e69?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FR-4.png",
+                "16x16": "https://secure.gravatar.com/avatar/a2ef293a1a2c44f90443ed91153f2e69?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FR-4.png",
+                "32x32": "https://secure.gravatar.com/avatar/a2ef293a1a2c44f90443ed91153f2e69?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FR-4.png"
+            },
+            "displayName": "ron80098",
+            "active": true,
+            "timeZone": "Asia/Jerusalem",
+            "accountType": "atlassian"
+        },
+        "sprint": {
+            "id": 34,
+            "self": "https://api.atlassian.com/ex/jira/e8b88b3a-e6f8-429b-8cd9-312a1940a176/rest/agile/1.0/sprint/34",
+            "state": "future",
+            "name": "Sprint 4 - testing",
+            "startDate": "2025-05-03T21:00:00.000Z",
+            "endDate": "2025-05-15T21:00:00.000Z",
+            "createdDate": "2025-05-07T13:07:18.335Z",
+            "originBoardId": 1,
+            "goal": ""
+        },
+        "id": "10291",
+        "name": "jwt refresh token"
+    }
+]

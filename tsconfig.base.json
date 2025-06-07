@@ -34,7 +34,8 @@
     "verbatimModuleSyntax": false,
     "paths": {
       "@packages/github": ["packages/github/src/index.ts"],
-      "@packages/projects": ["packages/projects/src/index.ts"]
+      "@packages/projects": ["packages/projects/src/index.ts"],
+      "@packages/jira": ["packages/jira/src/index.ts"]
     }
   }
 }

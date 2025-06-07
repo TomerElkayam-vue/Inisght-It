@@ -25,6 +25,7 @@ import { JiraController } from './jira/jira.controller';
 import { GithubController } from './github/github.controller';
 import { AuthMiddleware } from './middleware/auth.middleware';
 import { ProjectsController } from './projects/project.controller';
+import { AiController } from './ai/ai.controller';
 
 @Module({
   imports: [
@@ -53,7 +54,7 @@ export class AppModule implements NestModule {
     consumer
       .apply(AuthMiddleware, ProjectSettingsMiddleware)
       .exclude({ path: '*callback*', method: RequestMethod.ALL })
-      .forRoutes(JiraController, GithubController);
+      .forRoutes(JiraController, GithubController, AiController);
     consumer.apply(AuthMiddleware).forRoutes(ProjectsController);
   }
   // apply on ProjectsController jus the AuthMiddleware
