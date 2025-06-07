@@ -141,7 +141,7 @@ export class GithubService {
   }
 
   async getProjectStatsBySprint(
-    codeReposityCredentials: any, dataType: GithubDataType, projectId: string
+    codeReposityCredentials: any, dataType: GithubDataType | GithubAvgDataType, projectId: string
   ): Promise<any[]> {
     const {owner, name, token} = codeReposityCredentials.codeRepositoryCredentials;
     
@@ -170,10 +170,10 @@ export class GithubService {
     const stats = Object.values(
       await this.getProjectStatsBySprint(
         codeReposityCredentials,
-        avgDataType as unknown as GithubDataType,
+        avgDataType,
         projectId
       )
-    ) as unknown as number[];
+    );
 
     return {
       avg: stats.reduce((sum, val) => sum + val, 0) / stats.length,

@@ -41,7 +41,7 @@ export class JiraService {
 
   async getJiraIssues(
     jiraSettings: JiraSettings,
-    jiraDataType: JiraDataType,
+    jiraDataType: JiraDataType | JiraAvgDataType,
     projectId: string
   ) {
     return this.executeWithRefresh(jiraSettings, projectId, (settings) =>
@@ -115,7 +115,7 @@ export class JiraService {
     const stats = Object.values(
       await this.countJiraStatsPerSprint(
         jiraSettings,
-        jiraAvgDataType as unknown as JiraDataType,
+        jiraAvgDataType,
         projectId
       )
     ) as unknown as number[];
@@ -128,7 +128,7 @@ export class JiraService {
 
   async countJiraStatsPerSprint(
     jiraSettings: JiraSettings,
-    jiraDataType: JiraDataType,
+    jiraDataType: JiraDataType | JiraAvgDataType,
     projectId: string
   ): Promise<JiraUserStatsDTO> {
     const sprints = await this.getJiraSprints(jiraSettings, projectId);
