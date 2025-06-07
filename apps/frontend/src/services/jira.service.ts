@@ -37,7 +37,10 @@ export const getSprints = async (
 
 export const getProjects = async (projectId: string): Promise<any> => {
   const response = await api.get(`/jira/projects?projectId=${projectId}`);
-  return response.data;
+  return response.data.map((project : any) => ({
+    id: project.id,
+    name: project.name,
+  }));
 };
 
 export const updateJiraProjectOnProject = async (
