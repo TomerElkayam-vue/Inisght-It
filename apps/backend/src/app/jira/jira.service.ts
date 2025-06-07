@@ -231,7 +231,7 @@ export class JiraService {
     );
 
     if (issuesWithMergeRequests) {
-      return await Promise.all(
+      const issuesWithChanglog = await Promise.all(
         issuesWithMergeRequests?.map(async (issueWithMergeRequest) => ({
           ...issueWithMergeRequest,
           ...(await this.getJiraIssueChangelog(
@@ -240,6 +240,9 @@ export class JiraService {
             projectId
           )),
         }))
+      );
+      return issuesWithChanglog.filter(
+        (issue) => new Date(issue.created) < new Date(issue.mergedAt)
       );
     } else {
       return [];

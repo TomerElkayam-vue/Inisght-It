@@ -1,5 +1,11 @@
-import { JiraDataType } from '../components/Stats/JiraDashboard';
 import { api } from './api.config';
+
+export enum JiraDataType {
+  ISSUES = 'ISSUES',
+  STORY_POINTS = 'STORY_POINTS',
+  ISSUE_STATUS = 'ISSUE_STATUS',
+  ISSUE_TYPE = 'ISSUE_TYPE',
+}
 
 export type IssuesCountResponse = [
   {
@@ -27,6 +33,21 @@ export const getSprints = async (
 ): Promise<SprintResponse> => {
   const response = await api.get(`/jira/sprints?projectId=${projectId}`);
   return response.data.map((sprint: { name: string }) => sprint.name);
+};
+
+export const getDetailedSprints = async (projectId: string): Promise<any> => {
+  const response = await api.get(`/jira/sprints?projectId=${projectId}`);
+  return response.data;
+};
+
+export const getSprintsIssuesChangelog = async (
+  projectId: string,
+  sprintId: string
+): Promise<any> => {
+  const response = await api.get(
+    `/jira/issues-with-merge-requests/${sprintId}?projectId=${projectId}`
+  );
+  return response.data;
 };
 
 export const getProjects = async (projectId: string): Promise<any> => {

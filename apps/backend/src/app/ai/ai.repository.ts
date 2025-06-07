@@ -131,7 +131,6 @@ Respond with a JSON object containing one field called 'text'. This 'text' field
         jiraMap.set(issue.id, issue);
       });
 
-      // Reconstruct the full objects based on LLM's matches
       for (const match of llmMatches) {
         const originalMr = mrMap.get(match.mergeRequestTitle);
         const originalJira = jiraMap.get(match.jiraIssueId);

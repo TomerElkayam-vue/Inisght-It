@@ -7,8 +7,8 @@ import { GitHubPullRequest, RepositoryContributor } from '@packages/github';
 import { JiraService } from '../jira/jira.service';
 import { EmployeeService } from '../employee/employee.service';
 import { JiraSprintDto } from '../jira/dto/jira-sprint.dto';
-import { GithubDataType } from './enums/github-data-type.enum';
 import { GithubDtoTransformationMapper } from './mappers/github-dto-transformation-mapper';
+import { GithubDataType } from './enums/github-data-type';
 
 @Injectable()
 export class GithubService {

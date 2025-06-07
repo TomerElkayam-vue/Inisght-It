@@ -1,30 +1,47 @@
-import { CommentsPerUser } from './CommentsPerUser';
 import { CircularProgress } from './CircularProgress';
 import { circularStats } from '../../data/mockStats';
-import { JiraDashboard } from './JiraDashboard';
-import { IssueTimeline } from '../UserPage/IssueTimeline';
+import { StatsDashboard } from './StatsDashboard';
+import { getGithubStats, GithubDataType } from '../../services/github.service';
+import { getJiraStats, JiraDataType } from '../../services/jira.service';
+import { IssueTimeline } from '../Timeline/IssueTimeline';
 
 export const StatsPage = () => {
+  const githubDataTypeToText: Record<string, string> = {
+    [GithubDataType.PR]: 'Pull Request',
+    [GithubDataType.COMMENTS]: 'Comments Review',
+    [GithubDataType.COMMITS]: 'Commits',
+    [GithubDataType.FILE_CHANGES]: 'File Changes',
+  };
+
+  const jiraDataTypeToText: Record<string, string> = {
+    [JiraDataType.ISSUES]: 'Issues',
+    [JiraDataType.STORY_POINTS]: 'Story Points',
+    [JiraDataType.ISSUE_STATUS]: 'Issue Status',
+    [JiraDataType.ISSUE_TYPE]: 'Issue Type',
+  };
+
   return (
     <div className="container mx-auto px-4 py-4">
-      <div className="grid grid-cols-1 gap-4  h-[85vh]">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="h-full">
-          <JiraDashboard />
+          <StatsDashboard
+            dataTypeToText={jiraDataTypeToText}
+            initialSelectedDataType={JiraDataType.ISSUES}
+            fetchData={getJiraStats}
+          />
+        </div>
+        <div className="h-full">
+          <StatsDashboard
+            dataTypeToText={githubDataTypeToText}
+            initialSelectedDataType={GithubDataType.PR}
+            fetchData={getGithubStats}
+          />
         </div>
       </div>
-      <div className="grid grid-cols-1 gap-4 mb-4 h-[55vh]">
-        <div className="h-full">
-          <CommentsPerUser />
-        </div>
+      <div className="grid h-full mt-4">
+        <IssueTimeline />
       </div>
-
-      <div className="grid grid-cols-1 gap-4 mb-4 h-[55vh]">
-        <div className="h-full">
-          <IssueTimeline />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
         <CircularProgress
           value={circularStats.backlogTasks.value}
           total={circularStats.backlogTasks.total}
