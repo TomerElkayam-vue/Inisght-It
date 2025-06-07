@@ -4,7 +4,6 @@ import { removeToken } from '../../services/auth.service';
 import { useEffect, useState } from 'react';
 import { useProjects } from '../hooks/useProjectQueries';
 import { useCurrentProjectContext } from '../../context/CurrentProjectContext';
-import { useCreateProject } from '../hooks/useProjectQueries';
 import CreateProjectButton from './CreateProjectButton';
 
 export const Navbar = () => {
@@ -172,11 +171,11 @@ export const Navbar = () => {
             >
               ניהול פרויקט
             </Link>
-            {currentProject && (
+            {projects && projects.length > 0 && (
               <div className="flex flex-col gap-2">
                 <label className="text-white text-sm mb-1">בחר פרויקט</label>
                 <select
-                  value={currentProject?.id || ''}
+                  value={currentProject?.id || projects[0].id}
                   onChange={(e) => {
                     handleProjectChange(e.target.value);
                     setDrawerOpen(false);
@@ -184,13 +183,11 @@ export const Navbar = () => {
                   className="bg-[#2b3544] text-white px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 border border-blue-900"
                   disabled={isLoadingProjects}
                 >
-                  {projects &&
-                    projects.length > 0 &&
-                    projects?.map((project) => (
-                      <option key={project.id} value={project.id}>
-                        {project.name}
-                      </option>
-                    ))}
+                  {projects.map((project) => (
+                    <option key={project.id} value={project.id}>
+                      {project.name}
+                    </option>
+                  ))}
                 </select>
               </div>
             )}
