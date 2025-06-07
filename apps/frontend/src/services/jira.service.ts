@@ -1,3 +1,4 @@
+import { AvgStats } from '@packages/projects';
 import { api } from './api.config';
 
 export enum JiraDataType {
@@ -5,6 +6,11 @@ export enum JiraDataType {
   STORY_POINTS = 'STORY_POINTS',
   ISSUE_STATUS = 'ISSUE_STATUS',
   ISSUE_TYPE = 'ISSUE_TYPE',
+}
+
+export enum JiraAvgDataType {
+  ISSUES = 'ISSUES',
+  STORY_POINTS = 'STORY_POINTS',
 }
 
 export type IssuesCountResponse = [
@@ -24,6 +30,16 @@ export const getJiraStats = async (
     `/jira/stats/${statType}?projectId=${projectId}${
       teamStats ? `&teamStats=true` : ''
     }`
+  );
+  return response.data;
+};
+
+export const getJiraAvgStats = async (
+  projectId: string,
+  statType: JiraAvgDataType,
+): Promise<AvgStats> => {
+  const response = await api.get<AvgStats>(
+    `/jira/avg-stats/${statType}?projectId=${projectId}`
   );
   return response.data;
 };
