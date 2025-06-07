@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import { JiraService } from './jira.service';
 import { JiraDataType } from './enums/jira-data-type.enum';
+import { JiraAvgDataType } from './enums/jira-avg-data-type.enum';
 
 @Controller('jira')
 export class JiraController {
@@ -38,6 +39,22 @@ export class JiraController {
       }
     }
     return [];
+  }
+
+  @Get('avg-stats/:avgDataType')
+  getAvgJiraIsuue(
+    @Query('projectId') projectId: string,
+    @Param('avgDataType') avgDataType: JiraAvgDataType,
+    @Req() req: any
+  ) {
+    if (req.projectCredentials?.missionManagementCredentials?.id)
+      return this.jiraService.avgJiraIssuesPerSprint(
+        req.projectCredentials?.missionManagementCredentials,
+        avgDataType,
+        projectId
+      );
+
+    return 0;
   }
 
   @Get('sprints')

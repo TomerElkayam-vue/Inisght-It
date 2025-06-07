@@ -7,6 +7,7 @@ import { JiraSettings } from './types/jira-settings.type';
 import { JiraUserStatsDTO } from './dto/jira-user-stats.dto';
 import { JiraDataType } from './enums/jira-data-type.enum';
 import { JiraDtoTransformationMapper } from './mappers/jira-dto-transformation-mapper';
+import { JiraAvgDataType } from './enums/jira-avg-data-type.enum';
 
 @Injectable()
 export class JiraService {
@@ -103,6 +104,22 @@ export class JiraService {
     });
 
     return this.getStatsWithEmployeesUsername(issueCounts);
+  }
+
+  async avgJiraIssuesPerSprint(
+    jiraSettings: JiraSettings,
+    jiraAvgDataType: JiraAvgDataType,
+    projectId: string
+  ): Promise<number> {
+    const stats = Object.values(
+      await this.countJiraStatsPerSprint(
+        jiraSettings,
+        jiraAvgDataType as unknown as JiraDataType,
+        projectId
+      )
+    );
+
+    return (stats as unknown as number[]).reduce((sum, val) => sum + val, 0) / stats.length;
   }
 
   async countJiraStatsPerSprint(
