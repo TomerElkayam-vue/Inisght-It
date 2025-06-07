@@ -12,6 +12,8 @@ import { EmployeeService } from '../employee/employee.service';
 import { JiraSprintDto } from '../jira/dto/jira-sprint.dto';
 import { GithubDtoTransformationMapper } from './mappers/github-dto-transformation-mapper';
 import { GithubDataType } from './enums/github-data-type';
+import { GithubAvgDataType } from './enums/github-avg-data-type';
+import { AvgStats } from '@packages/projects';
 
 @Injectable()
 export class GithubService {
@@ -139,7 +141,7 @@ export class GithubService {
   }
 
   async getProjectStatsBySprint(
-    codeReposityCredentials: any, dataType: GithubDataType, projectId: string
+    codeReposityCredentials: any, dataType: GithubDataType | GithubAvgDataType, projectId: string
   ): Promise<any[]> {
     const {owner, name, token} = codeReposityCredentials.codeRepositoryCredentials;
     
@@ -158,5 +160,24 @@ export class GithubService {
     })
 
     return stats;
+  }
+
+  async getAvgStatsBySprint(
+    codeReposityCredentials: any,
+    avgDataType: GithubAvgDataType,
+    projectId: string
+  ): Promise<AvgStats> {
+    const stats = Object.values(
+      await this.getProjectStatsBySprint(
+        codeReposityCredentials,
+        avgDataType,
+        projectId
+      )
+    );
+
+    return {
+      avg: stats.reduce((sum, val) => sum + val, 0) / stats.length,
+      max: Math.max(...stats),
+    };
   }
 }

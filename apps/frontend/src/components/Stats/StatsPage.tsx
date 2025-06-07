@@ -1,8 +1,7 @@
 import { CircularProgress } from './CircularProgress';
-import { circularStats } from '../../data/mockStats';
 import { StatsDashboard } from './StatsDashboard';
-import { getGithubStats, GithubDataType } from '../../services/github.service';
-import { getJiraStats, JiraDataType } from '../../services/jira.service';
+import { getGithubAvgStats, getGithubStats, GithubAvgDataType, GithubDataType } from '../../services/github.service';
+import { getJiraAvgStats, getJiraStats, JiraAvgDataType, JiraDataType } from '../../services/jira.service';
 
 export const StatsPage = () => {
   const githubDataTypeToText: Record<string, string> = {
@@ -37,21 +36,26 @@ export const StatsPage = () => {
           />
         </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
-        <CircularProgress
-          value={circularStats.backlogTasks.value}
-          total={circularStats.backlogTasks.total}
-          label={circularStats.backlogTasks.label}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-4">
+        <CircularProgress<JiraAvgDataType>
+          fetchData={getJiraAvgStats}
+          statsType={JiraAvgDataType.ISSUES}
+          label="Issue"
         />
-        <CircularProgress
-          value={circularStats.averageTaskTime.value}
-          total={circularStats.averageTaskTime.total}
-          label={circularStats.averageTaskTime.label}
+        <CircularProgress<JiraAvgDataType>
+          fetchData={getJiraAvgStats}
+          statsType={JiraAvgDataType.STORY_POINTS}
+          label="Story Points"
         />
-        <CircularProgress
-          value={circularStats.averageSprintTime.value}
-          total={circularStats.averageSprintTime.total}
-          label={circularStats.averageSprintTime.label}
+        <CircularProgress<GithubAvgDataType>
+          fetchData={getGithubAvgStats}
+          statsType={GithubAvgDataType.PR}
+          label="PR"
+        />
+        <CircularProgress<GithubAvgDataType>
+          fetchData={getGithubAvgStats}
+          statsType={GithubAvgDataType.COMMITS}
+          label="Commits"
         />
       </div>
     </div>

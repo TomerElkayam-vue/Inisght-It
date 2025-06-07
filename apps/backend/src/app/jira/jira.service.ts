@@ -7,6 +7,8 @@ import { JiraSettings } from './types/jira-settings.type';
 import { JiraUserStatsDTO } from './dto/jira-user-stats.dto';
 import { JiraDataType } from './enums/jira-data-type.enum';
 import { JiraDtoTransformationMapper } from './mappers/jira-dto-transformation-mapper';
+import { JiraAvgDataType } from './enums/jira-avg-data-type.enum';
+import { AvgStats } from '@packages/projects';
 
 @Injectable()
 export class JiraService {
@@ -39,7 +41,7 @@ export class JiraService {
 
   async getJiraIssues(
     jiraSettings: JiraSettings,
-    jiraDataType: JiraDataType,
+    jiraDataType: JiraDataType | JiraAvgDataType,
     projectId: string
   ) {
     return this.executeWithRefresh(jiraSettings, projectId, (settings) =>
@@ -105,9 +107,28 @@ export class JiraService {
     return this.getStatsWithEmployeesUsername(issueCounts);
   }
 
+  async avgJiraIssuesPerSprint(
+    jiraSettings: JiraSettings,
+    jiraAvgDataType: JiraAvgDataType,
+    projectId: string
+  ): Promise<AvgStats> {
+    const stats = Object.values(
+      await this.countJiraStatsPerSprint(
+        jiraSettings,
+        jiraAvgDataType,
+        projectId
+      )
+    ) as unknown as number[];
+
+    return {
+      avg: stats.reduce((sum, val) => sum + val, 0) / stats.length,
+      max: Math.max(...stats),
+    };
+  }
+
   async countJiraStatsPerSprint(
     jiraSettings: JiraSettings,
-    jiraDataType: JiraDataType,
+    jiraDataType: JiraDataType | JiraAvgDataType,
     projectId: string
   ): Promise<JiraUserStatsDTO> {
     const sprints = await this.getJiraSprints(jiraSettings, projectId);
