@@ -12,15 +12,13 @@ export class UsersService {
     return this.usersRepository.getUser(userWhereUniqueInput);
   }
 
-  async getUsers(
-    params: {
-      skip?: number;
-      take?: number;
-      cursor?: Prisma.UserWhereUniqueInput;
-      where?: Prisma.UserWhereInput;
-      orderBy?: Prisma.UserOrderByWithRelationInput;
-    } = {}
-  ) {
+  async getUsers(params: {
+    skip?: number;
+    take?: number;
+    cursor?: Prisma.UserWhereUniqueInput;
+    where?: Prisma.UserWhereInput;
+    orderBy?: Prisma.UserOrderByWithRelationInput;
+  }): Promise<User[]> {
     return this.usersRepository.getUsers(params);
   }
 

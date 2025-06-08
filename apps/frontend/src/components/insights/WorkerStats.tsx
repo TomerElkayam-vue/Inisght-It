@@ -70,12 +70,14 @@ export const WorkerStats = ({ employee }: WorkerStatsProps) => {
           initialSelectedDataType={GithubDataType.PR}
           fetchData={getGithubStats}
           isWorkerView={true}
+          currentWorker={employee}
         />
         <StatsDashboard
           dataTypeToText={jiraDataTypeToText}
           initialSelectedDataType={JiraDataType.ISSUES}
           fetchData={getJiraStats}
           isWorkerView={true}
+          currentWorker={employee}
         />
       </div>
 

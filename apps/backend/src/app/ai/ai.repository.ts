@@ -14,10 +14,10 @@ export class AiRepository {
   model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
   async getWorkerRecommendation(userInfo: UserInfo): Promise<string> {
-    const promt = `Give your recommendation and summery in the hebrew language about a worker that have done ${userInfo.amountOfUserStories} Suser stories, and ${userInfo.amountOfCommentsPerReview} comments per review, and ${userInfo.numberOfReviews} reviews. please respond with a json object contains one field called text, which will contain the recommandation`;
+    const prompt = `Give your recommendation and summary in the Hebrew language about a worker that has done ${userInfo.amountOfUserStories} user stories, and ${userInfo.amountOfCommentsPerReview} comments per review, and ${userInfo.numberOfReviews} reviews. Please respond with a JSON object containing one field called text, which will contain the recommendation`;
 
     const result = await this.model.generateContent({
-      contents: [{ role: 'user', parts: [{ text: promt }] }],
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
       generationConfig: {
         responseMimeType: 'application/json',
       },
@@ -25,5 +25,13 @@ export class AiRepository {
 
     const response = JSON.parse(result.response.text()).text;
     return response;
+  }
+
+  async generateResponse(prompt: string): Promise<string> {
+    const result = await this.model.generateContent({
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+    });
+
+    return result.response.text();
   }
 }

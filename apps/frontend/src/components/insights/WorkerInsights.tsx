@@ -3,7 +3,7 @@ import { useCurrentProjectContext } from '../../context/CurrentProjectContext';
 import { WorkerStats } from './WorkerStats';
 import { Prompt } from './Prompt';
 
-export const Insights = () => {
+export const WorkerInsights = () => {
   const { currentProject } = useCurrentProjectContext();
   const [selectedEmployee, setSelectedEmployee] = useState<string | null>(null);
 

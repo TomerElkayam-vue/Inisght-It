@@ -4,7 +4,7 @@ import { StatsDashboard } from './StatsDashboard';
 import { getGithubStats, GithubDataType } from '../../services/github.service';
 import { getJiraStats, JiraDataType } from '../../services/jira.service';
 
-export const StatsPage = () => {
+export const TeamStatsPage = () => {
   const githubDataTypeToText: Record<string, string> = {
     [GithubDataType.PR]: 'Pull Request',
     [GithubDataType.COMMENTS]: 'Comments Review',
@@ -27,6 +27,7 @@ export const StatsPage = () => {
             dataTypeToText={jiraDataTypeToText}
             initialSelectedDataType={JiraDataType.ISSUES}
             fetchData={getJiraStats}
+            isWorkerView={false}
           />
         </div>
         <div className="h-full">

@@ -1,25 +1,27 @@
-import React, { useState, FormEvent } from "react";
-import { useNavigate } from "react-router-dom";
-import { login, saveToken } from "../../services/auth.service";
+import React, { useState, FormEvent } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { login } from '../../services/auth.service';
+import { useCurrentConnectedUser } from '../../context/CurrentConnectedUserContext';
 
 const LoginForm: React.FC = () => {
   const navigate = useNavigate();
-  const [username, setUsername] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  const [error, setError] = useState<string>("");
+  const { setToken } = useCurrentConnectedUser();
+  const [username, setUsername] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [error, setError] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError("");
+    setError('');
     setIsLoading(true);
 
     try {
-      const response = await login({ username, password });
-      saveToken(response);
+      const token = await login({ username, password });
+      setToken(token);
       navigate('/stats');
     } catch (err) {
-      setError("שם משתמש או סיסמא שגויים");
+      setError('שם משתמש או סיסמא שגויים');
       console.error('Login error:', err);
     } finally {
       setIsLoading(false);
@@ -29,19 +31,19 @@ const LoginForm: React.FC = () => {
   return (
     <div className="w-full max-w-md mx-auto">
       <div className="bg-[#1e2530] rounded-3xl p-10">
-        <h2 className="text-white text-3xl font-bold text-center mb-8">התחברות</h2>
-        
+        <h2 className="text-white text-3xl font-bold text-center mb-8">
+          התחברות
+        </h2>
+
         {error && (
           <div className="bg-red-500 text-white p-3 rounded-lg mb-4 text-center">
             {error}
           </div>
         )}
-        
+
         <form onSubmit={handleSubmit} dir="rtl">
           <div className="mb-6">
-            <label className="block text-white mb-2">
-              שם משתמש
-            </label>
+            <label className="block text-white mb-2">שם משתמש</label>
             <input
               type="text"
               value={username}
@@ -53,9 +55,7 @@ const LoginForm: React.FC = () => {
           </div>
 
           <div className="mb-6">
-            <label className="block text-white mb-2">
-              סיסמא
-            </label>
+            <label className="block text-white mb-2">סיסמא</label>
             <input
               type="password"
               value={password}
@@ -78,7 +78,7 @@ const LoginForm: React.FC = () => {
 
           <div className="text-center">
             <p className="text-white text-sm">
-              אין לך עדיין משתמש אצלנו?{" "}
+              אין לך עדיין משתמש אצלנו?{' '}
               <a href="/register" className="text-white underline">
                 לחץ כאן להרשמה
               </a>
@@ -90,4 +90,4 @@ const LoginForm: React.FC = () => {
   );
 };
 
-export default LoginForm; 
+export default LoginForm;
