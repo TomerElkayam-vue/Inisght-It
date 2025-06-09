@@ -4,9 +4,10 @@ import { StatsDashboard } from '../Stats/StatsDashboard';
 import { getGithubStats, GithubDataType } from '../../services/github.service';
 import { getJiraStats, JiraDataType } from '../../services/jira.service';
 import { api } from '../../services/api.config';
+import { EmployeeSelection } from './WorkerInsights';
 
 interface WorkerStatsProps {
-  employee: string;
+  employee: EmployeeSelection;
 }
 
 interface WorkerInsights {
@@ -50,7 +51,7 @@ export const WorkerStats = ({ employee }: WorkerStatsProps) => {
         const response = await api.get<WorkerInsights>(
           `/ai/worker-insights/${currentProject.id}/${employee}`
         );
-        setInsights(response.data);
+      setInsights(response.data);
       } catch (error) {
         console.error('Error fetching worker insights:', error);
       } finally {
@@ -70,14 +71,14 @@ export const WorkerStats = ({ employee }: WorkerStatsProps) => {
           initialSelectedDataType={GithubDataType.PR}
           fetchData={getGithubStats}
           isWorkerView={true}
-          currentWorker={employee}
+          currentWorker={employee.displayName}
         />
         <StatsDashboard
           dataTypeToText={jiraDataTypeToText}
           initialSelectedDataType={JiraDataType.ISSUES}
           fetchData={getJiraStats}
           isWorkerView={true}
-          currentWorker={employee}
+          currentWorker={employee.displayName}
         />
       </div>
 

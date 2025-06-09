@@ -4,12 +4,13 @@ import { removeToken } from '../../services/auth.service';
 import { useEffect, useState } from 'react';
 import { useProjects } from '../hooks/useProjectQueries';
 import { useCurrentProjectContext } from '../../context/CurrentProjectContext';
-import { useCreateProject } from '../hooks/useProjectQueries';
 import CreateProjectButton from './CreateProjectButton';
+import { useProjectRole } from '../../hooks/useProjectRole';
 
 export const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const userRole = useProjectRole();
 
   const isActive = (path: string) => {
     return location.pathname === path
@@ -31,11 +32,6 @@ export const Navbar = () => {
 
   // Get current project context
   const { currentProject, setCurrentProject } = useCurrentProjectContext();
-
-  // Check if current user is an owner (role ID 1)
-  const isOwner = currentProject?.projectPermissions?.some(
-    (permission) => permission.roleId === 1
-  );
 
   // Handle project change
   const handleProjectChange = (projectId: string) => {
@@ -150,7 +146,7 @@ export const Navbar = () => {
             >
               ×
             </button>
-            {isOwner && (
+            {userRole === 'OWNER' && (
               <Link
                 to="/stats"
                 className={`block px-4 py-3 rounded-lg text-white text-lg font-medium transition-colors ${isActive(

@@ -1,42 +1,56 @@
 import { useState, useEffect } from 'react';
 import { useCurrentProjectContext } from '../../context/CurrentProjectContext';
+import { useCurrentConnectedUser } from '../../context/CurrentConnectedUserContext';
 import { WorkerStats } from './WorkerStats';
 import { Prompt } from './Prompt';
+import { useQuery } from '@tanstack/react-query';
+import { usersService } from '../../services/users.service';
+import { useProjectRole } from '../../hooks/useProjectRole';
+
+export type EmployeeSelection = {
+  id: string;
+  displayName: string;
+};
 
 export const WorkerInsights = () => {
   const { currentProject } = useCurrentProjectContext();
-  const [selectedEmployee, setSelectedEmployee] = useState<string | null>(null);
+  const { user: currentConnectedUser } = useCurrentConnectedUser();
+  const userRole = useProjectRole();
+  const [selectedEmployee, setSelectedEmployee] =
+    useState<EmployeeSelection | null>(null);
 
-  // Check if current user is an owner (role ID 1)
-  const isOwner = currentProject?.projectPermissions?.some(
-    (permission) => permission.roleId === 1
-  );
+  const { data: userDetails } = useQuery({
+    queryKey: ['users'],
+    queryFn: () => {
+      return currentConnectedUser?.id
+        ? usersService.getUserDetails(currentConnectedUser?.id)
+        : null;
+    },
+  });
 
-  // Get current user's name if they are a member
-  const memberPermission = currentProject?.projectPermissions?.find(
-    (permission) => permission.roleId === 2
-  );
-  const currentUserName = memberPermission
-    ? `${memberPermission.user.firstName} ${memberPermission.user.lastName}`
-    : null;
+  console.log('user details ', userDetails);
 
-  // Set current user as selected employee for members
   useEffect(() => {
-    if (!isOwner && currentUserName) {
-      setSelectedEmployee(currentUserName);
+    if (userRole === 'MEMBER' && currentConnectedUser) {
+      setSelectedEmployee({
+        // TODO change
+        displayName: `${currentConnectedUser.username}`,
+        id: currentConnectedUser.id,
+      });
     }
-  }, [isOwner, currentUserName]);
+  }, [userRole, userDetails]);
 
-  const employees =
-    currentProject?.projectPermissions?.map(
-      (permission) => `${permission.user.firstName} ${permission.user.lastName}`
-    ) || [];
+  const employees: EmployeeSelection[] =
+    currentProject?.projectPermissions?.map((permission) => ({
+      id: permission.user.id,
+      displayName: `${permission.user.firstName} ${permission.user.lastName}`,
+    })) || [];
 
   if (!currentProject) {
     return null;
   }
 
-  if (!isOwner && !currentUserName) {
+  if (!userDetails && !userRole) {
     return (
       <div className="flex items-center justify-center p-6 bg-gray-900 rounded-lg min-h-[80vh]">
         <p className="text-xl text-gray-400 text-center">
@@ -49,22 +63,22 @@ export const WorkerInsights = () => {
   return (
     <div className="flex flex-col items-center justify-center p-6 space-y-6 bg-gray-900 rounded-lg min-h-[80vh]">
       {/* Employee Selection - Only show for owners */}
-      {isOwner && (
+      {userRole === 'OWNER' && (
         <div className="w-full max-w-xl text-center">
           <h1 className="text-2xl font-bold text-white mb-4">בחירת עובד</h1>
           <div className="flex flex-wrap gap-2 justify-center">
             {employees.map((employee) => (
               <button
-                key={employee}
+                key={employee.id}
                 onClick={() => setSelectedEmployee(employee)}
                 className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-200
                   ${
-                    selectedEmployee === employee
+                    selectedEmployee?.id === employee.id
                       ? 'bg-[#f8d94e] text-black shadow-lg scale-105'
                       : 'bg-[#2a2f4a] text-gray-300 hover:bg-[#3a3f5c] hover:scale-105'
                   }`}
               >
-                {employee}
+                {employee.displayName}
               </button>
             ))}
           </div>

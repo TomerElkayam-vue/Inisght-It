@@ -14,9 +14,9 @@ export const usersService = {
     const response = await api.get<simpleUser[]>('/users');
     return response.data;
   },
-};
 
-export const getUserDetails = async (userId: string): Promise<UserDetails> => {
-  const response = await api.get<UserDetails>(`/users/${userId}`);
-  return response.data;
+  getUserDetails: async (userId: string): Promise<UserDetails> => {
+    const response = await api.get<UserDetails>(`/users/${userId}`);
+    return response.data;
+  },
 };

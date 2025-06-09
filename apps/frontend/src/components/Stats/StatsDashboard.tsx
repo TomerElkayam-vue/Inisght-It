@@ -111,7 +111,6 @@ export const StatsDashboard = ({
   const barChartData = useMemo<ChartData<'bar'>>(() => {
     let filteredStats = stats;
 
-    console.log(isWorkerView, currentWorker, stats);
     if (isWorkerView && currentWorker && stats) {
       // Calculate team average
       const teamAverage = Object.entries(stats).reduce((acc, [_, data]) => {
