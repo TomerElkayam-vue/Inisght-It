@@ -1,7 +1,18 @@
 import { CircularProgress } from './CircularProgress';
 import { StatsDashboard } from './StatsDashboard';
-import { getGithubAvgStats, getGithubStats, GithubAvgDataType, GithubDataType } from '../../services/github.service';
-import { getJiraAvgStats, getJiraStats, JiraAvgDataType, JiraDataType } from '../../services/jira.service';
+import {
+  getGithubAvgStats,
+  getGithubStats,
+  GithubAvgDataType,
+  GithubDataType,
+} from '../../services/github.service';
+import {
+  getJiraAvgStats,
+  getJiraStats,
+  JiraAvgDataType,
+  JiraDataType,
+} from '../../services/jira.service';
+import { IssueTimeline } from '../Timeline/IssueTimeline';
 
 export const StatsPage = () => {
   const githubDataTypeToText: Record<string, string> = {
@@ -35,6 +46,9 @@ export const StatsPage = () => {
             fetchData={getGithubStats}
           />
         </div>
+      </div>
+      <div className="h-full">
+        <IssueTimeline />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-4">
         <CircularProgress<JiraAvgDataType>
