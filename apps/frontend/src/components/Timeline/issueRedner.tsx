@@ -27,6 +27,7 @@ export const itemRender = ({
         style: {
           backgroundColor,
           color: '#ffffff',
+          zIndex: 100,
           borderColor,
           border: itemContext.selected ? 'dashed 1px rgba(0,0,0,0.3)' : 'none',
           borderRadius: 4,

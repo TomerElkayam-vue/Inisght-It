@@ -5,8 +5,16 @@ body {
   font-size: 18px;
 }
 
+/* Main Timeline container */
+.react-calendar-timeline {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgb(108, 108, 108);
+}
+
 .rct-item-content {
-  border: dotted 1px deepskyblue;
+  border: dotted 1px #3a3a4d;
+  border-radius: 8px;
 }
 
 .react-calendar-timeline .rct-horizontal-lines .rct-hl-even,
@@ -18,11 +26,13 @@ body {
 
 /* The scrolling area */
 .rct-scroll {
-  background-color: white !important;
+  background-color: #151921 !important;
+  border-radius: 0 12px 12px 0;
 }
 
 .react-calendar-timeline .rct-sidebar .rct-sidebar-row {
   border-bottom: none;
+  background-color: #151921;
 }
 
 .react-calendar-timeline .rct-header .rct-label {
@@ -30,27 +40,29 @@ body {
 }
 
 .rct-dateHeader {
-  background-color: #f8d94e !important;
+  background-color: #1e1e2d !important;
+  color: #ffffff;
 }
 
 .rct-header-root {
-  background: #f8d94e !important;
-  border-bottom: 1px solid #e5e7eb !important;
+  background: #1e1e2d !important;
+  border-bottom: 1px solid #2d2d3f !important;
+  border-radius: 12px 12px 0 0;
 }
 
 .react-calendar-timeline .rct-vertical-lines .rct-vl.rct-vl-first {
-  border-color: #ccc;
+  border-color: #2d2d3f;
 }
 
 .react-calendar-timeline .rct-vertical-lines .rct-vl {
-  border-left: 1px solid #eeeeee87;
+  border-left: 1px solid #2d2d3f;
 }
 
 .react-calendar-timeline .rct-header .rct-label-group {
   font-family: 'Work Sans', sans-serif;
-
   color: #ffffff;
   font-size: 1rem;
+  background-color: #1e1e2d;
 }
 
 .react-calendar-timeline .rct-sidebar-header {
@@ -58,9 +70,48 @@ body {
   text-align: center;
   padding-top: 1rem;
   border: none;
-  border-right: solid 2px #ccc !important;
+  border-right: solid 2px #2d2d3f !important;
+  background-color: #151921;
+  border-radius: 12px 0 0 12px;
 }
 
 .rct-sidebar {
   color: #ffffff;
+  background-color: #151921;
+  border-radius: 12px 0 0 12px;
+}
+
+/* Additional dark theme styles */
+.react-calendar-timeline .rct-sidebar .rct-sidebar-row.rct-sidebar-row-odd {
+  background-color: #1e1e2d;
+}
+
+.react-calendar-timeline .rct-sidebar .rct-sidebar-row.rct-sidebar-row-even {
+  background-color: #151921;
+}
+
+.react-calendar-timeline .rct-horizontal-lines .rct-hl-even {
+  background-color: #1e1e2d;
+}
+
+.react-calendar-timeline .rct-horizontal-lines .rct-hl-odd {
+  background-color: #151921;
+}
+
+/* Timeline item styles */
+.react-calendar-timeline .rct-item {
+  background-color: #3a3a4d;
+  border: 1px solid #4a4a5d;
+  border-radius: 6px;
+}
+
+.react-calendar-timeline .rct-item:hover {
+  background-color: #4a4a5d;
+}
+
+/* Add rounded corners to the main container */
+.rct-root {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgb(108, 108, 108);
 }

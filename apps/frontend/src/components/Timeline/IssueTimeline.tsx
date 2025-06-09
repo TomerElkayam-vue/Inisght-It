@@ -10,7 +10,6 @@ import {
 import './styles.css';
 import { IssueWithMrAndChangelog } from '@packages/jira';
 import { itemRender } from './issueRedner';
-export { type IssueWithMrAndChangelog } from '@packages/jira';
 
 export const IssueTimeline = () => {
   const { currentProject } = useCurrentProjectContext();
@@ -81,14 +80,14 @@ export const IssueTimeline = () => {
     return timelineItems?.sort(
       (firstItem, secondItem) =>
         firstItem.start_time.unix() - secondItem.start_time.unix()
-    )[0].start_time;
+    )[0]?.start_time;
   }, [timelineItems]);
 
   const timelineEnd = useMemo(() => {
     return timelineItems?.sort(
       (firstItem, secondItem) =>
         firstItem.start_time.unix() - secondItem.start_time.unix()
-    )[timelineItems.length - 1].end_time;
+    )[timelineItems.length - 1]?.end_time;
   }, [timelineItems]);
 
   return (
@@ -101,7 +100,7 @@ export const IssueTimeline = () => {
           בחר ספרינט על מנת לראות את לוח הזמנים
         </p>
         <select
-          className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="p-3 rounded-lg bg-[#3a3a4d] border-none focus:outline-none text-white"
           value={selectedSprintId}
           onChange={(e) => {
             setLoadingChangelog(true);
@@ -122,13 +121,13 @@ export const IssueTimeline = () => {
             groups={timelineGroups ?? []}
             items={timelineItems ?? []}
             //@ts-ignore
-            defaultTimeStart={timelineStart}
+            defaultTimeStart={timelineStart ?? moment().subtract(1, 'days')}
             //@ts-ignore
-            defaultTimeEnd={timelineEnd}
+            defaultTimeEnd={timelineEnd ?? moment()}
             itemRenderer={itemRender}
             stackItems={false}
             lineHeight={60}
-            minZoom={60 * 60 * 1000} 
+            minZoom={60 * 60 * 1000}
             maxZoom={7 * 24 * 60 * 60 * 1000 * 100}
           />
         ) : (

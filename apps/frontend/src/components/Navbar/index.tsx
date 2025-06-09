@@ -128,7 +128,7 @@ export const Navbar = () => {
       </nav>
       {/* Drawer overlay */}
       {drawerOpen && (
-        <div className="fixed inset-0 z-50">
+        <div className="fixed inset-0" style={{ zIndex: 150 }}>
           <div
             className="absolute inset-0 bg-black bg-opacity-40"
             onClick={() => setDrawerOpen(false)}
