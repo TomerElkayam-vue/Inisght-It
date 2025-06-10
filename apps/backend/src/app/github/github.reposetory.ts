@@ -136,6 +136,27 @@ export class GithubRepository {
     }
   }
 
+  async getAllPullRequests(owner: string, repo: string, token: string) {
+    try {
+      const url = `${this.baseUrl}/repos/${owner}/${repo}/pulls?state=all`;
+      const { data } = await firstValueFrom(
+        this.httpService.get<GitHubPullRequest[]>(url, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: 'application/vnd.github.v3+json',
+          },
+        })
+      );
+
+      return data;
+    } catch (error: any) {
+      if (error.response?.status === 401) {
+        throw new UnauthorizedException('Invalid GitHub token');
+      }
+      throw error;
+    }
+  }
+
   async getUserGithubToken(code: string): Promise<string> {
     try {
       const url = `https://github.com/login/oauth/access_token`;

@@ -44,6 +44,7 @@ export type SprintCommentsPerUser = {
 };
 
 export type GitHubPullRequest = {
+  title?: string;
   id: number;
   number: number;
   created_at: string;
@@ -51,11 +52,11 @@ export type GitHubPullRequest = {
   closed_at?: string;
   user?: GitHubUser;
   userName?: string;
-  review_comments : number;
-  commits : number;
-  additions : number;
-  deletions : number;
-  changed_files : number;
+  review_comments: number;
+  commits: number;
+  additions: number;
+  deletions: number;
+  changed_files: number;
 };
 
 export type RepositoryContributor = {

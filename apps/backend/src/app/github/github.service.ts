@@ -1,23 +1,23 @@
-import { Injectable, Inject} from '@nestjs/common';
+import { Injectable, Inject, forwardRef } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { GithubRepository } from './github.reposetory';
 import { ProjectsSerivce } from '../projects/project.service';
-import {
-  GitHubPullRequest,
-  RepositoryContributor,
-} from '@packages/github';
+import { GitHubPullRequest, RepositoryContributor } from '@packages/github';
 import { JiraService } from '../jira/jira.service';
 import { EmployeeService } from '../employee/employee.service';
 import { JiraSprintDto } from '../jira/dto/jira-sprint.dto';
 import { GithubDtoTransformationMapper } from './mappers/github-dto-transformation-mapper';
 import { GithubDataType } from './enums/github-data-type';
+import { GithubAvgDataType } from './enums/github-avg-data-type';
+import { AvgStats } from '@packages/projects';
 
 @Injectable()
 export class GithubService {
   constructor(
     private readonly GithubRepository: GithubRepository,
     private projectsService: ProjectsSerivce,
+    @Inject(forwardRef(() => JiraService))
     private readonly jiraService: JiraService,
     private readonly employeeService: EmployeeService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache
@@ -46,6 +46,21 @@ export class GithubService {
     return this.GithubRepository.getUsersRepositories(token);
   }
 
+  async getAllPullRequests(codeRepositoryCredentials: any) {
+    const { name, owner, token } = codeRepositoryCredentials;
+    const data = await this.GithubRepository.getAllPullRequests(
+      owner,
+      name,
+      token
+    );
+    return data.map((pullRequest) => ({
+      title: pullRequest.title,
+      owner: pullRequest.user?.login,
+      createdAt: pullRequest.created_at,
+      mergedAt: (pullRequest as unknown as any).merged_at,
+    }));
+  }
+
   async updateGithubProjectOnProject(
     projectId: string,
     githubProject: { id: string; name: string; owner: string }
@@ -56,7 +71,7 @@ export class GithubService {
 
     const settings = {
       ...currentCodeRepositoryCredentials,
-      ...githubProject
+      ...githubProject,
     };
 
     await this.projectsService.updateProject({
@@ -64,99 +79,159 @@ export class GithubService {
       data: { codeRepositoryCredentials: settings },
     });
   }
-  
+
   async getProjectPullRequests(
-    owner : string,
+    owner: string,
     name: string,
     token: string,
     startDate: string | null = null,
-    endDate: string | null = null,
+    endDate: string | null = null
   ): Promise<GitHubPullRequest[]> {
     const cacheKey = `project-pulls-${owner}-${name}`;
-    
+
     const pullRequests = await this.GithubRepository.getPullRequests(
-        owner,
-        name,
-        token,
-        startDate,
-        endDate,
-        "all"
-      );
-      
-    const pullRequestsExtended = (await Promise.all(
-      pullRequests.map((pullRequest) => 
-        this.GithubRepository.getPullRequestByNumber(owner, name, token, pullRequest.number))
-    )).flat();
+      owner,
+      name,
+      token,
+      startDate,
+      endDate,
+      'all'
+    );
+
+    const pullRequestsExtended = (
+      await Promise.all(
+        pullRequests.map((pullRequest) =>
+          this.GithubRepository.getPullRequestByNumber(
+            owner,
+            name,
+            token,
+            pullRequest.number
+          )
+        )
+      )
+    ).flat();
 
     await this.cacheManager.set(cacheKey, pullRequestsExtended);
     return pullRequestsExtended;
   }
 
-  findSprintName(sprints: JiraSprintDto[], pullRequest: GitHubPullRequest ): string {
-    const filtered = sprints.filter(sprint => sprint.startDate && sprint.endDate && 
-      new Date(sprint.startDate) <= new Date(pullRequest.created_at) &&
-      new Date(sprint.endDate) >= new Date(pullRequest.created_at));
+  findSprintName(
+    sprints: JiraSprintDto[],
+    pullRequest: GitHubPullRequest
+  ): string {
+    const filtered = sprints.filter(
+      (sprint) =>
+        sprint.startDate &&
+        sprint.endDate &&
+        new Date(sprint.startDate) <= new Date(pullRequest.created_at) &&
+        new Date(sprint.endDate) >= new Date(pullRequest.created_at)
+    );
 
     return filtered.length ? filtered[0].name : 'Backlog';
   }
 
   async getProjectStatsByUser(
-    codeReposityCredentials: any, dataType: GithubDataType, projectId: string
+    codeReposityCredentials: any,
+    dataType: GithubDataType,
+    projectId: string
   ): Promise<any[]> {
-    const {owner, name, token} = codeReposityCredentials.codeRepositoryCredentials;
+    const { owner, name, token } =
+      codeReposityCredentials.codeRepositoryCredentials;
 
-    const sprints = await this.jiraService.getJiraSprints(codeReposityCredentials.missionManagementCredentials, projectId);
+    const sprints = await this.jiraService.getJiraSprints(
+      codeReposityCredentials.missionManagementCredentials,
+      projectId
+    );
     const blankStats = sprints.reduce((acc, curr) => {
-      acc[curr.name] = GithubDtoTransformationMapper[dataType].sprintInitaliztionValue;
+      acc[curr.name] =
+        GithubDtoTransformationMapper[dataType].sprintInitaliztionValue;
       return acc;
     }, {} as Record<string, any>);
 
-    const stats : any = {};
+    const stats: any = {};
 
     const pullRequests = await this.getProjectPullRequests(owner, name, token);
     pullRequests.forEach((pullRequest) => {
-      const user = pullRequest.user?.login ?? "Unknown";
-      const sprintName = this.findSprintName(sprints, pullRequest)
-      
-      if (!stats[user])
-        stats[user] = structuredClone(blankStats);
-      
+      const user = pullRequest.user?.login ?? 'Unknown';
+      const sprintName = this.findSprintName(sprints, pullRequest);
+
+      if (!stats[user]) stats[user] = structuredClone(blankStats);
+
       if (sprintName != 'Backlog')
-        stats[user][sprintName] = GithubDtoTransformationMapper[dataType].dataTransformation(
-          structuredClone(stats[user][sprintName]), pullRequest)
-    })
+        stats[user][sprintName] = GithubDtoTransformationMapper[
+          dataType
+        ].dataTransformation(
+          structuredClone(stats[user][sprintName]),
+          pullRequest
+        );
+    });
 
-    const users = await this.GithubRepository.getRepositoryContributors(owner, name, token);
-    const statsWithEmployeesUsername : any = {}; 
+    const users = await this.GithubRepository.getRepositoryContributors(
+      owner,
+      name,
+      token
+    );
+    const statsWithEmployeesUsername: any = {};
 
-    await Promise.all(users.map(async user => {
-      const employee = await this.employeeService.findEmployeeByGithubUsername(user.login);
-      const displayName = employee?.displayName ?? user.login;
-      statsWithEmployeesUsername[displayName] = stats[user.login];
-    }));
+    await Promise.all(
+      users.map(async (user) => {
+        const employee =
+          await this.employeeService.findEmployeeByGithubUsername(user.login);
+        const displayName = employee?.displayName ?? user.login;
+        statsWithEmployeesUsername[displayName] = stats[user.login];
+      })
+    );
 
     return statsWithEmployeesUsername;
   }
 
   async getProjectStatsBySprint(
-    codeReposityCredentials: any, dataType: GithubDataType, projectId: string
+    codeReposityCredentials: any, dataType: GithubDataType | GithubAvgDataType, projectId: string
   ): Promise<any[]> {
-    const {owner, name, token} = codeReposityCredentials.codeRepositoryCredentials;
-    
-    const stats : any = {}
+    const { owner, name, token } =
+      codeReposityCredentials.codeRepositoryCredentials;
 
-    const sprints = await this.jiraService.getJiraSprints(codeReposityCredentials.missionManagementCredentials, projectId);
-    sprints.forEach(sprint => stats[sprint.name] = GithubDtoTransformationMapper[dataType].sprintInitaliztionValue);
+    const stats: any = {};
+
+    const sprints = await this.jiraService.getJiraSprints(
+      codeReposityCredentials.missionManagementCredentials,
+      projectId
+    );
+    sprints.forEach(
+      (sprint) =>
+        (stats[sprint.name] =
+          GithubDtoTransformationMapper[dataType].sprintInitaliztionValue)
+    );
 
     const pullRequests = await this.getProjectPullRequests(owner, name, token);
     pullRequests.forEach((pullRequest) => {
-      const sprintName = this.findSprintName(sprints, pullRequest)
+      const sprintName = this.findSprintName(sprints, pullRequest);
 
       if (sprintName != 'Backlog')
-        stats[sprintName] = GithubDtoTransformationMapper[dataType].dataTransformation(
-          structuredClone(stats[sprintName]), pullRequest)
-    })
+        stats[sprintName] = GithubDtoTransformationMapper[
+          dataType
+        ].dataTransformation(structuredClone(stats[sprintName]), pullRequest);
+    });
 
     return stats;
+  }
+
+  async getAvgStatsBySprint(
+    codeReposityCredentials: any,
+    avgDataType: GithubAvgDataType,
+    projectId: string
+  ): Promise<AvgStats> {
+    const stats = Object.values(
+      await this.getProjectStatsBySprint(
+        codeReposityCredentials,
+        avgDataType,
+        projectId
+      )
+    );
+
+    return {
+      avg: stats.reduce((sum, val) => sum + val, 0) / stats.length,
+      max: Math.max(...stats),
+    };
   }
 }

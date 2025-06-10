@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { JiraRepository } from './jira.repository';
 import { JiraSprintDto } from './dto/jira-sprint.dto';
 import { ProjectsSerivce } from '../projects/project.service';
@@ -7,12 +7,17 @@ import { JiraSettings } from './types/jira-settings.type';
 import { JiraUserStatsDTO } from './dto/jira-user-stats.dto';
 import { JiraDataType } from './enums/jira-data-type.enum';
 import { JiraDtoTransformationMapper } from './mappers/jira-dto-transformation-mapper';
+import { AiService } from '../ai/ai.service';
+import { JiraAvgDataType } from './enums/jira-avg-data-type.enum';
+import { AvgStats } from '@packages/projects';
 
 @Injectable()
 export class JiraService {
   constructor(
     private readonly jiraRepository: JiraRepository,
     private projectsService: ProjectsSerivce,
+    @Inject(forwardRef(() => AiService))
+    private aiService: AiService,
     private readonly employeeService: EmployeeService
   ) {}
 
@@ -39,7 +44,7 @@ export class JiraService {
 
   async getJiraIssues(
     jiraSettings: JiraSettings,
-    jiraDataType: JiraDataType,
+    jiraDataType: JiraDataType | JiraAvgDataType,
     projectId: string
   ) {
     return this.executeWithRefresh(jiraSettings, projectId, (settings) =>
@@ -105,9 +110,28 @@ export class JiraService {
     return this.getStatsWithEmployeesUsername(issueCounts);
   }
 
+  async avgJiraIssuesPerSprint(
+    jiraSettings: JiraSettings,
+    jiraAvgDataType: JiraAvgDataType,
+    projectId: string
+  ): Promise<AvgStats> {
+    const stats = Object.values(
+      await this.countJiraStatsPerSprint(
+        jiraSettings,
+        jiraAvgDataType,
+        projectId
+      )
+    ) as unknown as number[];
+
+    return {
+      avg: stats.reduce((sum, val) => sum + val, 0) / stats.length,
+      max: Math.max(...stats),
+    };
+  }
+
   async countJiraStatsPerSprint(
     jiraSettings: JiraSettings,
-    jiraDataType: JiraDataType,
+    jiraDataType: JiraDataType | JiraAvgDataType,
     projectId: string
   ): Promise<JiraUserStatsDTO> {
     const sprints = await this.getJiraSprints(jiraSettings, projectId);
@@ -192,6 +216,67 @@ export class JiraService {
   async getJiraProjects(jiraSettings: JiraSettings, projectId: string) {
     return this.executeWithRefresh(jiraSettings, projectId, (settings) =>
       this.jiraRepository.getJiraProjects(settings.token)
+    );
+  }
+
+  async getJiraRawIssues(jiraSettings: JiraSettings, projectId: string) {
+    return this.executeWithRefresh(jiraSettings, projectId, (settings) =>
+      this.jiraRepository.getJiraIssues(settings, JiraDataType.ISSUES)
+    );
+  }
+
+  async getJiraIssuesWithMergeReqests(
+    projectSettings: any,
+    projectId: string,
+    sprintId: number
+  ) {
+    const jiraIssues = await this.getJiraRawIssues(
+      projectSettings?.missionManagementCredentials,
+      projectId
+    );
+
+    const issuesForPromt = jiraIssues
+      .map((issue) => ({
+        assignee: issue?.assignee?.displayName,
+        sprint: issue?.sprint?.id,
+        id: issue?.id,
+        name: issue?.name,
+      }))
+      .filter((issue) => {
+        return issue.sprint === sprintId;
+      });
+
+    const issuesWithMergeRequests = await this.aiService.getMergeRequestByIssue(
+      issuesForPromt,
+      projectSettings?.codeRepositoryCredentials
+    );
+
+    if (issuesWithMergeRequests) {
+      const issuesWithChanglog = await Promise.all(
+        issuesWithMergeRequests?.map(async (issueWithMergeRequest) => ({
+          ...issueWithMergeRequest,
+          ...(await this.getJiraIssueChangelog(
+            issueWithMergeRequest.id,
+            projectSettings?.missionManagementCredentials,
+            projectId
+          )),
+        }))
+      );
+      return issuesWithChanglog.filter(
+        (issue) => new Date(issue.created) < new Date(issue.mergedAt)
+      );
+    } else {
+      return [];
+    }
+  }
+
+  async getJiraIssueChangelog(
+    issueId: string,
+    jiraSettings: JiraSettings,
+    projectId: string
+  ) {
+    return this.executeWithRefresh(jiraSettings, projectId, (settings) =>
+      this.jiraRepository.getIssueChangelog(issueId, settings)
     );
   }
 

@@ -24,12 +24,16 @@ export const CurrentProjectProvider = ({
     }
   };
 
-  // useEffect(() => {
-    // const storedProject = localStorage.getItem('currentProject');
-    // if (storedProject) {
-    //   setCurrentProject(JSON.parse(storedProject));
-    // }
-  // }, []);
+  useEffect(() => {
+    const storedProject = localStorage.getItem('currentProject');
+    if (storedProject) {
+      try {
+        setCurrentProject(JSON.parse(storedProject));
+      } catch (err) {
+        console.log(err);
+      }
+    }
+  }, []);
 
   return (
     <CurrentProjectContext.Provider

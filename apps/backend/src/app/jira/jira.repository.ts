@@ -1,13 +1,14 @@
-import { Inject, Injectable } from "@nestjs/common";
-import { HttpService } from "@nestjs/axios";
-import { firstValueFrom } from "rxjs";
-import { JiraTaskDto } from "./dto/jira-task.dto";
-import { jiraConfig } from "../../config/jira-config";
-import { ConfigType } from "@nestjs/config";
-import axios from "axios";
-import { JiraSettings } from "./types/jira-settings.type";
-import { JiraDataType } from "./enums/jira-data-type.enum";
-import { jiraDataTypeTransformation } from "./mappers/jira-data-type-transformation";
+import { Inject, Injectable } from '@nestjs/common';
+import { HttpService } from '@nestjs/axios';
+import { firstValueFrom } from 'rxjs';
+import { JiraTaskDto } from './dto/jira-task.dto';
+import { jiraConfig } from '../../config/jira-config';
+import { ConfigType } from '@nestjs/config';
+import axios from 'axios';
+import { JiraSettings } from './types/jira-settings.type';
+import { JiraDataType } from './enums/jira-data-type.enum';
+import { jiraDataTypeTransformation } from './mappers/jira-data-type-transformation';
+import { JiraAvgDataType } from './enums/jira-avg-data-type.enum';
 
 @Injectable()
 export class JiraRepository {
@@ -23,8 +24,8 @@ export class JiraRepository {
 
   async getJiraIssues(
     projectSettings: JiraSettings,
-    dataType: JiraDataType
-  ): Promise<JiraTaskDto["fields"][]> {
+    dataType: JiraDataType | JiraAvgDataType
+  ): Promise<JiraTaskDto['fields'][]> {
     try {
       // TODO - replace 1 with boardId
       const response = await firstValueFrom(
@@ -45,9 +46,10 @@ export class JiraRepository {
         )
       );
 
-      return response.data.issues.map((issue: any) =>
-        jiraDataTypeTransformation[dataType].transformFunction(issue.fields)
-      );
+      return response.data.issues.map((issue: any) => ({
+        ...jiraDataTypeTransformation[dataType].transformFunction(issue.fields),
+        id: issue.id,
+      }));
     } catch (error: any) {
       console.log("Error", error.status);
       throw error;
@@ -157,5 +159,52 @@ export class JiraRepository {
       console.log("Error", e.status);
       throw e;
     }
+  }
+
+  async getIssueChangelog(
+    issueId: string,
+    projectSettings: JiraSettings
+  ): Promise<{
+    created: string;
+    toDo?: string;
+    inProgress?: string;
+    done?: string;
+  }> {
+    const response = await firstValueFrom(
+      this.httpService.get(
+        `https://api.atlassian.com/ex/jira/${projectSettings.id}/rest/api/3/issue/${issueId}?expand=changelog`,
+        {
+          headers: {
+            Authorization: `Bearer ${projectSettings.token}`,
+            Accept: 'application/json',
+          },
+        }
+      )
+    );
+
+    const changelog = response.data.changelog.histories;
+    const created = response.data.fields.created;
+
+    let toDo: string | undefined;
+    let inProgress: string | undefined;
+    let done: string | undefined;
+
+    for (const entry of changelog) {
+      for (const item of entry.items) {
+        if (item.field === 'status') {
+          if (!toDo && item.toString === 'To Do') {
+            toDo = entry.created;
+          }
+          if (!inProgress && item.toString === 'In Progress') {
+            inProgress = entry.created;
+          }
+          if (!done && item.toString === 'Done') {
+            done = entry.created;
+          }
+        }
+      }
+    }
+
+    return { created, toDo, inProgress, done };
   }
 }
