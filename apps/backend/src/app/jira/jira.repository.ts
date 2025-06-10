@@ -51,7 +51,7 @@ export class JiraRepository {
         id: issue.id,
       }));
     } catch (error: any) {
-      console.log("Error", error.status);
+      console.log("Error", error);
       throw error;
     }
   }
@@ -75,7 +75,7 @@ export class JiraRepository {
 
       return response.data.values;
     } catch (error: any) {
-      console.log("Error", error.status);
+      console.log("Error", error);
       throw error;
     }
   }
@@ -107,7 +107,7 @@ export class JiraRepository {
         refreshToken: data.refresh_token,
       };
     } catch (error: any) {
-      console.log("Error", error.status);
+      console.log("Error", error);
       throw error;
     }
   }
@@ -138,7 +138,7 @@ export class JiraRepository {
         refreshToken: data.refresh_token,
       };
     } catch (error: any) {
-      console.log("Error", error.status);
+      console.log("Error", error);
       throw error;
     }
   }
@@ -156,7 +156,7 @@ export class JiraRepository {
 
       return data;
     } catch (e: any) {
-      console.log("Error", e.status);
+      console.log("Error", e);
       throw e;
     }
   }
