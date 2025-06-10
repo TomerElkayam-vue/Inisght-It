@@ -1,14 +1,14 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { HttpService } from '@nestjs/axios';
-import { firstValueFrom } from 'rxjs';
-import { JiraTaskDto } from './dto/jira-task.dto';
-import { jiraConfig } from '../../config/jira-config';
-import { ConfigType } from '@nestjs/config';
-import axios from 'axios';
-import { JiraSettings } from './types/jira-settings.type';
-import { JiraDataType } from './enums/jira-data-type.enum';
-import { jiraDataTypeTransformation } from './mappers/jira-data-type-transformation';
-import { JiraAvgDataType } from './enums/jira-avg-data-type.enum';
+import { Inject, Injectable } from "@nestjs/common";
+import { HttpService } from "@nestjs/axios";
+import { firstValueFrom } from "rxjs";
+import { JiraTaskDto } from "./dto/jira-task.dto";
+import { jiraConfig } from "../../config/jira-config";
+import { ConfigType } from "@nestjs/config";
+import axios from "axios";
+import { JiraSettings } from "./types/jira-settings.type";
+import { JiraDataType } from "./enums/jira-data-type.enum";
+import { jiraDataTypeTransformation } from "./mappers/jira-data-type-transformation";
+import { JiraAvgDataType } from "./enums/jira-avg-data-type.enum";
 
 @Injectable()
 export class JiraRepository {
@@ -19,13 +19,13 @@ export class JiraRepository {
     @Inject(jiraConfig.KEY)
     private jiraConfigValues: ConfigType<typeof jiraConfig>
   ) {
-    this.apiEndpoint = process.env.API_ENDPOINT || "http://localhost:3000";
+    this.apiEndpoint = process.env.API_URL || "http://localhost:3000/api";
   }
 
   async getJiraIssues(
     projectSettings: JiraSettings,
     dataType: JiraDataType | JiraAvgDataType
-  ): Promise<JiraTaskDto['fields'][]> {
+  ): Promise<JiraTaskDto["fields"][]> {
     try {
       // TODO - replace 1 with boardId
       const response = await firstValueFrom(
@@ -87,7 +87,7 @@ export class JiraRepository {
         client_id: this.jiraConfigValues.clientId,
         client_secret: this.jiraConfigValues.clientSecret,
         code,
-        redirect_uri: `${this.apiEndpoint}/api/jira/callback`,
+        redirect_uri: `${this.apiEndpoint}/jira/callback`,
       });
 
       const config = {
@@ -176,7 +176,7 @@ export class JiraRepository {
         {
           headers: {
             Authorization: `Bearer ${projectSettings.token}`,
-            Accept: 'application/json',
+            Accept: "application/json",
           },
         }
       )
@@ -191,14 +191,14 @@ export class JiraRepository {
 
     for (const entry of changelog) {
       for (const item of entry.items) {
-        if (item.field === 'status') {
-          if (!toDo && item.toString === 'To Do') {
+        if (item.field === "status") {
+          if (!toDo && item.toString === "To Do") {
             toDo = entry.created;
           }
-          if (!inProgress && item.toString === 'In Progress') {
+          if (!inProgress && item.toString === "In Progress") {
             inProgress = entry.created;
           }
-          if (!done && item.toString === 'Done') {
+          if (!done && item.toString === "Done") {
             done = entry.created;
           }
         }
