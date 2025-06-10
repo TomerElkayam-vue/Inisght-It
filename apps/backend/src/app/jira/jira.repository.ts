@@ -12,11 +12,15 @@ import { JiraAvgDataType } from './enums/jira-avg-data-type.enum';
 
 @Injectable()
 export class JiraRepository {
+  private apiEndpoint: string;
+
   constructor(
     private readonly httpService: HttpService,
     @Inject(jiraConfig.KEY)
     private jiraConfigValues: ConfigType<typeof jiraConfig>
-  ) {}
+  ) {
+    this.apiEndpoint = process.env.API_ENDPOINT || "http://localhost:3000";
+  }
 
   async getJiraIssues(
     projectSettings: JiraSettings,
@@ -29,14 +33,14 @@ export class JiraRepository {
           `https://api.atlassian.com/ex/jira/${projectSettings.id}/rest/agile/1.0/board/1/issue`,
           {
             params: {
-              jql: 'sprint IS NOT EMPTY and assignee IS NOT EMPTY',
+              jql: "sprint IS NOT EMPTY and assignee IS NOT EMPTY",
               fields: jiraDataTypeTransformation[dataType].fields,
               maxResults: 100,
               startAt: 0,
             },
             headers: {
               Authorization: `Bearer ${projectSettings.token}`,
-              Accept: 'application/json',
+              Accept: "application/json",
             },
           }
         )
@@ -47,7 +51,7 @@ export class JiraRepository {
         id: issue.id,
       }));
     } catch (error: any) {
-      console.log('Error', error.status);
+      console.log("Error", error.status);
       throw error;
     }
   }
@@ -63,7 +67,7 @@ export class JiraRepository {
             },
             headers: {
               Authorization: `Bearer ${projectSettings.token}`,
-              Accept: 'application/json',
+              Accept: "application/json",
             },
           }
         )
@@ -71,7 +75,7 @@ export class JiraRepository {
 
       return response.data.values;
     } catch (error: any) {
-      console.log('Error', error.status);
+      console.log("Error", error.status);
       throw error;
     }
   }
@@ -79,19 +83,19 @@ export class JiraRepository {
   async getJiraToken(code: string): Promise<any> {
     try {
       const body = JSON.stringify({
-        grant_type: 'authorization_code',
+        grant_type: "authorization_code",
         client_id: this.jiraConfigValues.clientId,
         client_secret: this.jiraConfigValues.clientSecret,
         code,
-        redirect_uri: 'http://localhost:3000/api/jira/callback',
+        redirect_uri: `${this.apiEndpoint}/api/jira/callback`,
       });
 
       const config = {
-        method: 'post',
+        method: "post",
         maxBodyLength: Infinity,
-        url: 'https://auth.atlassian.com/oauth/token',
+        url: "https://auth.atlassian.com/oauth/token",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         data: body,
       };
@@ -103,7 +107,7 @@ export class JiraRepository {
         refreshToken: data.refresh_token,
       };
     } catch (error: any) {
-      console.log('Error', error.status);
+      console.log("Error", error.status);
       throw error;
     }
   }
@@ -111,18 +115,18 @@ export class JiraRepository {
   async refreshJiraToken(currentRefreshToken: string): Promise<any> {
     try {
       const body = JSON.stringify({
-        grant_type: 'refresh_token',
+        grant_type: "refresh_token",
         client_id: this.jiraConfigValues.clientId,
         client_secret: this.jiraConfigValues.clientSecret,
         refresh_token: currentRefreshToken,
       });
 
       const config = {
-        method: 'post',
+        method: "post",
         maxBodyLength: Infinity,
-        url: 'https://auth.atlassian.com/oauth/token',
+        url: "https://auth.atlassian.com/oauth/token",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         data: body,
       };
@@ -134,7 +138,7 @@ export class JiraRepository {
         refreshToken: data.refresh_token,
       };
     } catch (error: any) {
-      console.log('Error', error.status);
+      console.log("Error", error.status);
       throw error;
     }
   }
@@ -142,7 +146,7 @@ export class JiraRepository {
   async getJiraProjects(token: string) {
     try {
       const { data } = await axios.get(
-        'https://api.atlassian.com/oauth/token/accessible-resources',
+        "https://api.atlassian.com/oauth/token/accessible-resources",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -152,7 +156,7 @@ export class JiraRepository {
 
       return data;
     } catch (e: any) {
-      console.log('Error', e.status);
+      console.log("Error", e.status);
       throw e;
     }
   }
