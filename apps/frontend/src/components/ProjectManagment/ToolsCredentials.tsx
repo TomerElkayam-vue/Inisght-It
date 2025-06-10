@@ -11,21 +11,21 @@ const ToolCredentials = () => {
   const githubSuccess = searchParams.get('github-successs');
 
   const apiEndpoint = import.meta.env.VITE_API_URL;
+  const githubClientId = import.meta.env.VITE_GITHUB_CLIENT_ID || 'Ov23liBqFboVyeJfPkKc'
+  const jiraClientId = import.meta.env.VITE_JIRA_CLIENT_ID ||'At6ejbAFMkAUdSJ25XfbMLSJiMLpxVHe'
 
   const redirectToGitHub = () => {
-    const clientId = 'Ov23liBqFboVyeJfPkKc';
     const redirectUri = `${apiEndpoint}/github/callback/?projectId=${currentProject?.id}`;
     const scope = 'repo';
-    window.location.href = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}`;
+    window.location.href = `https://github.com/login/oauth/authorize?client_id=${githubClientId}&redirect_uri=${redirectUri}&scope=${scope}`;
   };
 
   const redirectToJira = () => {
-    const clientId = 'At6ejbAFMkAUdSJ25XfbMLSJiMLpxVHe';
     const redirectUri = `${apiEndpoint}/jira/callback?projectId=${currentProject?.id}`;
     const scopes =
       'read:jira-user read:jira-work read:board-scope:jira-software read:project:jira read:board-scope.admin:jira-software read:issue-details:jira read:sprint:jira-software offline_access';
 
-    const authUrl = `https://auth.atlassian.com/authorize?audience=api.atlassian.com&client_id=${clientId}&scope=${encodeURIComponent(
+    const authUrl = `https://auth.atlassian.com/authorize?audience=api.atlassian.com&client_id=${jiraClientId}&scope=${encodeURIComponent(
       scopes
     )}&redirect_uri=${encodeURIComponent(
       redirectUri
