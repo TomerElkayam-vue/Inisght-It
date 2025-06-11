@@ -1,6 +1,6 @@
 import React, { useState, FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import { register, saveToken } from "../../services/auth.service";
+import { register, saveTokens } from "../../services/auth.service";
 
 const RegisterForm: React.FC = () => {
   const navigate = useNavigate();
@@ -17,8 +17,8 @@ const RegisterForm: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const response = await register({ username, password, firstName, lastName });
-      saveToken(response);
+      const { accessToken, refreshToken } = await register({ username, password, firstName, lastName });
+      saveTokens(accessToken, refreshToken);
       navigate('/stats');
     } catch (err: any) {
       setError("שגיאה בהתחברות");
@@ -122,4 +122,4 @@ const RegisterForm: React.FC = () => {
   );
 };
 
-export default RegisterForm; 
+export default RegisterForm;

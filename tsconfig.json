@@ -12,6 +12,9 @@
     {
       "path": "./packages/github"
     },
+    {
+      "path": "./packages/jira"
+    },
     { "path": "./packages/projects" }
   ]
 }

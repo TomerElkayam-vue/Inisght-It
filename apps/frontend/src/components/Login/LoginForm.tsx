@@ -1,7 +1,7 @@
 import React, { useState, FormEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { login } from '../../services/auth.service';
 import { useCurrentConnectedUser } from '../../context/CurrentConnectedUserContext';
+import { useNavigate } from 'react-router-dom';
+import { login, saveTokens } from '../../services/auth.service';
 
 const LoginForm: React.FC = () => {
   const navigate = useNavigate();
@@ -17,8 +17,9 @@ const LoginForm: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const token = await login({ username, password });
-      setToken(token);
+      const { accessToken, refreshToken } = await login({ username, password });
+      saveTokens(accessToken, refreshToken);
+      setToken(accessToken);
       navigate('/stats');
     } catch (err) {
       setError('שם משתמש או סיסמא שגויים');

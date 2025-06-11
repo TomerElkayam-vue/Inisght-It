@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { refreshToken, saveTokens, removeTokens, getToken } from './auth.service';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -10,11 +11,37 @@ export const api = axios.create({
   withCredentials: true, // Important for CORS with credentials
 });
 
-// Add a request interceptor to include the token
+// Request interceptor to include the token
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('jwt_token'); // Retrieve the token from localStorage
+  const token = getToken();
   if (token) {
-    config.headers.Authorization = `Bearer ${token}`; // Add the token to the Authorization header
+    config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });
+
+// Response interceptor to handle token refresh
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+
+      try {
+        const { accessToken, refreshToken: newRefreshToken } = await refreshToken();
+        saveTokens(accessToken, newRefreshToken);
+
+        originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+        return api(originalRequest);
+      } catch (refreshError) {
+        removeTokens();
+        window.location.href = '/';
+        return Promise.reject(refreshError);
+      }
+    }
+
+    return Promise.reject(error);
+  }
+);

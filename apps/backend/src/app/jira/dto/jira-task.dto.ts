@@ -9,5 +9,7 @@ export type JiraTaskDto = {
   fields: {
     sprint: JiraSprintDto;
     assignee: JiraUserDto;
+    id: string;
+    name: string;
   };
 };

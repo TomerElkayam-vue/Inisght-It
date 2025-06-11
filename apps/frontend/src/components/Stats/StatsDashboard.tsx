@@ -336,7 +336,7 @@ export const StatsDashboard = ({
         </div>
       )}
       {/* Dashboard Text */}
-      <div className="flex-1 min-h-[20rem] w-full bg-gray-900 p-4 rounded flex items-center justify-center relative">
+      <div className="min-h-[20rem] w-full bg-gray-900 p-4 container mx-auto px-4 py-4 items-center justify-center relative">
         {isLoading ? (
           <div className="absolute inset-0 bg-[#151921] bg-opacity-90 flex items-center justify-center z-0">
             <div className="flex flex-col items-center gap-4">

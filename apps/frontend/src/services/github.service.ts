@@ -1,3 +1,4 @@
+import { AvgStats } from '@packages/projects';
 import { api } from './api.config';
 import { SprintCommentsPerUser } from '@packages/github';
 
@@ -6,6 +7,11 @@ export enum GithubDataType {
   COMMITS = 'COMMITS',
   FILE_CHANGES = 'FILE_CHANGES',
   COMMENTS = 'COMMENTS',
+}
+
+export enum GithubAvgDataType {
+  PR = 'PR',
+  COMMITS = 'COMMITS',
 }
 
 export const getPullRequestsSummery = async (projectId: string): Promise<
@@ -44,6 +50,16 @@ export const getGithubStats = async (
     `/github/stats/${statType}?projectId=${projectId}${
       teamStats ? '&teamStats=true' : ''
     }`
+  );
+  return response.data;
+};
+
+export const getGithubAvgStats = async (
+  projectId: string,
+  statType: GithubAvgDataType,
+): Promise<AvgStats> => {
+  const response = await api.get<AvgStats>(
+    `/github/avg-stats/${statType}?projectId=${projectId}`
   );
   return response.data;
 };

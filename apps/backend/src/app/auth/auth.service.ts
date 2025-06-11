@@ -33,6 +33,20 @@ export class AuthService {
     return bcrypt.compare(pepperedPassword, hashedPassword);
   }
 
+  private generateRefreshToken(userId: string): string {
+    const refreshPayload = {
+      sub: userId,
+      type: "refresh",
+      iat: Math.floor(Date.now() / 1000),
+    };
+    return this.jwtService.sign(refreshPayload, { expiresIn: "7d" });
+  }
+
+  private generateAccessToken(userId: string, username: string): string {
+    const payload = { username, sub: userId };
+    return this.jwtService.sign(payload, { expiresIn: "15m" });
+  }
+
   async login(user: { username: string; password: string }) {
     const dbUser = await this.usersService.getUser({ username: user.username });
 
@@ -43,10 +57,12 @@ export class AuthService {
       throw new UnauthorizedException("Invalid credentials");
     }
 
-    const payload = { username: dbUser.username, sub: dbUser.id };
+    const accessToken = this.generateAccessToken(dbUser.id, dbUser.username);
+    const refreshToken = this.generateRefreshToken(dbUser.id);
 
     return {
-      access_token: this.jwtService.sign(payload),
+      access_token: accessToken,
+      refresh_token: refreshToken,
     };
   }
 
@@ -72,9 +88,37 @@ export class AuthService {
       lastName: user.lastName,
     });
 
-    const payload = { username: newUser.username, sub: newUser.id };
+    const accessToken = this.generateAccessToken(newUser.id, newUser.username);
+    const refreshToken = this.generateRefreshToken(newUser.id);
+
     return {
-      access_token: this.jwtService.sign(payload),
+      access_token: accessToken,
+      refresh_token: refreshToken,
     };
+  }
+
+  async refreshToken(refreshToken: string) {
+    try {
+      const decoded = this.jwtService.verify(refreshToken) as any;
+
+      if (decoded.type !== "refresh") {
+        throw new UnauthorizedException("Invalid refresh token type");
+      }
+
+      const user = await this.usersService.getUser({ id: decoded.sub });
+      if (!user) {
+        throw new UnauthorizedException("User not found");
+      }
+
+      const newAccessToken = this.generateAccessToken(user.id, user.username);
+      const newRefreshToken = this.generateRefreshToken(user.id);
+
+      return {
+        access_token: newAccessToken,
+        refresh_token: newRefreshToken,
+      };
+    } catch (error) {
+      throw new UnauthorizedException("Invalid or expired refresh token");
+    }
   }
 }

@@ -1,4 +1,4 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, forwardRef } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { GithubRepository } from './github.reposetory';
@@ -9,12 +9,15 @@ import { EmployeeService } from '../employee/employee.service';
 import { JiraSprintDto } from '../jira/dto/jira-sprint.dto';
 import { GithubDtoTransformationMapper } from './mappers/github-dto-transformation-mapper';
 import { GithubDataType } from './enums/github-data-type';
+import { GithubAvgDataType } from './enums/github-avg-data-type';
+import { AvgStats } from '@packages/projects';
 
 @Injectable()
 export class GithubService {
   constructor(
     private readonly GithubRepository: GithubRepository,
     private projectsService: ProjectsSerivce,
+    @Inject(forwardRef(() => JiraService))
     private readonly jiraService: JiraService,
     private readonly employeeService: EmployeeService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache
@@ -43,6 +46,21 @@ export class GithubService {
     return this.GithubRepository.getUsersRepositories(token);
   }
 
+  async getAllPullRequests(codeRepositoryCredentials: any) {
+    const { name, owner, token } = codeRepositoryCredentials;
+    const data = await this.GithubRepository.getAllPullRequests(
+      owner,
+      name,
+      token
+    );
+    return data.map((pullRequest) => ({
+      title: pullRequest.title,
+      owner: pullRequest.user?.login,
+      createdAt: pullRequest.created_at,
+      mergedAt: (pullRequest as unknown as any).merged_at,
+    }));
+  }
+
   async updateGithubProjectOnProject(
     projectId: string,
     githubProject: { id: string; name: string; owner: string }
@@ -61,7 +79,7 @@ export class GithubService {
     }
 
     const settings = {
-      token: currentCodeRepositoryCredentials.token,
+      ...currentCodeRepositoryCredentials,
       ...githubProject,
     };
 
@@ -178,7 +196,7 @@ export class GithubService {
 
   async getProjectStatsBySprint(
     codeReposityCredentials: any,
-    dataType: GithubDataType,
+    dataType: GithubDataType | GithubAvgDataType,
     projectId: string
   ): Promise<any[]> {
     const { owner, name, token } =
@@ -207,5 +225,24 @@ export class GithubService {
     });
 
     return stats;
+  }
+
+  async getAvgStatsBySprint(
+    codeReposityCredentials: any,
+    avgDataType: GithubAvgDataType,
+    projectId: string
+  ): Promise<AvgStats> {
+    const stats = Object.values(
+      await this.getProjectStatsBySprint(
+        codeReposityCredentials,
+        avgDataType,
+        projectId
+      )
+    );
+
+    return {
+      avg: stats.reduce((sum, val) => sum + val, 0) / stats.length,
+      max: Math.max(...stats),
+    };
   }
 }

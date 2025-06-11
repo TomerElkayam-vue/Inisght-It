@@ -14,4 +14,9 @@ export class AuthController {
   async register(@Body() user: any) {
     return this.authService.register(user);
   }
+
+  @Post("refresh")
+  async refresh(@Body() body: { refresh_token: string }) {
+    return this.authService.refreshToken(body.refresh_token);
+  }
 }
