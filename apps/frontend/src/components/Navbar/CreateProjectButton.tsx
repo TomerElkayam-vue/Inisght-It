@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useCreateProject } from '../hooks/useProjectQueries';
+import { Project } from '@packages/projects';
 
 interface CreateProjectButtonProps {
-  onProjectCreated: (project: any) => void;
+  onProjectCreated: (project: Project) => void;
   setToast: (
     toast: { message: string; type: 'error' | 'success' } | null
   ) => void;
@@ -38,7 +39,17 @@ const CreateProjectButton: React.FC<CreateProjectButtonProps> = ({
       const newProject = await createProjectMutation.mutateAsync({
         name: newProjectName,
       });
-      onProjectCreated(newProject);
+      // Ensure we have all the necessary project data
+      const completeProject: Project = {
+        ...newProject,
+        projectPermissions: newProject.projectPermissions || [],
+        codeRepositoryCredentials: newProject.codeRepositoryCredentials || null,
+        missionManagementCredentials:
+          newProject.missionManagementCredentials || null,
+      };
+      onProjectCreated(completeProject);
+      setToast({ message: 'הפרויקט נוצר בהצלחה!', type: 'success' });
+      setTimeout(() => setToast(null), 3000);
       handleCloseModal();
     } catch (e) {
       setToast({ message: 'אופס, משהו השתבש', type: 'error' });
@@ -68,6 +79,7 @@ const CreateProjectButton: React.FC<CreateProjectButtonProps> = ({
               placeholder="שם הפרויקט"
               value={newProjectName}
               onChange={(e) => setNewProjectName(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleCreateProject()}
               autoFocus
             />
             {error && (

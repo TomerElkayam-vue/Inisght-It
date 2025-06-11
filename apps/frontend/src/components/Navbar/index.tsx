@@ -5,10 +5,12 @@ import { useEffect, useState } from 'react';
 import { useProjects } from '../hooks/useProjectQueries';
 import { useCurrentProjectContext } from '../../context/CurrentProjectContext';
 import CreateProjectButton from './CreateProjectButton';
+import { useProjectRole } from '../../hooks/useProjectRole';
 
 export const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const userRole = useProjectRole();
 
   const isActive = (path: string) => {
     return location.pathname === path
@@ -144,15 +146,17 @@ export const Navbar = () => {
             >
               ×
             </button>
-            <Link
-              to="/stats"
-              className={`block px-4 py-3 rounded-lg text-white text-lg font-medium transition-colors ${isActive(
-                '/stats'
-              )}`}
-              onClick={() => setDrawerOpen(false)}
-            >
-              סטטיסטיקות
-            </Link>
+            {userRole === 'OWNER' && (
+              <Link
+                to="/stats"
+                className={`block px-4 py-3 rounded-lg text-white text-lg font-medium transition-colors ${isActive(
+                  '/stats'
+                )}`}
+                onClick={() => setDrawerOpen(false)}
+              >
+                תובנות צוותיות
+              </Link>
+            )}
             <Link
               to="/insights"
               className={`block px-4 py-3 rounded-lg text-white text-lg font-medium transition-colors ${isActive(
@@ -160,17 +164,19 @@ export const Navbar = () => {
               )}`}
               onClick={() => setDrawerOpen(false)}
             >
-              תובנות
+              פרופיל עובד
             </Link>
-            <Link
-              to="/project-management"
-              className={`block px-4 py-3 rounded-lg text-white text-lg font-medium transition-colors ${isActive(
-                '/project-management'
-              )}`}
-              onClick={() => setDrawerOpen(false)}
-            >
-              ניהול פרויקט
-            </Link>
+            {userRole === 'OWNER' && (
+              <Link
+                to="/project-management"
+                className={`block px-4 py-3 rounded-lg text-white text-lg font-medium transition-colors ${isActive(
+                  '/project-management'
+                )}`}
+                onClick={() => setDrawerOpen(false)}
+              >
+                ניהול פרויקט
+              </Link>
+            )}
             {projects && projects.length > 0 && (
               <div className="flex flex-col gap-2">
                 <label className="text-white text-sm mb-1">בחר פרויקט</label>

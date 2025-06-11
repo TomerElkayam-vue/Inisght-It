@@ -65,9 +65,18 @@ export class GithubService {
     projectId: string,
     githubProject: { id: string; name: string; owner: string }
   ) {
-    const currentCodeRepositoryCredentials = (
-      await this.projectsService.getProject({ id: projectId })
-    )?.codeRepositoryCredentials as any;
+    const currentProject = await this.projectsService.getProject({
+      id: projectId,
+    });
+    if (!currentProject) {
+      throw new Error('Project not found');
+    }
+
+    const currentCodeRepositoryCredentials =
+      currentProject.codeRepositoryCredentials as any;
+    if (!currentCodeRepositoryCredentials?.token) {
+      throw new Error('GitHub token not found. Please reconnect GitHub.');
+    }
 
     const settings = {
       ...currentCodeRepositoryCredentials,
@@ -186,7 +195,9 @@ export class GithubService {
   }
 
   async getProjectStatsBySprint(
-    codeReposityCredentials: any, dataType: GithubDataType | GithubAvgDataType, projectId: string
+    codeReposityCredentials: any,
+    dataType: GithubDataType | GithubAvgDataType,
+    projectId: string
   ): Promise<any[]> {
     const { owner, name, token } =
       codeReposityCredentials.codeRepositoryCredentials;

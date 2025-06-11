@@ -1,5 +1,10 @@
 import { CircularProgress } from './CircularProgress';
-import { StatsDashboard } from './StatsDashboard';
+import {
+  githubDataTypeToText,
+  jiraDataTypeToText,
+  StatsDashboard,
+} from './StatsDashboard';
+
 import {
   getGithubAvgStats,
   getGithubStats,
@@ -14,21 +19,7 @@ import {
 } from '../../services/jira.service';
 import { IssueTimeline } from '../Timeline/IssueTimeline';
 
-export const StatsPage = () => {
-  const githubDataTypeToText: Record<string, string> = {
-    [GithubDataType.PR]: 'Pull Request',
-    [GithubDataType.COMMENTS]: 'Comments Review',
-    [GithubDataType.COMMITS]: 'Commits',
-    [GithubDataType.FILE_CHANGES]: 'File Changes',
-  };
-
-  const jiraDataTypeToText: Record<string, string> = {
-    [JiraDataType.ISSUES]: 'Issues',
-    [JiraDataType.STORY_POINTS]: 'Story Points',
-    [JiraDataType.ISSUE_STATUS]: 'Issue Status',
-    [JiraDataType.ISSUE_TYPE]: 'Issue Type',
-  };
-
+export const TeamStatsPage = () => {
   return (
     <div className="container mx-auto px-4 py-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -37,6 +28,7 @@ export const StatsPage = () => {
             dataTypeToText={jiraDataTypeToText}
             initialSelectedDataType={JiraDataType.ISSUES}
             fetchData={getJiraStats}
+            isWorkerView={false}
           />
         </div>
         <div className="h-full">

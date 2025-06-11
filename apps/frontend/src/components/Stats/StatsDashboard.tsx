@@ -1,5 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
-import { getSprints, SprintResponse } from '../../services/jira.service';
+import {
+  getSprints,
+  JiraDataType,
+  SprintResponse,
+} from '../../services/jira.service';
 import { useCurrentProjectContext } from '../../context/CurrentProjectContext';
 import { Bar, Line } from 'react-chartjs-2';
 import { generateGraphOptions } from './jira/graphOptions/generateGraphOptions';
@@ -17,11 +21,14 @@ import {
   Legend,
   Chart as ChartJS,
   BarElement,
+  ChartData,
+  ChartDataset,
 } from 'chart.js';
 import {
   generateMultipleGraphDataset,
   generateSingleGraphDataset,
 } from './jira/genereGraphDataset';
+import { GithubDataType } from '../../services/github.service';
 
 ChartJS.register(
   CategoryScale,
@@ -34,6 +41,20 @@ ChartJS.register(
   Legend
 );
 
+export const githubDataTypeToText: Record<string, string> = {
+  [GithubDataType.PR]: 'Pull Request',
+  [GithubDataType.COMMENTS]: 'Comments Review',
+  [GithubDataType.COMMITS]: 'Commits',
+  [GithubDataType.FILE_CHANGES]: 'File Changes',
+};
+
+export const jiraDataTypeToText: Record<string, string> = {
+  [JiraDataType.ISSUES]: 'Issues',
+  [JiraDataType.STORY_POINTS]: 'Story Points',
+  [JiraDataType.ISSUE_STATUS]: 'Issue Status',
+  [JiraDataType.ISSUE_TYPE]: 'Issue Type',
+};
+
 interface StatsDashboardProps {
   dataTypeToText: Record<string, string>;
   initialSelectedDataType: string;
@@ -42,12 +63,16 @@ interface StatsDashboardProps {
     statType: string | any,
     teamStats: boolean
   ) => Promise<Record<string, Record<string, any>>>;
+  isWorkerView?: boolean;
+  currentWorker?: string;
 }
 
 export const StatsDashboard = ({
   dataTypeToText,
   initialSelectedDataType,
   fetchData,
+  isWorkerView = false,
+  currentWorker,
 }: StatsDashboardProps) => {
   const [toggle, setToggle] = useState('user');
   const [selectedDataType, setSelectedDataType] = useState<string>(
@@ -102,31 +127,143 @@ export const StatsDashboard = ({
     }
   }, [stats, toggle]);
 
-  const chartData = useMemo(() => {
-    return {
-      labels:
-        toggle === 'team'
-          ? sprints
-          : isMultipleDataGraph
-          ? Object.keys(stats ?? [])
-          : sprints || [],
-      datasets: isMultipleDataGraph
-        ? toggle === 'team'
-          ? generateTeamMultipleGraphDataset(stats ?? {})
-          : generateMultipleGraphDataset(stats ?? {}, selectedSprint ?? '')
-        : toggle === 'team'
-        ? generateTeamSingleGraphDataset(
-            (stats as any as Record<string, number>) ?? {}
+  const barChartData = useMemo<ChartData<'bar'>>(() => {
+    let filteredStats = stats;
+
+    if (isWorkerView && currentWorker && stats) {
+      // Calculate team average
+      const teamAverage = Object.entries(stats).reduce((acc, [_, data]) => {
+        if (typeof data === 'object') {
+          Object.entries(data).forEach(([key, value]) => {
+            if (typeof value === 'number') {
+              acc[key] = (acc[key] || 0) + value;
+            }
+          });
+        }
+        return acc;
+      }, {} as Record<string, number>);
+
+      // Calculate average values
+      const numWorkers = Object.keys(stats).length;
+      Object.keys(teamAverage).forEach((key) => {
+        teamAverage[key] = teamAverage[key] / numWorkers;
+      });
+
+      // Keep only current worker and team average
+      filteredStats = {
+        [currentWorker]: stats[currentWorker],
+        'Team Average': teamAverage,
+      };
+    }
+
+    const labels =
+      toggle === 'team'
+        ? sprints
+        : isMultipleDataGraph
+        ? Object.keys(filteredStats ?? [])
+        : sprints || [];
+
+    const datasets = isMultipleDataGraph
+      ? toggle === 'team'
+        ? generateTeamMultipleGraphDataset(filteredStats ?? {})
+        : generateMultipleGraphDataset(
+            filteredStats ?? {},
+            selectedSprint ?? ''
           )
-        : generateSingleGraphDataset(stats ?? {}),
+      : toggle === 'team'
+      ? generateTeamSingleGraphDataset(
+          (filteredStats as any as Record<string, number>) ?? {}
+        )
+      : generateSingleGraphDataset(filteredStats ?? {});
+
+    return {
+      labels,
+      datasets: datasets.map((dataset) => ({
+        ...dataset,
+        label: String(dataset.label),
+      })),
     };
-  }, [stats, sprints, isMultipleDataGraph, selectedSprint]);
+  }, [
+    stats,
+    sprints,
+    isMultipleDataGraph,
+    selectedSprint,
+    toggle,
+    isWorkerView,
+    currentWorker,
+  ]);
+
+  const lineChartData = useMemo<ChartData<'line'>>(() => {
+    let filteredStats = stats;
+
+    if (isWorkerView && currentWorker && stats) {
+      // Calculate team average
+      const teamAverage = Object.entries(stats).reduce((acc, [_, data]) => {
+        if (typeof data === 'object') {
+          Object.entries(data).forEach(([key, value]) => {
+            if (typeof value === 'number') {
+              acc[key] = (acc[key] || 0) + value;
+            }
+          });
+        }
+        return acc;
+      }, {} as Record<string, number>);
+
+      // Calculate average values
+      const numWorkers = Object.keys(stats).length;
+      Object.keys(teamAverage).forEach((key) => {
+        teamAverage[key] = teamAverage[key] / numWorkers;
+      });
+
+      // Keep only current worker and team average
+      filteredStats = {
+        [currentWorker]: stats[currentWorker],
+        'Team Average': teamAverage,
+      };
+    }
+
+    const labels =
+      toggle === 'team'
+        ? sprints
+        : isMultipleDataGraph
+        ? Object.keys(filteredStats ?? [])
+        : sprints || [];
+
+    const datasets = isMultipleDataGraph
+      ? toggle === 'team'
+        ? generateTeamMultipleGraphDataset(filteredStats ?? {})
+        : generateMultipleGraphDataset(
+            filteredStats ?? {},
+            selectedSprint ?? ''
+          )
+      : toggle === 'team'
+      ? generateTeamSingleGraphDataset(
+          (filteredStats as any as Record<string, number>) ?? {}
+        )
+      : generateSingleGraphDataset(filteredStats ?? {});
+
+    return {
+      labels,
+      datasets: datasets.map((dataset) => ({
+        ...dataset,
+        label: String(dataset.label),
+      })),
+    };
+  }, [
+    stats,
+    sprints,
+    isMultipleDataGraph,
+    selectedSprint,
+    toggle,
+    isWorkerView,
+    currentWorker,
+  ]);
 
   const DataChart = () =>
     isMultipleDataGraph ? (
-      <Bar options={generateGraphOptions('Issue Data')} data={chartData} />
+      <Bar options={generateGraphOptions('Issue Data')} data={barChartData} />
     ) : (
-      <Line options={generateGraphOptions('Issue Data')} data={chartData} />
+      <Line options={generateGraphOptions('Issue Data')} data={lineChartData} />
     );
 
   return (
@@ -170,34 +307,36 @@ export const StatsDashboard = ({
       )}
 
       {/* Toggle */}
-      <div className="flex border rounded-full overflow-hidden shadow">
-        <div className="inline-flex rounded-full overflow-hidden border border-[#444] bg-[#1e2235]">
-          <button
-            type="button"
-            onClick={() => setToggle('team')}
-            className={`px-3 py-1.5 text-sm font-medium transition-all duration-150 ${
-              toggle === 'team'
-                ? 'bg-[#f8d94e] text-black'
-                : 'text-gray-200 hover:bg-[#2a2f4a]'
-            }`}
-          >
-            By Team
-          </button>
-          <button
-            type="button"
-            onClick={() => setToggle('user')}
-            className={`px-3 py-1.5 text-sm font-medium transition-all duration-150 ${
-              toggle === 'user'
-                ? 'bg-[#f8d94e] text-black'
-                : 'text-gray-200 hover:bg-[#2a2f4a]'
-            }`}
-          >
-            By User
-          </button>
+      {!isWorkerView && (
+        <div className="flex border rounded-full overflow-hidden shadow">
+          <div className="inline-flex rounded-full overflow-hidden border border-[#444] bg-[#1e2235]">
+            <button
+              type="button"
+              onClick={() => setToggle('team')}
+              className={`px-3 py-1.5 text-sm font-medium transition-all duration-150 ${
+                toggle === 'team'
+                  ? 'bg-[#f8d94e] text-black'
+                  : 'text-gray-200 hover:bg-[#2a2f4a]'
+              }`}
+            >
+              By Team
+            </button>
+            <button
+              type="button"
+              onClick={() => setToggle('user')}
+              className={`px-3 py-1.5 text-sm font-medium transition-all duration-150 ${
+                toggle === 'user'
+                  ? 'bg-[#f8d94e] text-black'
+                  : 'text-gray-200 hover:bg-[#2a2f4a]'
+              }`}
+            >
+              By User
+            </button>
+          </div>
         </div>
-      </div>
+      )}
       {/* Dashboard Text */}
-      <div className="min-h-[20rem] w-full bg-gray-900 p-4 container mx-auto px-4 py-4 items-center justify-center relative">
+      <div className="h-[15rem] w-full bg-gray-900 p-4 container mx-auto px-4 py-4 flex items-center justify-center relative">
         {isLoading ? (
           <div className="absolute inset-0 bg-[#151921] bg-opacity-90 flex items-center justify-center z-0">
             <div className="flex flex-col items-center gap-4">
@@ -206,7 +345,9 @@ export const StatsDashboard = ({
             </div>
           </div>
         ) : (
-          <DataChart />
+          <div className="w-full h-full flex items-center justify-center">
+            <DataChart />
+          </div>
         )}
       </div>
     </div>
