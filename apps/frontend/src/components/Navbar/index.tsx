@@ -166,15 +166,17 @@ export const Navbar = () => {
             >
               פרופיל עובד
             </Link>
-            <Link
-              to="/project-management"
-              className={`block px-4 py-3 rounded-lg text-white text-lg font-medium transition-colors ${isActive(
-                '/project-management'
-              )}`}
-              onClick={() => setDrawerOpen(false)}
-            >
-              ניהול פרויקט
-            </Link>
+            {userRole === 'OWNER' && (
+              <Link
+                to="/project-management"
+                className={`block px-4 py-3 rounded-lg text-white text-lg font-medium transition-colors ${isActive(
+                  '/project-management'
+                )}`}
+                onClick={() => setDrawerOpen(false)}
+              >
+                ניהול פרויקט
+              </Link>
+            )}
             {projects && projects.length > 0 && (
               <div className="flex flex-col gap-2">
                 <label className="text-white text-sm mb-1">בחר פרויקט</label>
