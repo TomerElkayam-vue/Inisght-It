@@ -68,7 +68,7 @@ export const WorkerInsights = () => {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center p-6 space-y-6 bg-gray-900 rounded-lg min-h-[80vh]">
+    <div className="flex flex-col items-center justify-center p-6 space-y-6 bg-gray-900 rounded-lg">
       {/* Employee Selection - Only show for owners */}
       {userRole === 'OWNER' && (
         <div className="w-full max-w-xl text-center">
@@ -94,20 +94,26 @@ export const WorkerInsights = () => {
 
       {selectedEmployee ? (
         <>
-          <StatsDashboard
-            dataTypeToText={githubDataTypeToText}
-            initialSelectedDataType={GithubDataType.PR}
-            fetchData={getGithubStats}
-            isWorkerView={true}
-            currentWorker={selectedEmployee.displayName}
-          />
-          <StatsDashboard
-            dataTypeToText={jiraDataTypeToText}
-            initialSelectedDataType={JiraDataType.ISSUES}
-            fetchData={getJiraStats}
-            isWorkerView={true}
-            currentWorker={selectedEmployee.displayName}
-          />
+          <div className="flex flex-col md:flex-row gap-6 w-full">
+            <div className="w-full md:w-1/2">
+              <StatsDashboard
+                dataTypeToText={githubDataTypeToText}
+                initialSelectedDataType={GithubDataType.PR}
+                fetchData={getGithubStats}
+                isWorkerView={true}
+                currentWorker={selectedEmployee.displayName}
+              />
+            </div>
+            <div className="w-full md:w-1/2">
+              <StatsDashboard
+                dataTypeToText={jiraDataTypeToText}
+                initialSelectedDataType={JiraDataType.ISSUES}
+                fetchData={getJiraStats}
+                isWorkerView={true}
+                currentWorker={selectedEmployee.displayName}
+              />
+            </div>
+          </div>
           {/* Worker AI Insights */}
           <div className="w-full max-w-4xl">
             <h1 className="text-xl font-bold text-white mb-4 text-right">
