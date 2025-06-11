@@ -1,11 +1,18 @@
 import { useState, useEffect } from 'react';
 import { useCurrentProjectContext } from '../../context/CurrentProjectContext';
 import { useCurrentConnectedUser } from '../../context/CurrentConnectedUserContext';
-import { WorkerStats } from './WorkerStats';
 import { Prompt } from './Prompt';
 import { useQuery } from '@tanstack/react-query';
 import { usersService } from '../../services/users.service';
 import { useProjectRole } from '../../hooks/useProjectRole';
+import {
+  githubDataTypeToText,
+  jiraDataTypeToText,
+  StatsDashboard,
+} from '../Stats/StatsDashboard';
+import { getGithubStats, GithubDataType } from '../../services/github.service';
+import { getJiraStats, JiraDataType } from '../../services/jira.service';
+import { InsightsAI } from './InsightsAI';
 
 export type EmployeeSelection = {
   id: string;
@@ -87,19 +94,33 @@ export const WorkerInsights = () => {
 
       {selectedEmployee ? (
         <>
-          {/* Worker Stats and AI Insights */}
+          <StatsDashboard
+            dataTypeToText={githubDataTypeToText}
+            initialSelectedDataType={GithubDataType.PR}
+            fetchData={getGithubStats}
+            isWorkerView={true}
+            currentWorker={selectedEmployee.displayName}
+          />
+          <StatsDashboard
+            dataTypeToText={jiraDataTypeToText}
+            initialSelectedDataType={JiraDataType.ISSUES}
+            fetchData={getJiraStats}
+            isWorkerView={true}
+            currentWorker={selectedEmployee.displayName}
+          />
+          {/* Worker AI Insights */}
           <div className="w-full max-w-4xl">
             <h1 className="text-xl font-bold text-white mb-4 text-right">
               סטטיסטיקות ותובנות
             </h1>
-            <WorkerStats employee={selectedEmployee} />
+            <InsightsAI target={selectedEmployee.id} type="worker" />
           </div>
           {/* AI Chat */}
           <div className="w-full max-w-4xl">
             <h1 className="text-xl font-bold text-white mb-4 text-right">
               שאלות ותשובות
             </h1>
-            <Prompt />
+            <Prompt target={selectedEmployee.id} type="worker" />
           </div>
         </>
       ) : (

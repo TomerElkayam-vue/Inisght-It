@@ -1,5 +1,12 @@
 export interface UserInfo {
-  amountOfUserStories: number;
-  amountOfCommentsPerReview: number;
-  numberOfReviews: number;
+  pullRequests: number;
+  codeReviews: number;
+  averageCommentsPerPR: number;
+  commits: number;
+  fileChanges: any;
+  comments: number;
+  issuesCompleted: number;
+  averageIssueTime: number;
+  totalStoryPoints: number;
+  issueStatus: any;
 }

@@ -1,5 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
-import { getSprints, SprintResponse } from '../../services/jira.service';
+import {
+  getSprints,
+  JiraDataType,
+  SprintResponse,
+} from '../../services/jira.service';
 import { useCurrentProjectContext } from '../../context/CurrentProjectContext';
 import { Bar, Line } from 'react-chartjs-2';
 import { generateGraphOptions } from './jira/graphOptions/generateGraphOptions';
@@ -24,6 +28,7 @@ import {
   generateMultipleGraphDataset,
   generateSingleGraphDataset,
 } from './jira/genereGraphDataset';
+import { GithubDataType } from '../../services/github.service';
 
 ChartJS.register(
   CategoryScale,
@@ -35,6 +40,20 @@ ChartJS.register(
   Tooltip,
   Legend
 );
+
+export const githubDataTypeToText: Record<string, string> = {
+  [GithubDataType.PR]: 'Pull Request',
+  [GithubDataType.COMMENTS]: 'Comments Review',
+  [GithubDataType.COMMITS]: 'Commits',
+  [GithubDataType.FILE_CHANGES]: 'File Changes',
+};
+
+export const jiraDataTypeToText: Record<string, string> = {
+  [JiraDataType.ISSUES]: 'Issues',
+  [JiraDataType.STORY_POINTS]: 'Story Points',
+  [JiraDataType.ISSUE_STATUS]: 'Issue Status',
+  [JiraDataType.ISSUE_TYPE]: 'Issue Type',
+};
 
 interface StatsDashboardProps {
   dataTypeToText: Record<string, string>;
