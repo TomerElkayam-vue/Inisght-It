@@ -28,6 +28,7 @@ export const Navbar = () => {
   const handleLogout = () => {
     removeTokens();
     setCurrentProject(null);
+    localStorage.removeItem('currentProject');
     navigate('/');
   };
 

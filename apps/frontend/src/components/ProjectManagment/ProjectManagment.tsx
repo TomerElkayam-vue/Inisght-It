@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import ProjectMembers from './ProjectMembers';
 import ToolCredentials from './ToolsCredentials';
 import {
@@ -13,13 +13,13 @@ const ProjectContent = () => {
   const {
     employees,
     setEmployees,
-    codeBaseCredentials,
     setCodeBaseCredentials,
-    managementCredentials,
     setManagementCredentials,
   } = useProjectManagementContext();
 
   const updateProjectMutation = useUpdateProject();
+
+  const [isSaving, setIsSaving] = useState(false);
 
   useMemo(() => {
     if (currentProject) {
@@ -45,6 +45,7 @@ const ProjectContent = () => {
     if (!currentProject?.id) return;
 
     try {
+      setIsSaving(true);
       const projectPermissions = {
         deleteMany: {},
         create: [
@@ -64,26 +65,19 @@ const ProjectContent = () => {
       await updateProjectMutation.mutateAsync({
         id: currentProject.id,
         data: {
-          codeRepositoryCredentials: codeBaseCredentials,
-          missionManagementCredentials: managementCredentials,
           projectPermissions: projectPermissions,
         },
       });
-      console.log('Project updated successfully');
+
+      setTimeout(() => setIsSaving(false), 1000);
     } catch (err) {
       console.error('Error updating project:', err);
+      setIsSaving(false);
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center gap-8 bg-[#1e1e2f] text-white relative">
-      <button
-        onClick={handleSave}
-        className="fixed left-4 bottom-4 px-6 py-3 bg-blue-500 hover:bg-blue-600 text-lg font-medium rounded-lg shadow-md transition duration-300 ease-in-out"
-        disabled={updateProjectMutation.isPending}
-      >
-        {updateProjectMutation.isPending ? 'Saving...' : 'שמור'}
-      </button>
       {updateProjectMutation.isError && (
         <div className="fixed bottom-4 right-4 bg-red-500 text-white p-2 rounded">
           Error saving:{' '}
@@ -93,7 +87,10 @@ const ProjectContent = () => {
         </div>
       )}
       <ToolCredentials />
-      <ProjectMembers />
+      <ProjectMembers
+        save={handleSave}
+        disableSave={isSaving}
+      />
     </div>
   );
 };

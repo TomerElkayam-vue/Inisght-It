@@ -1,12 +1,18 @@
 import { simpleUser } from './interfaces';
 import { useMemo, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { usersService } from '../../services/users.service';
 import { useCurrentProjectContext } from '../../context/CurrentProjectContext';
 import { useProjectManagementContext } from '../../context/ProjectManagementContext';
 
 // TODO: add server logic
-const ProjectMembers = () => {
+const ProjectMembers = ({
+  save,
+  disableSave,
+}: {
+  save: () => void;
+  disableSave: boolean;
+}) => {
   const { currentProject } = useCurrentProjectContext();
   const { employees, setEmployees } = useProjectManagementContext();
 
@@ -32,15 +38,31 @@ const ProjectMembers = () => {
   }, [employees]);
 
   const suggestedUsers = useMemo(() => {
-    return users?.filter?.(
-      (user) =>
-        !(employeesIds?.includes(user.id) || managersIds?.includes(user.id))
-    ) ?? [];
+    return (
+      users?.filter?.(
+        (user) =>
+          !(employeesIds?.includes(user.id) || managersIds?.includes(user.id))
+      ) ?? []
+    );
   }, [users, employees, managersIds]);
 
   const [filteredUsers, setFilteredUsers] = useState<simpleUser[] | undefined>(
     suggestedUsers
   );
+
+  const noNewChange = useMemo(() => {
+    const originalEmployeesIds =
+      currentProject?.projectPermissions
+        ?.filter((permission) => permission.roleId !== 1)
+        ?.map((permission) => permission.user.id)
+        ?.sort() ?? [];
+    const currentEmployeesIds = employees.map((e) => e.id).sort();
+    if (originalEmployeesIds.length !== currentEmployeesIds.length)
+      return false;
+    return originalEmployeesIds.every(
+      (id, idx) => id === currentEmployeesIds[idx]
+    );
+  }, [currentProject?.projectPermissions, employees]);
 
   const handleAdd = () => {
     if (newMember.id) {
@@ -100,6 +122,21 @@ const ProjectMembers = () => {
               <span>{employee.username}</span>
             </div>
           ))}
+          <div className="flex justify-center">
+            <button
+              onClick={save}
+              className={`relative px-10 py-1 text-base font-medium rounded-md shadow-md transition duration-300 ease-in-out ${
+              disableSave
+                ? 'bg-gray-400 cursor-not-allowed'
+                : noNewChange
+                ? 'bg-gray-500 cursor-not-allowed'
+                : 'bg-blue-500 hover:bg-blue-600'
+              }`}
+              disabled={noNewChange || disableSave}
+            >
+              {disableSave ? 'שומר...' : 'שמור'}
+            </button>
+          </div>
         </div>
 
         {/* Modal */}

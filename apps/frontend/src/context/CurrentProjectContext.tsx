@@ -1,5 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { Project } from '@packages/projects';
+import { useCurrentConnectedUser } from './CurrentConnectedUserContext';
+import { useProjects } from '../components/hooks/useProjectQueries';
 
 export type ProjectContextType = {
   currentProject: Project | null;
@@ -16,6 +18,17 @@ export const CurrentProjectProvider = ({
   children: React.ReactNode;
 }) => {
   const [currentProject, setCurrentProject] = useState<Project | null>(null);
+  const { user } = useCurrentConnectedUser();
+
+  const { data: projects } = useProjects(user?.id);
+
+  useEffect(() => {
+    if (projects && projects.length > 0 && currentProject) {
+      setCurrentProject(
+        projects.find((project) => project.id === currentProject.id) || null
+      );
+    }
+  }, [projects, currentProject]);
 
   const changeProject = (project: Project | null) => {
     project
