@@ -48,7 +48,7 @@ export const Navbar = () => {
 
   // Auto-select first project if none is selected
   useEffect(() => {
-    if (!isLoadingProjects && projects && projects.length > 0) {
+    if (!currentProject && !isLoadingProjects && projects && projects.length > 0) {
       setCurrentProject(projects[0]);
     }
   }, [isLoadingProjects, projects]);

@@ -18,10 +18,10 @@ export const CurrentProjectProvider = ({
   const [currentProject, setCurrentProject] = useState<Project | null>(null);
 
   const changeProject = (project: Project | null) => {
-    if (project) {
-      localStorage.setItem('currentProject', JSON.stringify(project));
-      setCurrentProject(project);
-    }
+    project
+      ? localStorage.setItem('currentProject', JSON.stringify(project))
+      : localStorage.removeItem('currentProject');
+    setCurrentProject(project);
   };
 
   useEffect(() => {
