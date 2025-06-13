@@ -1,9 +1,11 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { Project } from '@packages/projects';
+import { projectsService } from '../services/projects.service';
 
 type ProjectContextType = {
   currentProject: Project | null;
   setCurrentProject: (project: Project | null) => void;
+  refreshCurrentProject: () => Promise<void>;
 };
 
 const CurrentProjectContext = createContext<ProjectContextType | undefined>(
@@ -17,6 +19,20 @@ export const CurrentProjectProvider = ({
 }) => {
   const [currentProject, setCurrentProject] = useState<Project | null>(null);
 
+  const refreshCurrentProject = async () => {
+    if (currentProject?.id) {
+      try {
+        const freshProject = await projectsService.getProject(
+          currentProject.id
+        );
+        setCurrentProject(freshProject);
+        localStorage.setItem('currentProject', JSON.stringify(freshProject));
+      } catch (err) {
+        console.error('Error refreshing project:', err);
+      }
+    }
+  };
+
   const changeProject = (project: Project | null) => {
     if (project) {
       localStorage.setItem('currentProject', JSON.stringify(project));
@@ -28,9 +44,14 @@ export const CurrentProjectProvider = ({
     const storedProject = localStorage.getItem('currentProject');
     if (storedProject) {
       try {
-        setCurrentProject(JSON.parse(storedProject));
+        const parsedProject = JSON.parse(storedProject);
+        setCurrentProject(parsedProject);
+        // Fetch fresh data after setting initial state
+        if (parsedProject.id) {
+          refreshCurrentProject();
+        }
       } catch (err) {
-        console.log(err);
+        console.error('Error parsing stored project:', err);
       }
     }
   }, []);
@@ -40,6 +61,7 @@ export const CurrentProjectProvider = ({
       value={{
         currentProject,
         setCurrentProject: changeProject,
+        refreshCurrentProject,
       }}
     >
       {children}

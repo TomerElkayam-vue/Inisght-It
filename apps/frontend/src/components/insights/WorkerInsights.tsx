@@ -35,8 +35,6 @@ export const WorkerInsights = () => {
     },
   });
 
-  console.log('user details ', userDetails);
-
   useEffect(() => {
     if (userRole === 'MEMBER' && currentConnectedUser) {
       setSelectedEmployee({

@@ -23,6 +23,7 @@ export const Navbar = () => {
     navigate('/');
   };
 
+  console.log(userRole);
   // Fetch all projects
   const {
     data: projects,

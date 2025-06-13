@@ -69,7 +69,6 @@ export const CurrentConnectedUserProvider: React.FC<
             .join('')
         );
         const userData = JSON.parse(jsonPayload);
-        console.log('user data in context', userData);
         // Set the user data
         setUser({
           id: userData.sub, // Use sub as the id
