@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useCurrentProjectContext } from '../../context/CurrentProjectContext';
 import { useCurrentConnectedUser } from '../../context/CurrentConnectedUserContext';
 import { Prompt } from './Prompt';
@@ -22,7 +22,12 @@ export type EmployeeSelection = {
 export const WorkerInsights = () => {
   const { currentProject } = useCurrentProjectContext();
   const { user: currentConnectedUser } = useCurrentConnectedUser();
-  const userRole = useProjectRole();
+
+  const userRole = useMemo(
+    () => useProjectRole(currentProject, currentConnectedUser),
+    [currentProject, currentConnectedUser]
+  );
+  
   const [selectedEmployee, setSelectedEmployee] =
     useState<EmployeeSelection | null>(null);
 

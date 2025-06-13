@@ -32,10 +32,10 @@ const ProjectMembers = () => {
   }, [employees]);
 
   const suggestedUsers = useMemo(() => {
-    return users?.filter(
+    return users?.filter?.(
       (user) =>
         !(employeesIds?.includes(user.id) || managersIds?.includes(user.id))
-    );
+    ) ?? [];
   }, [users, employees, managersIds]);
 
   const [filteredUsers, setFilteredUsers] = useState<simpleUser[] | undefined>(

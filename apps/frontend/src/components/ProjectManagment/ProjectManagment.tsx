@@ -9,7 +9,7 @@ import { useCurrentProjectContext } from '../../context/CurrentProjectContext';
 import { useUpdateProject } from '../hooks/useProjectQueries';
 
 const ProjectContent = () => {
-  const { currentProject, setCurrentProject } = useCurrentProjectContext();
+  const { currentProject } = useCurrentProjectContext();
   const {
     employees,
     setEmployees,

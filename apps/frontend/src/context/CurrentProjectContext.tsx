@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { Project } from '@packages/projects';
 
-type ProjectContextType = {
+export type ProjectContextType = {
   currentProject: Project | null;
   setCurrentProject: (project: Project | null) => void;
 };
