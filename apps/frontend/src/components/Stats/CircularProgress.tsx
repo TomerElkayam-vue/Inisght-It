@@ -28,7 +28,9 @@ const options = {
   },
 };
 
-export const CircularProgress = <T extends JiraAvgDataType | GithubAvgDataType>({
+export const CircularProgress = <
+  T extends JiraAvgDataType | GithubAvgDataType
+>({
   fetchData,
   statsType,
   label,
@@ -76,7 +78,9 @@ export const CircularProgress = <T extends JiraAvgDataType | GithubAvgDataType>(
               <Doughnut options={options} data={data} />
             </div>
             <div className="absolute inset-0 flex items-center justify-center flex-col">
-              <span className="text-2xl font-bold text-white">{value}</span>
+              <span className="text-2xl font-bold text-white">
+                {Number(value).toFixed(2)}
+              </span>
               <span className="text-xs text-gray-400 text-center max-w-[80px]">
                 {label}
               </span>
