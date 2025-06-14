@@ -18,8 +18,50 @@ interface JiraIssue {
   name: string;
 }
 
+const generatePrompt = ({
+  context,
+  type,
+  question,
+  data,
+}: {
+  context: 'worker' | 'team';
+  type: 'summary' | 'recommendation' | 'question';
+  question?: string;
+  data: UserInfo;
+}): string => {
+  const subject = type === 'summary' ? 'performance summary' : 'recommendation';
+
+  const baseInstructions = `
+Provide a ${
+    type === 'summary' ? 'detailed' : 'concise'
+  } ${subject} in Hebrew for the following ${context} data.
+Do NOT translate or explain field names from the JSON (e.g., keep "pullRequests", "fileChanges", etc. as-is).
+Limit your response to five balanced sentences.
+Some fields may be empty or null — if so, do not invent data or make assumptions.
+Return a JSON object with a single field called "text", containing your ${type}.
+`;
+
+  const questionPart =
+    type === 'question' && question ? `Question:\n${question}` : '';
+
+  return `${baseInstructions}
+=== BEGIN DATA ===
+${JSON.stringify(data, null, 2)}
+=== END DATA ===
+${questionPart}`;
+};
+
 @Injectable()
 export class AiRepository {
+  private async callModel(prompt: string): Promise<string> {
+    const result = await this.model.generateContent({
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+      generationConfig: { responseMimeType: 'application/json' },
+    });
+
+    return JSON.parse(result.response.text()).text;
+  }
+
   constructor(
     @Inject(geminiConfig.geminiConfig.KEY)
     private readonly geminiConfigValues: geminiConfig.GeminiConfigType
@@ -29,78 +71,46 @@ export class AiRepository {
   model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
   async getWorkerRecommendation(userInfo: UserInfo): Promise<string> {
-    const prompt = `Based on the following worker data (in JSON), provide a concise recommendation in Hebrew. Do not translate field names from the data. Your response should be balanced and limited to five sentences. Return a JSON object with a single field called \"text\", containing your recommendation.\n\nWorker Data:\n${JSON.stringify(
-      userInfo,
-      null,
-      2
-    )}`;
-
-    const result = await this.model.generateContent({
-      contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      generationConfig: { responseMimeType: 'application/json' },
-    });
-
-    return JSON.parse(result.response.text()).text;
+    return this.callModel(
+      generatePrompt({
+        context: 'worker',
+        type: 'recommendation',
+        data: userInfo,
+      })
+    );
   }
 
   async getTeamRecommendation(userInfo: UserInfo): Promise<string> {
-    const prompt = `Based on the following team data (in JSON), provide a concise recommendation in Hebrew. Do not translate field names from the data. Your response should be balanced and limited to five sentences. Return a JSON object with a single field called \"text\", containing your recommendation.\n\nTeam Data:\n${JSON.stringify(
-      userInfo,
-      null,
-      2
-    )}`;
-
-    const result = await this.model.generateContent({
-      contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      generationConfig: { responseMimeType: 'application/json' },
-    });
-
-    return JSON.parse(result.response.text()).text;
+    return this.callModel(
+      generatePrompt({
+        context: 'team',
+        type: 'recommendation',
+        data: userInfo,
+      })
+    );
   }
 
   async getWorkerSummary(userInfo: UserInfo): Promise<string> {
-    const prompt = `Provide a detailed performance summary in Hebrew for the following worker data. Do not translate field names from the JSON. Limit your response to five balanced sentences. Return a JSON object with a single field called \"text\", containing your summary.\n\nWorker Data:\n${JSON.stringify(
-      userInfo,
-      null,
-      2
-    )}`;
-
-    const result = await this.model.generateContent({
-      contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      generationConfig: { responseMimeType: 'application/json' },
-    });
-
-    return JSON.parse(result.response.text()).text;
+    return this.callModel(
+      generatePrompt({ context: 'worker', type: 'summary', data: userInfo })
+    );
   }
 
   async getTeamSummary(userInfo: UserInfo): Promise<string> {
-    const prompt = `Provide a detailed performance summary in Hebrew for the following team data. Do not translate field names from the JSON. Limit your response to five balanced sentences. Return a JSON object with a single field called \"text\", containing your summary.\n\nTeam Data:\n${JSON.stringify(
-      userInfo,
-      null,
-      2
-    )}`;
-
-    const result = await this.model.generateContent({
-      contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      generationConfig: { responseMimeType: 'application/json' },
-    });
-
-    return JSON.parse(result.response.text()).text;
+    return this.callModel(
+      generatePrompt({ context: 'team', type: 'summary', data: userInfo })
+    );
   }
 
   async getQuestionAnswer(question: QuestionDTO): Promise<string> {
-    const metricsStr = question.metrics
-      ? JSON.stringify(question.metrics, null, 2)
-      : '';
-    const contextStr = question.type === 'worker' ? 'עובד' : 'צוות';
-    const prompt = `Answer the following question in Hebrew, based on the given ${contextStr} metrics. Do not translate field names from the JSON. Return a JSON object with a single field called \"text\", containing your answer.\n\nMetrics:\n${metricsStr}\n\nQuestion:\n${question.question}`;
-
-    const result = await this.model.generateContent({
-      contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      generationConfig: { responseMimeType: 'application/json' },
-    });
-
-    return JSON.parse(result.response.text()).text;
+    return this.callModel(
+      generatePrompt({
+        context: question.type === 'worker' ? 'worker' : 'team',
+        type: 'question',
+        question: question.question,
+        data: question.metrics as UserInfo,
+      })
+    );
   }
 
   async getRelatedMergeRequestTitle(

@@ -57,7 +57,7 @@ export const CircularProgress = <
   const data = {
     datasets: [
       {
-        data: [value, total - value],
+        data: [value, Math.max(total - value, 0.1)],
         backgroundColor: ['#8b5cf6', '#1f2937'],
         borderWidth: 0,
       },
@@ -79,7 +79,7 @@ export const CircularProgress = <
             </div>
             <div className="absolute inset-0 flex items-center justify-center flex-col">
               <span className="text-2xl font-bold text-white">
-                {Number(value).toFixed(2)}
+                {Number.isInteger(value) ? value : value.toFixed(2)}
               </span>
               <span className="text-xs text-gray-400 text-center max-w-[80px]">
                 {label}
