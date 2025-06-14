@@ -1,16 +1,23 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import logoDark from '../../assets/logo-dark.png';
 import { removeTokens } from '../../services/auth.service';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useProjects } from '../hooks/useProjectQueries';
 import { useCurrentProjectContext } from '../../context/CurrentProjectContext';
 import CreateProjectButton from './CreateProjectButton';
 import { useProjectRole } from '../../hooks/useProjectRole';
+import { useCurrentConnectedUser } from '../../context/CurrentConnectedUserContext';
 
 export const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const userRole = useProjectRole();
+  const { currentProject, setCurrentProject } = useCurrentProjectContext();
+  const { user } = useCurrentConnectedUser();
+
+  const userRole = useMemo(
+    () => useProjectRole(currentProject, user),
+    [currentProject?.id, user?.id]
+  );
 
   const isActive = (path: string) => {
     return location.pathname === path
@@ -20,6 +27,8 @@ export const Navbar = () => {
 
   const handleLogout = () => {
     removeTokens();
+    setCurrentProject(null);
+    localStorage.removeItem('currentProject');
     navigate('/');
   };
 
@@ -28,10 +37,7 @@ export const Navbar = () => {
     data: projects,
     isLoading: isLoadingProjects,
     isError: isProjectsError,
-  } = useProjects();
-
-  // Get current project context
-  const { currentProject, setCurrentProject } = useCurrentProjectContext();
+  } = useProjects(user?.id);
 
   // Handle project change
   const handleProjectChange = (projectId: string) => {
@@ -43,19 +49,14 @@ export const Navbar = () => {
 
   // Auto-select first project if none is selected
   useEffect(() => {
-    if (
-      !isLoadingProjects &&
-      projects &&
-      projects.length > 0 &&
-      !currentProject
-    ) {
+    if (!currentProject && !isLoadingProjects && projects && projects.length > 0) {
       setCurrentProject(projects[0]);
     }
-  }, [isLoadingProjects, projects, currentProject, setCurrentProject]);
+  }, [isLoadingProjects, projects]);
 
-  // Redirect to error page only if there's an error from the server
+  // Redirect to error page only if there's an error from the server or no projects
   useEffect(() => {
-    if (!isLoadingProjects && isProjectsError) {
+    if (!isLoadingProjects && (projects?.length == 0 || isProjectsError)) {
       navigate('/no-projects');
     }
   }, [isLoadingProjects, isProjectsError, navigate]);
@@ -157,15 +158,17 @@ export const Navbar = () => {
                 תובנות צוותיות
               </Link>
             )}
-            <Link
-              to="/insights"
-              className={`block px-4 py-3 rounded-lg text-white text-lg font-medium transition-colors ${isActive(
-                '/insights'
-              )}`}
-              onClick={() => setDrawerOpen(false)}
-            >
-              פרופיל עובד
-            </Link>
+            {userRole && (
+              <Link
+                to="/insights"
+                className={`block px-4 py-3 rounded-lg text-white text-lg font-medium transition-colors ${isActive(
+                  '/insights'
+                )}`}
+                onClick={() => setDrawerOpen(false)}
+              >
+                פרופיל עובד
+              </Link>
+            )}
             {userRole === 'OWNER' && (
               <Link
                 to="/project-management"

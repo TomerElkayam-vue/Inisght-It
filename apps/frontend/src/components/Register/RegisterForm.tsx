@@ -1,27 +1,36 @@
-import React, { useState, FormEvent } from "react";
-import { useNavigate } from "react-router-dom";
-import { register, saveTokens } from "../../services/auth.service";
+import React, { useState, FormEvent } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { register, saveTokens } from '../../services/auth.service';
+import { useCurrentConnectedUser } from '../../context/CurrentConnectedUserContext';
 
 const RegisterForm: React.FC = () => {
   const navigate = useNavigate();
-  const [username, setUsername] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  const [firstName, setFirstName] = useState<string>("");
-  const [lastName, setLastName] = useState<string>("");
-  const [error, setError] = useState<string>("");
+  const [username, setUsername] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [firstName, setFirstName] = useState<string>('');
+  const [lastName, setLastName] = useState<string>('');
+  const [error, setError] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const { setToken } = useCurrentConnectedUser();
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError("");
+    setError('');
     setIsLoading(true);
 
     try {
-      const { accessToken, refreshToken } = await register({ username, password, firstName, lastName });
+      const { accessToken, refreshToken } = await register({
+        username,
+        password,
+        firstName,
+        lastName,
+      });
       saveTokens(accessToken, refreshToken);
+      setToken(accessToken);
       navigate('/stats');
     } catch (err: any) {
-      setError("שגיאה בהתחברות");
+      setError('שגיאה בהתחברות');
       console.error('Registration error:', err);
     } finally {
       setIsLoading(false);
@@ -31,21 +40,19 @@ const RegisterForm: React.FC = () => {
   return (
     <div className="w-full max-w-md mx-auto">
       <div className="bg-[#1e2530] rounded-3xl p-10">
-        <h2 className="text-white text-3xl font-bold text-center mb-8">הרשמה</h2>
-        
+        <h2 className="text-white text-3xl font-bold text-center mb-8">
+          הרשמה
+        </h2>
+
         {error && (
           <div className="bg-red-500 text-white p-3 rounded-lg mb-4 text-center">
             {error}
           </div>
         )}
-        
+
         <form onSubmit={handleSubmit} dir="rtl">
-
-
           <div className="mb-6">
-            <label className="block text-white mb-2">
-              שם פרטי
-            </label>
+            <label className="block text-white mb-2">שם פרטי</label>
             <input
               type="text"
               value={firstName}
@@ -57,9 +64,7 @@ const RegisterForm: React.FC = () => {
           </div>
 
           <div className="mb-6">
-            <label className="block text-white mb-2">
-              שם משפחה
-            </label>
+            <label className="block text-white mb-2">שם משפחה</label>
             <input
               type="text"
               value={lastName}
@@ -71,9 +76,7 @@ const RegisterForm: React.FC = () => {
           </div>
 
           <div className="mb-6">
-            <label className="block text-white mb-2">
-              שם משתמש
-            </label>
+            <label className="block text-white mb-2">שם משתמש</label>
             <input
               type="text"
               value={username}
@@ -85,9 +88,7 @@ const RegisterForm: React.FC = () => {
           </div>
 
           <div className="mb-6">
-            <label className="block text-white mb-2">
-              סיסמא
-            </label>
+            <label className="block text-white mb-2">סיסמא</label>
             <input
               type="password"
               value={password}
@@ -110,7 +111,7 @@ const RegisterForm: React.FC = () => {
 
           <div className="text-center">
             <p className="text-white text-sm">
-              כבר יש לך משתמש?{" "}
+              כבר יש לך משתמש?{' '}
               <a href="/" className="text-white underline">
                 לחץ כאן להתחברות
               </a>

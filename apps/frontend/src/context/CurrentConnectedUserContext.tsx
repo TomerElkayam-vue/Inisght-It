@@ -6,12 +6,12 @@ import React, {
   useEffect,
 } from 'react';
 
-interface User {
+export interface User {
   id: string;
   username: string;
 }
 
-interface CurrentConnectedUserContextType {
+export interface CurrentConnectedUserContextType {
   user: User | null;
   token: string | null;
   setToken: (token: string | null) => void;
