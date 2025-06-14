@@ -16,7 +16,7 @@ import { PrismaModule } from '../prisma/prisma.module';
     ConfigModule.forFeature(githubConfig),
     HttpModule,
     forwardRef(() => JiraModule),
-    EmployeeModule,
+    forwardRef(() => EmployeeModule),
     PrismaModule,
   ],
   controllers: [GithubController],

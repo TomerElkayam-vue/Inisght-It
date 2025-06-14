@@ -106,6 +106,33 @@ export class AiRepository {
     return response;
   }
 
+  async getArrayMatchingRecord(
+    firstArray: string[],
+    secondArray: string[]
+  ): Promise<Record<string, string> | undefined> {
+    const prompt = `Given two arrays, 'firstArray' and 'secondArray', find the best matching element from 'secondArray' for each element in 'firstArray'. If no suitable match is found, return 'null' for that element. Return the result as a JSON object where keys are elements from 'firstArray' and values are their corresponding matches from 'secondArray'.
+  
+    First Array: ${JSON.stringify(firstArray)}
+    Second Array: ${JSON.stringify(secondArray)}`;
+
+    try {
+      const result = await this.model.generateContent({
+        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        generationConfig: {
+          responseMimeType: 'application/json',
+        },
+      });
+
+      const responseText = result.response.text();
+      const parsedResponse = JSON.parse(responseText);
+
+      return parsedResponse;
+    } catch (error) {
+      console.error('Error generating array matching record:', error);
+      return undefined;
+    }
+  }
+
   async getRelatedMergeRequestTitle(
     mergeRequests: MergeRequest[],
     jiraIssues: JiraIssue[]

@@ -32,6 +32,13 @@ export class AiService {
     return this.aiRepository.getQuestionAnswer(question);
   }
 
+  async getArrayMatchingRecord(
+    firstArray: string[],
+    secondArray: string[]
+  ): Promise<Record<string, string> | undefined> {
+    return this.aiRepository.getArrayMatchingRecord(firstArray, secondArray);
+  }
+
   async getMergeRequestByIssue(issues: any[], codeRepositoryCredentials: any) {
     const mergeRequests = await this.githubService.getAllPullRequests(
       codeRepositoryCredentials

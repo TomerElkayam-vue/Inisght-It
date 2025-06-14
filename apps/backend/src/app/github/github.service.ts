@@ -19,6 +19,7 @@ export class GithubService {
     private projectsService: ProjectsSerivce,
     @Inject(forwardRef(() => JiraService))
     private readonly jiraService: JiraService,
+    @Inject(forwardRef(() => EmployeeService))
     private readonly employeeService: EmployeeService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache
   ) {}
