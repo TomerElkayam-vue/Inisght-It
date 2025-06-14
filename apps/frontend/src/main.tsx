@@ -1,12 +1,11 @@
-import { StrictMode } from 'react';
-import { BrowserRouter } from 'react-router-dom';
-import * as ReactDOM from 'react-dom/client';
-import App from './app/app';
-import './styles.css';
-import { CurrentProjectProvider } from './context/CurrentProjectContext';
-import { QueryProvider } from './providers/QueryProvider';
-import { AuthProvider } from './context/AuthContext';
-import { CurrentConnectedUserProvider } from './context/CurrentConnectedUserContext';
+import "./styles.css";
+import App from "./app/app";
+import { StrictMode } from "react";
+import * as ReactDOM from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
+import { QueryProvider } from "./providers/QueryProvider";
+import { CurrentProjectProvider } from "./context/CurrentProjectContext";
+import { CurrentConnectedUserProvider } from "./context/CurrentConnectedUserContext";
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -15,13 +14,13 @@ const root = ReactDOM.createRoot(
 root.render(
   <StrictMode>
     <QueryProvider>
-      <CurrentProjectProvider>
-        <BrowserRouter>
-          <CurrentConnectedUserProvider>
+      <CurrentConnectedUserProvider>
+        <CurrentProjectProvider>
+          <BrowserRouter>
             <App />
-          </CurrentConnectedUserProvider>
-        </BrowserRouter>
-      </CurrentProjectProvider>
+          </BrowserRouter>
+        </CurrentProjectProvider>
+      </CurrentConnectedUserProvider>
     </QueryProvider>
   </StrictMode>
 );

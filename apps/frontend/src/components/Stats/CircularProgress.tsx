@@ -79,7 +79,7 @@ export const CircularProgress = <
             </div>
             <div className="absolute inset-0 flex items-center justify-center flex-col">
               <span className="text-2xl font-bold text-white">
-                {value.toFixed(2)}
+                {Number(value).toFixed(2)}
               </span>
               <span className="text-xs text-gray-400 text-center max-w-[80px]">
                 {label}

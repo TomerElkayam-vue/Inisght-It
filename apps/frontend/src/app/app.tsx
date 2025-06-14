@@ -2,22 +2,29 @@ import { useRoutes, useLocation } from 'react-router-dom';
 import { routes } from '../router/routes';
 import { Navbar } from '../components/Navbar';
 import { useEffect } from 'react';
-import { getToken, getRefreshToken, saveTokens } from '../services/auth.service';
+import {
+  getToken,
+  getRefreshToken,
+  saveTokens,
+} from '../services/auth.service';
+import { useCurrentConnectedUser } from '../context/CurrentConnectedUserContext';
 
 export function App() {
   const location = useLocation();
   const element = useRoutes(routes);
-  
+
   // Don't show navbar on login page
-  const publicPath = routes[0].children?.map(({path}) => path);
+  const publicPath = routes[0].children?.map(({ path }) => path);
   const showNavbar = !publicPath?.includes(location.pathname);
+  const { setToken } = useCurrentConnectedUser();
 
   useEffect(() => {
     const token = getToken();
     const refreshToken = getRefreshToken();
-    
+
     if (token && refreshToken) {
       saveTokens(token, refreshToken);
+      setToken(token);
     }
   }, []);
 

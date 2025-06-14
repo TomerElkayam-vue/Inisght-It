@@ -1,7 +1,11 @@
-import { useQuery, useMutation, useQueryClient, UseQueryResult } from '@tanstack/react-query';
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  UseQueryResult,
+} from '@tanstack/react-query';
 import { Project, ProjectUpdateInput } from '@packages/projects';
 import { projectsService } from '../../services/projects.service';
-import { ucs2 } from 'punycode';
 // Keys for query caching
 export const projectKeys = {
   all: ['projects'] as const,
@@ -12,9 +16,9 @@ export const projectKeys = {
 };
 
 // Hook for fetching multiple projects
-export const useProjects = () => {
+export const useProjects = (userId = '') => {
   return useQuery({
-    queryKey: projectKeys.lists(),
+    queryKey: [...projectKeys.lists(), userId],
     queryFn: projectsService.getProjects,
   });
 };

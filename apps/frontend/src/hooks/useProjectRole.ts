@@ -1,12 +1,12 @@
-import { useCurrentProjectContext } from '../context/CurrentProjectContext';
-import { useCurrentConnectedUser } from '../context/CurrentConnectedUserContext';
+import { Project } from '@packages/projects';
+import { User } from "../context/CurrentConnectedUserContext";
 
 export type ProjectRole = 'OWNER' | 'MEMBER' | null;
 
-export const useProjectRole = () => {
-  const { currentProject } = useCurrentProjectContext();
-  const { user } = useCurrentConnectedUser();
-
+export const useProjectRole = (
+  currentProject: Project | null,
+  user: User | null
+) => {
   if (!currentProject || !user) {
     return null;
   }

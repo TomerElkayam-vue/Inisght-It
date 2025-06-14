@@ -1,11 +1,11 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { Project } from '@packages/projects';
-import { projectsService } from '../services/projects.service';
+import { useCurrentConnectedUser } from './CurrentConnectedUserContext';
+import { useProjects } from '../components/hooks/useProjectQueries';
 
-type ProjectContextType = {
+export type ProjectContextType = {
   currentProject: Project | null;
   setCurrentProject: (project: Project | null) => void;
-  refreshCurrentProject: () => Promise<void>;
 };
 
 const CurrentProjectContext = createContext<ProjectContextType | undefined>(
@@ -18,26 +18,23 @@ export const CurrentProjectProvider = ({
   children: React.ReactNode;
 }) => {
   const [currentProject, setCurrentProject] = useState<Project | null>(null);
+  const { user } = useCurrentConnectedUser();
 
-  const refreshCurrentProject = async () => {
-    if (currentProject?.id) {
-      try {
-        const freshProject = await projectsService.getProject(
-          currentProject.id
-        );
-        setCurrentProject(freshProject);
-        localStorage.setItem('currentProject', JSON.stringify(freshProject));
-      } catch (err) {
-        console.error('Error refreshing project:', err);
-      }
+  const { data: projects } = useProjects(user?.id);
+
+  useEffect(() => {
+    if (projects && projects.length > 0 && currentProject) {
+      setCurrentProject(
+        projects.find((project) => project.id === currentProject.id) || null
+      );
     }
-  };
+  }, [projects, currentProject]);
 
   const changeProject = (project: Project | null) => {
-    if (project) {
-      localStorage.setItem('currentProject', JSON.stringify(project));
-      setCurrentProject(project);
-    }
+    project
+      ? localStorage.setItem('currentProject', JSON.stringify(project))
+      : localStorage.removeItem('currentProject');
+    setCurrentProject(project);
   };
 
   useEffect(() => {
@@ -46,10 +43,6 @@ export const CurrentProjectProvider = ({
       try {
         const parsedProject = JSON.parse(storedProject);
         setCurrentProject(parsedProject);
-        // Fetch fresh data after setting initial state
-        if (parsedProject.id) {
-          refreshCurrentProject();
-        }
       } catch (err) {
         console.error('Error parsing stored project:', err);
       }
@@ -61,7 +54,6 @@ export const CurrentProjectProvider = ({
       value={{
         currentProject,
         setCurrentProject: changeProject,
-        refreshCurrentProject,
       }}
     >
       {children}
