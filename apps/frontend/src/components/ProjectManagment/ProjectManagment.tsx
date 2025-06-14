@@ -1,15 +1,18 @@
-import { useMemo, useState } from 'react';
+import { Project } from '@packages/projects';
 import ProjectMembers from './ProjectMembers';
 import ToolCredentials from './ToolsCredentials';
+import { useEffect, useMemo, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import { projectKeys, useUpdateProject } from '../hooks/useProjectQueries';
+import { useCurrentProjectContext } from '../../context/CurrentProjectContext';
+import { useCurrentConnectedUser } from '../../context/CurrentConnectedUserContext';
 import {
   ProjectManagementProvider,
   useProjectManagementContext,
 } from '../../context/ProjectManagementContext';
-import { useCurrentProjectContext } from '../../context/CurrentProjectContext';
-import { useUpdateProject } from '../hooks/useProjectQueries';
 
 const ProjectContent = () => {
-  const { currentProject } = useCurrentProjectContext();
+  const { currentProject, setCurrentProject } = useCurrentProjectContext();
   const {
     employees,
     setEmployees,
@@ -20,6 +23,20 @@ const ProjectContent = () => {
   const updateProjectMutation = useUpdateProject();
 
   const [isSaving, setIsSaving] = useState(false);
+
+  const queryClient = useQueryClient();
+  const { user } = useCurrentConnectedUser();
+  const projects =
+    queryClient.getQueryData<Project[]>([...projectKeys.lists(), user?.id]) ||
+    [];
+
+  useEffect(() => {
+    if (projects && projects.length > 0 && currentProject) {
+      setCurrentProject(
+        projects.find((project) => project.id === currentProject.id) || null
+      );
+    }
+  }, [projects]);
 
   useMemo(() => {
     if (currentProject) {
@@ -87,10 +104,7 @@ const ProjectContent = () => {
         </div>
       )}
       <ToolCredentials />
-      <ProjectMembers
-        save={handleSave}
-        disableSave={isSaving}
-      />
+      <ProjectMembers save={handleSave} disableSave={isSaving} />
     </div>
   );
 };
