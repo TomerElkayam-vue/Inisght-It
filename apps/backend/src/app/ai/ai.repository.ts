@@ -32,23 +32,25 @@ const generatePrompt = ({
   const subject = type === 'summary' ? 'performance summary' : 'recommendation';
 
   const baseInstructions = `
-Provide a ${
+You are an expert analyst. Your task is to provide a ${
     type === 'summary' ? 'detailed' : 'concise'
   } ${subject} in Hebrew for the following ${context} data.
-Do NOT translate or explain field names from the JSON (e.g., keep "pullRequests", "fileChanges", etc. as-is).
-Limit your response to five balanced sentences.
-Some fields may be empty or null — if so, do not invent data or make assumptions.
-Return a JSON object with a single field called "text", containing your ${type}.
-`;
 
-  const questionPart =
-    type === 'question' && question ? `Question:\n${question}` : '';
+CRITICAL INSTRUCTIONS:
+- DO NOT translate, explain, or rename field names from the JSON. Keep names like "pullRequests", "fileChanges", "commits", etc. EXACTLY as they appear.
+- The Hebrew text should refer to those fields using their original English names.
+- Do not invent or assume data. If some fields are empty or null, simply omit them from your reasoning.
+- Limit the result to five balanced, neutral sentences.
+- Return a valid JSON object with a single field called "text", containing the full Hebrew response as a string.
 
-  return `${baseInstructions}
 === BEGIN DATA ===
 ${JSON.stringify(data, null, 2)}
 === END DATA ===
-${questionPart}`;
+
+${type === 'question' && question ? `Question:\n${question}` : ''}
+`;
+
+  return baseInstructions.trim();
 };
 
 @Injectable()
@@ -91,9 +93,13 @@ export class AiRepository {
   }
 
   async getWorkerSummary(userInfo: UserInfo): Promise<string> {
-    return this.callModel(
+    const a = this.callModel(
       generatePrompt({ context: 'worker', type: 'summary', data: userInfo })
     );
+    console.log('userInfo', userInfo);
+    console.log('ai data', a);
+
+    return a;
   }
 
   async getTeamSummary(userInfo: UserInfo): Promise<string> {
