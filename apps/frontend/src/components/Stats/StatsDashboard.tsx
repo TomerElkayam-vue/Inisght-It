@@ -336,7 +336,7 @@ export const StatsDashboard = ({
         </div>
       )}
       {/* Dashboard Text */}
-      <div className="h-[15rem] w-full bg-gray-900 p-4 container mx-auto px-4 py-4 flex items-center justify-center relative">
+      <div className="w-full h-60 bg-gray-900 p-4 flex items-center justify-center relative">
         {isLoading ? (
           <div className="absolute inset-0 bg-[#151921] bg-opacity-90 flex items-center justify-center z-0">
             <div className="flex flex-col items-center gap-4">
@@ -345,7 +345,7 @@ export const StatsDashboard = ({
             </div>
           </div>
         ) : (
-          <div className="w-full h-full flex items-center justify-center">
+          <div className="w-full h-full">
             <DataChart />
           </div>
         )}

@@ -41,9 +41,10 @@ export const CurrentProjectProvider = ({
     const storedProject = localStorage.getItem('currentProject');
     if (storedProject) {
       try {
-        setCurrentProject(JSON.parse(storedProject));
+        const parsedProject = JSON.parse(storedProject);
+        setCurrentProject(parsedProject);
       } catch (err) {
-        console.log(err);
+        console.error('Error parsing stored project:', err);
       }
     }
   }, []);

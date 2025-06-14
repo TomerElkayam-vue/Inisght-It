@@ -2,8 +2,6 @@ import { Controller, Get, Body, Query, Req } from '@nestjs/common';
 import { AiService } from './ai.service';
 import { ApiBody, ApiOperation } from '@nestjs/swagger';
 import { QuestionDTO } from './dto/question.class';
-import { GithubService } from '../github/github.service';
-import { JiraService } from '../jira/jira.service';
 import { GithubDataType } from '../github/enums/github-data-type';
 import { JiraDataType } from '../jira/enums/jira-data-type.enum';
 
@@ -26,11 +24,7 @@ interface QuestionResponse {
 
 @Controller('ai')
 export class AiController {
-  constructor(
-    private readonly aiService: AiService,
-    private readonly githubService: GithubService,
-    private readonly jiraService: JiraService
-  ) {}
+  constructor(private readonly aiService: AiService) {}
 
   @Get('worker-insights')
   async getWorkerInsights(
@@ -52,50 +46,11 @@ export class AiController {
         );
       }
 
-      // Get worker's GitHub data for all data types
-      const githubDataPromises = Object.values(GithubDataType).map((dataType) =>
-        this.githubService.getProjectStatsByUser(
-          {
-            codeRepositoryCredentials:
-              req.projectCredentials.codeRepositoryCredentials,
-            missionManagementCredentials:
-              req.projectCredentials?.missionManagementCredentials,
-          },
-          dataType,
-          projectId
-        )
-      );
-
-      const githubDataResults = await Promise.all(githubDataPromises);
-      const githubData = githubDataResults.reduce((acc, curr, index) => {
-        const dataType = Object.values(GithubDataType)[index];
-        acc[dataType] = curr as unknown as Record<
-          string,
-          {
-            total: number;
-            userId: string;
-            reviews: number;
-            averageComments: number;
-          }
-        >;
-        return acc;
-      }, {} as Record<GithubDataType, Record<string, { total: number; userId: string; reviews: number; averageComments: number }>>);
-
-      // Get all Jira data types
-      const jiraDataPromises = Object.values(JiraDataType).map((dataType) =>
-        this.jiraService.countJiraStatsPerUser(
-          req.projectCredentials.missionManagementCredentials,
-          dataType,
-          projectId
-        )
-      );
-
-      const jiraDataResults = await Promise.all(jiraDataPromises);
-      const jiraData = jiraDataResults.reduce((acc, curr, index) => {
-        const dataType = Object.values(JiraDataType)[index];
-        acc[dataType] = curr;
-        return acc;
-      }, {} as Record<JiraDataType, any>);
+      // Get cached GitHub and Jira data
+      const [githubData, jiraData] = await Promise.all([
+        this.aiService.getGitHubData(projectId, req.projectCredentials),
+        this.aiService.getJiraData(projectId, req.projectCredentials),
+      ]);
 
       // Find worker data by userId and aggregate sprint data
       const findWorkerData = (data: Record<string, Record<string, number>>) => {
@@ -205,21 +160,11 @@ export class AiController {
         );
       }
 
-      // Get team's GitHub data
-      const githubData = await this.githubService.getProjectStatsByUser(
-        {
-          codeRepositoryCredentials:
-            req.projectCredentials.codeRepositoryCredentials,
-        },
-        GithubDataType.PR,
-        projectId
-      );
-
-      const jiraData = await this.jiraService.countJiraStatsPerUser(
-        req.projectCredentials.missionManagementCredentials,
-        JiraDataType.ISSUES,
-        projectId
-      );
+      // Get cached GitHub and Jira data
+      const [githubData, jiraData] = await Promise.all([
+        this.aiService.getGitHubData(projectId, req.projectCredentials),
+        this.aiService.getJiraData(projectId, req.projectCredentials),
+      ]);
 
       // Filter data for specific users if userIds is provided
       const targetUserIds = userIds ? userIds.split(',') : [];
@@ -232,21 +177,26 @@ export class AiController {
 
       // Calculate team metrics by aggregating individual metrics
       const teamMetrics = filteredGithubData.reduce(
-        (acc: any, [_, workerData]: [string, any]) => ({
-          pullRequests: (acc.pullRequests || 0) + (workerData.total || 0),
-          codeReviews: (acc.codeReviews || 0) + (workerData.reviews || 0),
-          averageCommentsPerPR:
-            (acc.averageCommentsPerPR || 0) + (workerData.averageComments || 0),
-          issuesCompleted:
-            (acc.issuesCompleted || 0) +
-            (jiraData[workerData.name]?.completed || 0),
-          averageIssueTime:
-            (acc.averageIssueTime || 0) +
-            (jiraData[workerData.name]?.averageTime || 0),
-          totalStoryPoints:
-            (acc.totalStoryPoints || 0) +
-            (jiraData[workerData.name]?.storyPoints || 0),
-        }),
+        (acc: any, [_, workerData]: [string, any]) => {
+          const jiraUserData =
+            jiraData[JiraDataType.ISSUES]?.[workerData.name] || {};
+          const storyPointsData =
+            jiraData[JiraDataType.STORY_POINTS]?.[workerData.name] || {};
+
+          return {
+            pullRequests: (acc.pullRequests || 0) + (workerData.total || 0),
+            codeReviews: (acc.codeReviews || 0) + (workerData.reviews || 0),
+            averageCommentsPerPR:
+              (acc.averageCommentsPerPR || 0) +
+              (workerData.averageComments || 0),
+            issuesCompleted:
+              (acc.issuesCompleted || 0) + (jiraUserData.completed || 0),
+            averageIssueTime:
+              (acc.averageIssueTime || 0) + (jiraUserData.averageTime || 0),
+            totalStoryPoints:
+              (acc.totalStoryPoints || 0) + (storyPointsData.storyPoints || 0),
+          };
+        },
         {}
       );
 
