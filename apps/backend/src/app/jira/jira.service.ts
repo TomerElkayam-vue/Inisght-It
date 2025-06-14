@@ -18,6 +18,7 @@ export class JiraService {
     private projectsService: ProjectsSerivce,
     @Inject(forwardRef(() => AiService))
     private aiService: AiService,
+    @Inject(forwardRef(() => EmployeeService))
     private readonly employeeService: EmployeeService
   ) {}
 
@@ -298,5 +299,14 @@ export class JiraService {
       where: { id: projectId },
       data: { missionManagementCredentials: settings },
     });
+  }
+
+  async getProjectContributors(
+    jiraSettings: JiraSettings,
+    projectId: string
+  ): Promise<string[]> {
+    return this.executeWithRefresh(jiraSettings, projectId, (settings) =>
+      this.jiraRepository.getProjectContributors(settings)
+    );
   }
 }

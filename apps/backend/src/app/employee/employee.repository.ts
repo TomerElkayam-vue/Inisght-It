@@ -1,6 +1,6 @@
-import { Injectable } from "@nestjs/common";
-import { PrismaService } from "../prisma/prisma.service";
-import { Employee } from "@prisma/client";
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
+import { Employee, Prisma } from '@prisma/client';
 
 @Injectable()
 export class EmployeeRepository {
@@ -28,5 +28,23 @@ export class EmployeeRepository {
         githubUsername: githubUsername,
       },
     });
+  }
+
+  async createManyEmployees(
+    data: Prisma.EmployeeCreateManyInput[],
+    projectId: string
+  ): Promise<Employee[]> {
+    return this.prisma.employee
+      .createMany({
+        data,
+        skipDuplicates: true,
+      })
+      .then(() =>
+        this.prisma.employee.findMany({
+          where: {
+            projectId,
+          },
+        })
+      );
   }
 }

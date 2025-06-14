@@ -12,7 +12,7 @@ import { AiModule } from '../ai/ai.module';
   providers: [JiraService, JiraRepository],
   imports: [
     ProjectsModule,
-    EmployeeModule,
+    forwardRef(() => EmployeeModule),
     HttpModule,
     forwardRef(() => AiModule),
   ],

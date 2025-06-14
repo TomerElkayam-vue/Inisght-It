@@ -1,14 +1,14 @@
-import { Inject, Injectable } from "@nestjs/common";
-import { HttpService } from "@nestjs/axios";
-import { firstValueFrom } from "rxjs";
-import { JiraTaskDto } from "./dto/jira-task.dto";
-import { jiraConfig } from "../../config/jira-config";
-import { ConfigType } from "@nestjs/config";
-import axios from "axios";
-import { JiraSettings } from "./types/jira-settings.type";
-import { JiraDataType } from "./enums/jira-data-type.enum";
-import { jiraDataTypeTransformation } from "./mappers/jira-data-type-transformation";
-import { JiraAvgDataType } from "./enums/jira-avg-data-type.enum";
+import { Inject, Injectable } from '@nestjs/common';
+import { HttpService } from '@nestjs/axios';
+import { firstValueFrom } from 'rxjs';
+import { JiraTaskDto } from './dto/jira-task.dto';
+import { jiraConfig } from '../../config/jira-config';
+import { ConfigType } from '@nestjs/config';
+import axios from 'axios';
+import { JiraSettings } from './types/jira-settings.type';
+import { JiraDataType } from './enums/jira-data-type.enum';
+import { jiraDataTypeTransformation } from './mappers/jira-data-type-transformation';
+import { JiraAvgDataType } from './enums/jira-avg-data-type.enum';
 
 @Injectable()
 export class JiraRepository {
@@ -19,13 +19,13 @@ export class JiraRepository {
     @Inject(jiraConfig.KEY)
     private jiraConfigValues: ConfigType<typeof jiraConfig>
   ) {
-    this.apiEndpoint = process.env.API_URL || "http://localhost:3000/api";
+    this.apiEndpoint = process.env.API_URL || 'http://localhost:3000/api';
   }
 
   async getJiraIssues(
     projectSettings: JiraSettings,
     dataType: JiraDataType | JiraAvgDataType
-  ): Promise<JiraTaskDto["fields"][]> {
+  ): Promise<JiraTaskDto['fields'][]> {
     try {
       // TODO - replace 1 with boardId
       const response = await firstValueFrom(
@@ -33,14 +33,14 @@ export class JiraRepository {
           `https://api.atlassian.com/ex/jira/${projectSettings.id}/rest/agile/1.0/board/1/issue`,
           {
             params: {
-              jql: "sprint IS NOT EMPTY and assignee IS NOT EMPTY",
+              jql: 'sprint IS NOT EMPTY and assignee IS NOT EMPTY',
               fields: jiraDataTypeTransformation[dataType].fields,
               maxResults: 100,
               startAt: 0,
             },
             headers: {
               Authorization: `Bearer ${projectSettings.token}`,
-              Accept: "application/json",
+              Accept: 'application/json',
             },
           }
         )
@@ -51,7 +51,7 @@ export class JiraRepository {
         id: issue.id,
       }));
     } catch (error: any) {
-      console.log("Error", error);
+      console.log('Error', error);
       throw error;
     }
   }
@@ -67,7 +67,7 @@ export class JiraRepository {
             },
             headers: {
               Authorization: `Bearer ${projectSettings.token}`,
-              Accept: "application/json",
+              Accept: 'application/json',
             },
           }
         )
@@ -75,7 +75,7 @@ export class JiraRepository {
 
       return response.data.values;
     } catch (error: any) {
-      console.log("Error", error);
+      console.log('Error', error);
       throw error;
     }
   }
@@ -83,7 +83,7 @@ export class JiraRepository {
   async getJiraToken(code: string): Promise<any> {
     try {
       const body = JSON.stringify({
-        grant_type: "authorization_code",
+        grant_type: 'authorization_code',
         client_id: this.jiraConfigValues.clientId,
         client_secret: this.jiraConfigValues.clientSecret,
         code,
@@ -91,11 +91,11 @@ export class JiraRepository {
       });
 
       const config = {
-        method: "post",
+        method: 'post',
         maxBodyLength: Infinity,
-        url: "https://auth.atlassian.com/oauth/token",
+        url: 'https://auth.atlassian.com/oauth/token',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         data: body,
       };
@@ -107,7 +107,7 @@ export class JiraRepository {
         refreshToken: data.refresh_token,
       };
     } catch (error: any) {
-      console.log("Error", error);
+      console.log('Error', error);
       throw error;
     }
   }
@@ -115,18 +115,18 @@ export class JiraRepository {
   async refreshJiraToken(currentRefreshToken: string): Promise<any> {
     try {
       const body = JSON.stringify({
-        grant_type: "refresh_token",
+        grant_type: 'refresh_token',
         client_id: this.jiraConfigValues.clientId,
         client_secret: this.jiraConfigValues.clientSecret,
         refresh_token: currentRefreshToken,
       });
 
       const config = {
-        method: "post",
+        method: 'post',
         maxBodyLength: Infinity,
-        url: "https://auth.atlassian.com/oauth/token",
+        url: 'https://auth.atlassian.com/oauth/token',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         data: body,
       };
@@ -138,7 +138,7 @@ export class JiraRepository {
         refreshToken: data.refresh_token,
       };
     } catch (error: any) {
-      console.log("Error", error);
+      console.log('Error', error);
       throw error;
     }
   }
@@ -146,7 +146,7 @@ export class JiraRepository {
   async getJiraProjects(token: string) {
     try {
       const { data } = await axios.get(
-        "https://api.atlassian.com/oauth/token/accessible-resources",
+        'https://api.atlassian.com/oauth/token/accessible-resources',
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -156,7 +156,7 @@ export class JiraRepository {
 
       return data;
     } catch (e: any) {
-      console.log("Error", e);
+      console.log('Error', e);
       throw e;
     }
   }
@@ -176,7 +176,7 @@ export class JiraRepository {
         {
           headers: {
             Authorization: `Bearer ${projectSettings.token}`,
-            Accept: "application/json",
+            Accept: 'application/json',
           },
         }
       )
@@ -191,14 +191,14 @@ export class JiraRepository {
 
     for (const entry of changelog) {
       for (const item of entry.items) {
-        if (item.field === "status") {
-          if (!toDo && item.toString === "To Do") {
+        if (item.field === 'status') {
+          if (!toDo && item.toString === 'To Do') {
             toDo = entry.created;
           }
-          if (!inProgress && item.toString === "In Progress") {
+          if (!inProgress && item.toString === 'In Progress') {
             inProgress = entry.created;
           }
-          if (!done && item.toString === "Done") {
+          if (!done && item.toString === 'Done') {
             done = entry.created;
           }
         }
@@ -206,5 +206,42 @@ export class JiraRepository {
     }
 
     return { created, toDo, inProgress, done };
+  }
+
+  async getProjectContributors(
+    projectSettings: JiraSettings
+  ): Promise<string[]> {
+    try {
+      const response = await firstValueFrom(
+        this.httpService.get(
+          `https://api.atlassian.com/ex/jira/${projectSettings.id}/rest/api/3/search`,
+          {
+            params: {
+              jql: 'project IS NOT EMPTY',
+              fields: 'assignee',
+              maxResults: 1000,
+              startAt: 0,
+            },
+            headers: {
+              Authorization: `Bearer ${projectSettings.token}`,
+              Accept: 'application/json',
+            },
+          }
+        )
+      );
+
+      // Extract unique assignees from the response
+      const contributors = new Set<string>();
+      response.data.issues.forEach((issue: any) => {
+        if (issue.fields.assignee?.displayName) {
+          contributors.add(issue.fields.assignee.displayName);
+        }
+      });
+
+      return Array.from(contributors);
+    } catch (error: any) {
+      console.log('Error fetching project contributors:', error);
+      throw error;
+    }
   }
 }

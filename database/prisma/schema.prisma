@@ -29,7 +29,7 @@ model Project {
   recommendations              Json?
   createdAt                    DateTime            @default(now())
   projectPermissions           ProjectPermission[]
-  employees                    ProjectEmployee[]
+  employees                    Employee[]
   sprints                      Sprint[]
 
   @@map("projects")
@@ -64,20 +64,11 @@ model Employee {
   displayName   String           @map("display_name")
   githubUsername String?         @map("github_username")
   jiraUsername  String?          @map("jira_username")
-  projects      ProjectEmployee[]
+  projectId   String      @db.Uuid @map("project_id")
   userStats     UserStats[]
+  project       Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   @@map("employee")
-}
-
-model ProjectEmployee {
-  projectId    String   @db.Uuid @map("project_id")
-  employeeId   String   @db.Uuid @map("employee_id")
-  project      Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  employee     Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
-
-  @@id([employeeId, projectId])
-  @@map("project_employee")
 }
 
 model Sprint {
