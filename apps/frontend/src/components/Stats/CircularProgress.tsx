@@ -74,20 +74,24 @@ export const CircularProgress = <
           </div>
         ) : (
           <>
-            <div className="w-55 h-55">
-              <Doughnut options={options} data={data} />
-            </div>
-            <div className="absolute inset-0 flex items-center justify-center flex-col">
-              <span className="text-2xl font-bold text-white">
-                {Number.isInteger(value) ? value : value.toFixed(2)}
-              </span>
-              <span className="text-xs text-gray-400 text-center max-w-[80px]">
-                {label}
-              </span>
-              <span className="text-[0.6rem] text-gray-400 text-center max-w-[80px]">
-                avg compare to team record
-              </span>
-            </div>
+            {value && (
+              <>
+                <div className="w-55 h-55">
+                  <Doughnut options={options} data={data} />
+                </div>
+                <div className="absolute inset-0 flex items-center justify-center flex-col">
+                  <span className="text-2xl font-bold text-white">
+                    {Number.isInteger(value) ? value : value.toFixed(2)}
+                  </span>
+                  <span className="text-xs text-gray-400 text-center max-w-[80px]">
+                    {label}
+                  </span>
+                  <span className="text-[0.6rem] text-gray-400 text-center max-w-[80px]">
+                    avg compare to team record
+                  </span>
+                </div>
+              </>
+            )}
           </>
         )}
       </div>

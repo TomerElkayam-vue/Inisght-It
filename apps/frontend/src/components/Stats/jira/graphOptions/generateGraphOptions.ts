@@ -1,5 +1,6 @@
 export const generateGraphOptions = (title: string) => {
   return {
+    maintainAspectRatio: false,
     responsive: true,
     plugins: {
       legend: {

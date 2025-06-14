@@ -29,28 +29,28 @@ const generatePrompt = ({
   question?: string;
   data: UserInfo;
 }): string => {
-  const subject = type === 'summary' ? 'performance summary' : 'recommendation';
+  const baseInstructions =
+    type === 'summary'
+      ? `Provide a detailed performance summary in Hebrew for the following ${context} data.`
+      : type === 'recommendation'
+      ? `Based on the following ${context} data, provide a forward-looking recommendation in Hebrew for the manager or the ${context} itself. Do NOT summarize the data or describe what it shows. Focus only on suggesting actions or directions, using phrasing like "מומלץ להתמקד ב..." or "נראה שרוב העבודה היא בתחום X ולכן כדאי...".`
+      : `Answer the following question in Hebrew based on the provided ${context} data.
+DO NOT simply repeat or summarize the data fields.
+Instead, ONLY answer the question`;
 
-  const baseInstructions = `
-You are an expert analyst. Your task is to provide a ${
-    type === 'summary' ? 'detailed' : 'concise'
-  } ${subject} in Hebrew for the following ${context} data.
-
+  return `
+${baseInstructions}
 CRITICAL INSTRUCTIONS:
-- DO NOT translate, explain, or rename field names from the JSON. Keep names like "pullRequests", "fileChanges", "commits", etc. EXACTLY as they appear.
+- Never translate, explain, or modify field names. They must appear in English, exactly as-is, in the Hebrew text. Keep names like "pullRequests", "fileChanges", "commits", etc. EXACTLY as they appear.
 - The Hebrew text should refer to those fields using their original English names.
 - Do not invent or assume data. If some fields are empty or null, simply omit them from your reasoning.
 - Limit the result to five balanced, neutral sentences.
+- For the metric "averageCommentsPerPR", interpret high values as potentially indicating unclear code or room for code quality improvement. Do not describe the metric directly.
 - Return a valid JSON object with a single field called "text", containing the full Hebrew response as a string.
 
 === BEGIN DATA ===
 ${JSON.stringify(data, null, 2)}
-=== END DATA ===
-
-${type === 'question' && question ? `Question:\n${question}` : ''}
-`;
-
-  return baseInstructions.trim();
+=== END DATA ===`;
 };
 
 @Injectable()
@@ -93,13 +93,13 @@ export class AiRepository {
   }
 
   async getWorkerSummary(userInfo: UserInfo): Promise<string> {
-    const a = this.callModel(
+    const generated = this.callModel(
       generatePrompt({ context: 'worker', type: 'summary', data: userInfo })
     );
     console.log('userInfo', userInfo);
-    console.log('ai data', a);
+    console.log('ai data', generated);
 
-    return a;
+    return generated;
   }
 
   async getTeamSummary(userInfo: UserInfo): Promise<string> {
@@ -109,7 +109,7 @@ export class AiRepository {
   }
 
   async getQuestionAnswer(question: QuestionDTO): Promise<string> {
-    return this.callModel(
+    const generated = this.callModel(
       generatePrompt({
         context: question.type === 'worker' ? 'worker' : 'team',
         type: 'question',
@@ -117,6 +117,8 @@ export class AiRepository {
         data: question.metrics as UserInfo,
       })
     );
+    console.log('generated', generated);
+    return generated;
   }
 
   async getRelatedMergeRequestTitle(
