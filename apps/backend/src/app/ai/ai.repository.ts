@@ -29,63 +29,63 @@ export class AiRepository {
   model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
   async getWorkerRecommendation(userInfo: UserInfo): Promise<string> {
-    const userInfoStr = JSON.stringify(userInfo, null, 2);
-    const prompt = `Give your recommendation and summery in the hebrew language about a worker with this data: ${userInfoStr}. Do not translate userData terms to hebrew. Give a balanced opnion not longer than 5 sentances. Please respond with a json object contains one field called text, which will contain the recommandation`;
+    const prompt = `Based on the following worker data (in JSON), provide a concise recommendation in Hebrew. Do not translate field names from the data. Your response should be balanced and limited to five sentences. Return a JSON object with a single field called \"text\", containing your recommendation.\n\nWorker Data:\n${JSON.stringify(
+      userInfo,
+      null,
+      2
+    )}`;
 
     const result = await this.model.generateContent({
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      generationConfig: {
-        responseMimeType: 'application/json',
-      },
+      generationConfig: { responseMimeType: 'application/json' },
     });
 
-    const response = JSON.parse(result.response.text()).text;
-    return response;
+    return JSON.parse(result.response.text()).text;
   }
 
   async getTeamRecommendation(userInfo: UserInfo): Promise<string> {
-    const userInfoStr = JSON.stringify(userInfo, null, 2);
-    const prompt = `Give your recommendation and summery in the hebrew language about a team with this data: ${userInfoStr}. Do not translate userData terms to hebrew. Give a balanced opnion not longer than 5 sentances. Please respond with a json object contains one field called text, which will contain the recommandation`;
+    const prompt = `Based on the following team data (in JSON), provide a concise recommendation in Hebrew. Do not translate field names from the data. Your response should be balanced and limited to five sentences. Return a JSON object with a single field called \"text\", containing your recommendation.\n\nTeam Data:\n${JSON.stringify(
+      userInfo,
+      null,
+      2
+    )}`;
 
     const result = await this.model.generateContent({
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      generationConfig: {
-        responseMimeType: 'application/json',
-      },
+      generationConfig: { responseMimeType: 'application/json' },
     });
 
-    const response = JSON.parse(result.response.text()).text;
-    return response;
+    return JSON.parse(result.response.text()).text;
   }
 
   async getWorkerSummary(userInfo: UserInfo): Promise<string> {
-    const userInfoStr = JSON.stringify(userInfo, null, 2);
-    const prompt = `Give a detailed summary in hebrew language about a worker's performance with this data: ${userInfoStr}. Do not translate userData terms to hebrew. Give a balanced opnion not longer than 5 sentances. Please respond with a json object contains one field called text, which will contain the summary`;
+    const prompt = `Provide a detailed performance summary in Hebrew for the following worker data. Do not translate field names from the JSON. Limit your response to five balanced sentences. Return a JSON object with a single field called \"text\", containing your summary.\n\nWorker Data:\n${JSON.stringify(
+      userInfo,
+      null,
+      2
+    )}`;
 
     const result = await this.model.generateContent({
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      generationConfig: {
-        responseMimeType: 'application/json',
-      },
+      generationConfig: { responseMimeType: 'application/json' },
     });
 
-    const response = JSON.parse(result.response.text()).text;
-    return response;
+    return JSON.parse(result.response.text()).text;
   }
 
   async getTeamSummary(userInfo: UserInfo): Promise<string> {
-    const userInfoStr = JSON.stringify(userInfo, null, 2);
-    const prompt = `Give a detailed summary in hebrew language about a team's performance with this data: ${userInfoStr}. Do not translate userData terms to hebrew. Give a balanced opnion not longer than 5 sentances. Please respond with a json object contains one field called text, which will contain the summary`;
+    const prompt = `Provide a detailed performance summary in Hebrew for the following team data. Do not translate field names from the JSON. Limit your response to five balanced sentences. Return a JSON object with a single field called \"text\", containing your summary.\n\nTeam Data:\n${JSON.stringify(
+      userInfo,
+      null,
+      2
+    )}`;
 
     const result = await this.model.generateContent({
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      generationConfig: {
-        responseMimeType: 'application/json',
-      },
+      generationConfig: { responseMimeType: 'application/json' },
     });
 
-    const response = JSON.parse(result.response.text()).text;
-    return response;
+    return JSON.parse(result.response.text()).text;
   }
 
   async getQuestionAnswer(question: QuestionDTO): Promise<string> {
@@ -93,17 +93,14 @@ export class AiRepository {
       ? JSON.stringify(question.metrics, null, 2)
       : '';
     const contextStr = question.type === 'worker' ? 'עובד' : 'צוות';
-    const prompt = `Answer the following question in hebrew language about a ${contextStr} with these metrics: ${metricsStr}\n\nQuestion: ${question.question}\n\nPlease respond with a json object contains one field called text, which will contain the answer`;
+    const prompt = `Answer the following question in Hebrew, based on the given ${contextStr} metrics. Do not translate field names from the JSON. Return a JSON object with a single field called \"text\", containing your answer.\n\nMetrics:\n${metricsStr}\n\nQuestion:\n${question.question}`;
 
     const result = await this.model.generateContent({
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      generationConfig: {
-        responseMimeType: 'application/json',
-      },
+      generationConfig: { responseMimeType: 'application/json' },
     });
 
-    const response = JSON.parse(result.response.text()).text;
-    return response;
+    return JSON.parse(result.response.text()).text;
   }
 
   async getRelatedMergeRequestTitle(
