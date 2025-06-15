@@ -2,7 +2,11 @@ import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import * as config from '@nestjs/config';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
-import { GitHubPullRequest, RepositoryContributor } from '@packages/github';
+import {
+  GitHubPullRequest,
+  GitHubPullRequestFiles,
+  RepositoryContributor,
+} from '@packages/github';
 import { githubConfig } from '../../config/github-config';
 
 @Injectable()
@@ -100,6 +104,41 @@ export class GithubRepository {
         deletions,
         changed_files,
       };
+    } catch (error: any) {
+      if (error.response?.status === 401) {
+        throw new UnauthorizedException('Invalid GitHub token');
+      }
+      throw error;
+    }
+  }
+
+  async getChangedFilesByPullRequestNumber(
+    owner: string,
+    repo: string,
+    token: string,
+    pullRequest: GitHubPullRequest
+  ): Promise<GitHubPullRequestFiles[]> {
+    try {
+      const url = `${this.baseUrl}/repos/${owner}/${repo}/pulls/${pullRequest.number}/files`;
+      const { data } = await firstValueFrom(
+        this.httpService.get<GitHubPullRequestFiles[]>(url, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: 'application/vnd.github.v3+json',
+          },
+        })
+      );
+
+      return data.map((file) => {
+        const { filename, additions, deletions, changes } = file;
+        return {
+          filename,
+          additions,
+          deletions,
+          changes,
+          user : pullRequest.user?.login
+        };
+      });
     } catch (error: any) {
       if (error.response?.status === 401) {
         throw new UnauthorizedException('Invalid GitHub token');
