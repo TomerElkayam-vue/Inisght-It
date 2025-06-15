@@ -20,7 +20,7 @@ const LoginForm: React.FC = () => {
       const { accessToken, refreshToken } = await login({ username, password });
       saveTokens(accessToken, refreshToken);
       setToken(accessToken);
-      navigate('/stats');
+      navigate('/sprints-stats');
     } catch (err) {
       setError('שם משתמש או סיסמא שגויים');
       console.error('Login error:', err);
