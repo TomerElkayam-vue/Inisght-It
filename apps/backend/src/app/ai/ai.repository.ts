@@ -37,10 +37,10 @@ const generatePrompt = ({
       : `Answer the following question in Hebrew based on the provided ${context} data.
 DO NOT simply repeat or summarize the data fields.
 Instead, ONLY answer the question based on the provided datas`;
-
   return `
 ${baseInstructions}
 CRITICAL INSTRUCTIONS:
+- The data concerns programmers involved in a software development project. Research relevant subfields within this topic if needed.
 - Never translate, explain, or modify field names. They must appear in English, exactly as-is, in the Hebrew text. Keep names like "pullRequests", "fileChanges", "commits", etc. EXACTLY as they appear.
 - The Hebrew text should refer to those fields using their original English names.
 - Do not invent or assume data. If some fields are empty or null, simply omit them from your reasoning.
