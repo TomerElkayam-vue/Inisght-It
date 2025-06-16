@@ -1,9 +1,7 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useCurrentProjectContext } from '../../context/CurrentProjectContext';
 import { useCurrentConnectedUser } from '../../context/CurrentConnectedUserContext';
 import { Prompt } from './Prompt';
-import { useQuery } from '@tanstack/react-query';
-import { usersService } from '../../services/users.service';
 import { useProjectRole } from '../../hooks/useProjectRole';
 import {
   githubDataTypeToText,
@@ -27,40 +25,21 @@ export const WorkerInsights = () => {
     () => useProjectRole(currentProject, currentConnectedUser),
     [currentProject, currentConnectedUser]
   );
-  
+
   const [selectedEmployee, setSelectedEmployee] =
     useState<EmployeeSelection | null>(null);
 
-  const { data: userDetails } = useQuery({
-    queryKey: ['users'],
-    queryFn: () => {
-      return currentConnectedUser?.id
-        ? usersService.getUserDetails(currentConnectedUser?.id)
-        : null;
-    },
-  });
-
-  useEffect(() => {
-    if (userRole === 'MEMBER' && currentConnectedUser) {
-      setSelectedEmployee({
-        // TODO change
-        displayName: `${currentConnectedUser.username}`,
-        id: currentConnectedUser.id,
-      });
-    }
-  }, [userRole, userDetails]);
-
   const employees: EmployeeSelection[] =
-    currentProject?.projectPermissions?.map((permission) => ({
-      id: permission.user.id,
-      displayName: `${permission.user.firstName} ${permission.user.lastName}`,
+    currentProject?.employees?.map((employee) => ({
+      id: employee.id,
+      displayName: employee.displayName,
     })) || [];
 
   if (!currentProject) {
     return null;
   }
 
-  if (!userDetails && !userRole) {
+  if (!userRole) {
     return (
       <div className="flex items-center justify-center p-6 bg-gray-900 rounded-lg min-h-[80vh]">
         <p className="text-xl text-gray-400 text-center">

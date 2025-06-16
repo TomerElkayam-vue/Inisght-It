@@ -4,15 +4,11 @@ import { ApiProperty } from '@nestjs/swagger';
 export class QuestionDTO {
   @Expose()
   @ApiProperty()
-  data: any;
-
-  @Expose()
-  @ApiProperty()
   question: string;
 
   @Expose()
   @ApiProperty()
-  metrics?: {
+  data: {
     pullRequests: number;
     codeReviews: number;
     averageCommentsPerPR: number;

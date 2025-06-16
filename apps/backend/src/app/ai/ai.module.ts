@@ -5,11 +5,13 @@ import { AiRepository } from './ai.repository';
 import { GithubModule } from '../github/github.module';
 import { JiraModule } from '../jira/jira.module';
 import { CacheModule } from '@nestjs/cache-manager';
+import { EmployeeModule } from '../employee/employee.module';
 
 @Module({
   imports: [
     forwardRef(() => GithubModule),
     forwardRef(() => JiraModule),
+    forwardRef(() => EmployeeModule),
     CacheModule.register({
       ttl: 300000, // 5 minutes cache
       max: 100, // maximum number of items in cache

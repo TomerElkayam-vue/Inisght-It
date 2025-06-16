@@ -1,4 +1,4 @@
-import { Controller, Get, Body, Query, Req } from '@nestjs/common';
+import { Controller, Get, Query, Req } from '@nestjs/common';
 import { AiService } from './ai.service';
 import { ApiBody, ApiOperation } from '@nestjs/swagger';
 import { QuestionDTO } from './dto/question.class';
@@ -29,7 +29,7 @@ export class AiController {
   @Get('worker-insights')
   async getWorkerInsights(
     @Query('projectId') projectId: string,
-    @Query('userId') userId: string,
+    @Query('employeeId') employeeId: string,
     @Query('isHebrew') isHebrew: boolean = true,
     @Req() req: any
   ): Promise<InsightsResponse> {
@@ -52,13 +52,24 @@ export class AiController {
         this.aiService.getJiraData(projectId, req.projectCredentials),
       ]);
 
-      // Find worker data by userId and aggregate sprint data
-      const findWorkerData = (data: Record<string, Record<string, number>>) => {
+      // Find worker data by employeeId and aggregate sprint data
+      const findWorkerData = async (
+        data: Record<string, Record<string, number>>
+      ) => {
+        // Get employee name from employee service
+        const employee = await this.aiService.getEmployeeById(employeeId);
+        if (!employee) {
+          console.log('Employee not found for id:', employeeId);
+          return null;
+        }
+
         const workerEntry = Object.entries(data).find(
-          // TODO changeeee
-          ([name]) => name === 'Tomer Elkayam'
+          ([name]) => name === employee.displayName
         );
-        if (!workerEntry) return null;
+        if (!workerEntry) {
+          console.log('No data found for employee:', employee.displayName);
+          return null;
+        }
 
         // Sum up all sprint values
         return Object.values(workerEntry[1]).reduce(
@@ -70,29 +81,29 @@ export class AiController {
       // Aggregate GitHub metrics across all sprints
       const githubMetrics = {
         pullRequests:
-          findWorkerData(
+          (await findWorkerData(
             githubData[GithubDataType.PR] as unknown as Record<
               string,
               Record<string, number>
             >
-          ) || 0,
+          )) || 0,
         commits:
-          findWorkerData(
+          (await findWorkerData(
             githubData[GithubDataType.COMMITS] as unknown as Record<
               string,
               Record<string, number>
             >
-          ) || 0,
+          )) || 0,
         comments:
-          findWorkerData(
+          (await findWorkerData(
             githubData[GithubDataType.COMMENTS] as unknown as Record<
               string,
               Record<string, number>
             >
-          ) || 0,
+          )) || 0,
         fileChanges: Object.entries(
           githubData[GithubDataType.FILE_CHANGES] || {}
-        ).find(([name]) => name === userId)?.[1] || {
+        ).find(([name]) => name === employeeId)?.[1] || {
           additions: 0,
           deletions: 0,
         },
@@ -111,17 +122,17 @@ export class AiController {
 
         // Jira metrics
         issuesCompleted:
-          (jiraData[JiraDataType.ISSUES] as any)[userId]?.completed || 0,
+          (jiraData[JiraDataType.ISSUES] as any)[employeeId]?.completed || 0,
         averageIssueTime:
-          (jiraData[JiraDataType.ISSUES] as any)[userId]?.averageTime || 0,
+          (jiraData[JiraDataType.ISSUES] as any)[employeeId]?.averageTime || 0,
         totalStoryPoints:
-          (jiraData[JiraDataType.STORY_POINTS] as any)[userId]?.storyPoints ||
-          0,
-        issueStatus: (jiraData[JiraDataType.ISSUE_STATUS] as any)[userId] || {},
-        issueTypes: (jiraData[JiraDataType.ISSUE_TYPE] as any)[userId] || {},
+          (jiraData[JiraDataType.STORY_POINTS] as any)[employeeId]
+            ?.storyPoints || 0,
+        issueStatus:
+          (jiraData[JiraDataType.ISSUE_STATUS] as any)[employeeId] || {},
+        issueTypes:
+          (jiraData[JiraDataType.ISSUE_TYPE] as any)[employeeId] || {},
       };
-
-      console.log('Calculated Metrics:', metrics);
 
       // Get AI insights
       const [summary, recommendations] = await Promise.all([
@@ -143,7 +154,7 @@ export class AiController {
   @Get('team-insights')
   async getTeamInsights(
     @Query('projectId') projectId: string,
-    @Query('userIds') userIds: string,
+    @Query('employeeIds') employeeIds: string,
     @Query('isHebrew') isHebrew: boolean = true,
     @Req() req: any
   ): Promise<InsightsResponse> {
@@ -166,12 +177,12 @@ export class AiController {
         this.aiService.getJiraData(projectId, req.projectCredentials),
       ]);
 
-      // Filter data for specific users if userIds is provided
-      const targetUserIds = userIds ? userIds.split(',') : [];
+      // Filter data for specific employees if employeeIds is provided
+      const targetEmployeeIds = employeeIds ? employeeIds.split(',') : [];
       const filteredGithubData =
-        targetUserIds.length > 0
+        targetEmployeeIds.length > 0
           ? Object.entries(githubData).filter(([_, data]: [string, any]) =>
-              targetUserIds.includes(data.userId)
+              targetEmployeeIds.includes(data.employeeId)
             )
           : Object.entries(githubData);
 
@@ -205,8 +216,6 @@ export class AiController {
       teamMetrics.averageCommentsPerPR /= workerCount;
       teamMetrics.averageIssueTime /= workerCount;
 
-      console.log('Final Team Metrics:', teamMetrics);
-
       // Get AI insights
       const [summary, recommendations] = await Promise.all([
         this.aiService.getTeamSummary(teamMetrics),
@@ -224,13 +233,13 @@ export class AiController {
     }
   }
 
-  @Get('questions')
+  @Get('question')
   @ApiOperation({ summary: 'Get AI recommendation' })
   @ApiBody({ type: QuestionDTO })
   async getQuestionAnswer(
-    @Body() question: QuestionDTO,
+    @Query() question: string,
     @Query('projectId') projectId: string,
-    @Query('userId') userId: string,
+    @Query('employeeId') employeeId: string,
     @Query('type') type: 'worker' | 'team',
     @Req() req: any
   ): Promise<QuestionResponse> {
@@ -248,15 +257,15 @@ export class AiController {
       }
 
       // Get metrics based on type
-      let metrics;
+      let data;
       if (type === 'worker') {
         const response = await this.getWorkerInsights(
           projectId,
-          userId,
+          employeeId,
           true,
           req
         );
-        metrics = response.metrics;
+        data = response.metrics;
       } else {
         const response = await this.getTeamInsights(
           projectId,
@@ -264,14 +273,15 @@ export class AiController {
           true,
           req
         );
-        metrics = response.metrics;
+        data = response.metrics;
       }
-
+      // Get AI answer
       const answer = await this.aiService.getQuestionAnswer({
-        ...question,
-        metrics,
+        question,
+        data,
         type,
       });
+
       return { answer };
     } catch (error) {
       console.error('Error getting question answer:', error);

@@ -46,7 +46,7 @@ export const Prompt = ({ target, type }: PromptProps) => {
 
       try {
         const response = await getQuestionAnswer(
-          { question: inputValue },
+          inputValue,
           currentProject.id,
           type === 'worker' ? target : undefined,
           type
@@ -95,7 +95,7 @@ export const Prompt = ({ target, type }: PromptProps) => {
 
     try {
       const response = await getQuestionAnswer(
-        { question: message.question },
+        message.question,
         currentProject.id,
         type === 'worker' ? target : undefined,
         type

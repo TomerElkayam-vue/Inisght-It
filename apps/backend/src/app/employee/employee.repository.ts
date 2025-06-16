@@ -30,6 +30,14 @@ export class EmployeeRepository {
     });
   }
 
+  async findEmployeeById(id: string): Promise<Employee | null> {
+    return this.prisma.employee.findUnique({
+      where: {
+        id,
+      },
+    });
+  }
+
   async createManyEmployees(
     data: Prisma.EmployeeCreateManyInput[],
     projectId: string
@@ -42,6 +50,7 @@ export class EmployeeRepository {
       .then(() =>
         this.prisma.employee.findMany({
           where: {
+            //@ts-ignore
             projectId,
           },
         })
