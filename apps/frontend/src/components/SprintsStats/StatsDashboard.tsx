@@ -6,11 +6,11 @@ import {
 } from '../../services/jira.service';
 import { useCurrentProjectContext } from '../../context/CurrentProjectContext';
 import { Bar, Line } from 'react-chartjs-2';
-import { generateGraphOptions } from './jira/graphOptions/generateGraphOptions';
+import { generateGraphOptions } from './configs/generateGraphOptions';
 import {
   generateTeamMultipleGraphDataset,
   generateTeamSingleGraphDataset,
-} from './jira/genereGraphDataset';
+} from './configs/genereGraphDataset';
 import {
   CategoryScale,
   LinearScale,
@@ -22,12 +22,11 @@ import {
   Chart as ChartJS,
   BarElement,
   ChartData,
-  ChartDataset,
 } from 'chart.js';
 import {
   generateMultipleGraphDataset,
   generateSingleGraphDataset,
-} from './jira/genereGraphDataset';
+} from './configs/genereGraphDataset';
 import { GithubDataType } from '../../services/github.service';
 
 ChartJS.register(

@@ -28,7 +28,7 @@ const RegisterForm: React.FC = () => {
       });
       saveTokens(accessToken, refreshToken);
       setToken(accessToken);
-      navigate('/stats');
+      navigate('/sprints-stats');
     } catch (err: any) {
       setError('שגיאה בהתחברות');
       console.error('Registration error:', err);

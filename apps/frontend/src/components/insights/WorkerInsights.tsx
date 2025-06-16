@@ -9,7 +9,7 @@ import {
   githubDataTypeToText,
   jiraDataTypeToText,
   StatsDashboard,
-} from '../Stats/StatsDashboard';
+} from '../SprintsStats/StatsDashboard';
 import { getGithubStats, GithubDataType } from '../../services/github.service';
 import { getJiraStats, JiraDataType } from '../../services/jira.service';
 import { InsightsAI } from './InsightsAI';
