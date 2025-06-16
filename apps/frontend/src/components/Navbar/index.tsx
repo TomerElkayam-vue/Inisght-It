@@ -63,7 +63,8 @@ export const Navbar = () => {
 
   // Check if current route requires a project
   const isProtectedRoute = [
-    '/stats',
+    '/sprints-stats',
+    '/project-stats',
     '/insights',
     '/project-management',
   ].includes(location.pathname);
@@ -148,15 +149,26 @@ export const Navbar = () => {
               ×
             </button>
             {userRole === 'OWNER' && (
+              <>
               <Link
-                to="/stats"
+                to="/sprints-stats"
                 className={`block px-4 py-3 rounded-lg text-white text-lg font-medium transition-colors ${isActive(
-                  '/stats'
+                  '/sprints-stats'
                 )}`}
                 onClick={() => setDrawerOpen(false)}
               >
-                תובנות צוותיות
+                תובנות לפי ספרינט
               </Link>
+              <Link
+                to="/project-stats"
+                className={`block px-4 py-3 rounded-lg text-white text-lg font-medium transition-colors ${isActive(
+                  '/project-stats'
+                )}`}
+                onClick={() => setDrawerOpen(false)}
+              >
+                תובנות על הפרויקט
+              </Link>
+              </>
             )}
             {userRole && (
               <Link

@@ -54,6 +54,15 @@ export const getGithubStats = async (
   return response.data;
 };
 
+export const getGithubServerClientDistribution = async (
+  projectId: string
+): Promise<Record<string, Record<string, any>>> => {
+  const response = await api.get<Record<string, Record<string, any>>>(
+    `/github/distribution/?projectId=${projectId}`
+  );
+  return response.data;
+};
+
 export const getGithubAvgStats = async (
   projectId: string,
   statType: GithubAvgDataType,

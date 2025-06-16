@@ -1,6 +1,6 @@
 import { RouteObject } from 'react-router-dom';
 import LoginPage from '../components/Login';
-import { TeamStatsPage } from '../components/Stats/StatsPage';
+import { SprintsStatsPage } from '../components/SprintsStats/SprintsStatsPage';
 import RegisterPage from '../components/Register';
 import { AuthGuard } from '../components/auth/AuthGuard';
 import { PublicRoute } from '../components/auth/PublicRoute';
@@ -10,12 +10,13 @@ import ProjectManagement from '../components/ProjectManagment/ProjectManagment';
 import { ProjectManagementProvider } from '../context/ProjectManagementContext';
 import NoProjects from '../components/NoProjects';
 import { WorkerInsights } from '../components/insights/WorkerInsights';
+import { ProjectsStatsPage } from '../components/ProjectsStats/ProjectsStatsPage';
 
 // Helper function to determine where to redirect on 404
 const NotFoundRedirect = () => {
   const refreshToken = getRefreshToken();
   return refreshToken ? (
-    <Navigate to="/stats" replace />
+    <Navigate to="/sprints-stats" replace />
   ) : (
     <Navigate to="/" replace />
   );
@@ -39,8 +40,12 @@ export const routes: RouteObject[] = [
     element: <AuthGuard />,
     children: [
       {
-        path: '/stats',
-        element: <TeamStatsPage />,
+        path: '/sprints-stats',
+        element: <SprintsStatsPage />,
+      },
+      {
+        path: '/project-stats',
+        element: <ProjectsStatsPage />,
       },
       {
         path: '/insights',

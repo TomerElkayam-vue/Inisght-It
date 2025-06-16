@@ -54,6 +54,13 @@ export class GithubController {
     );
   }
 
+  @Get('/distribution')
+  async getGithubChangedFilesByUser(
+    @Query('projectId') projectId: string, 
+    @Req() req: any) {
+      return this.GithubService.getServerClientDistribution(req?.projectCredentials?.codeRepositoryCredentials);
+  }
+
   // for Tommer
   @Get("/pull-requests/")
   async getProjectPullsRequests(

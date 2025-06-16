@@ -3,7 +3,11 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { GithubRepository } from './github.reposetory';
 import { ProjectsSerivce } from '../projects/project.service';
-import { GitHubPullRequest, RepositoryContributor } from '@packages/github';
+import {
+  GitHubPullRequest,
+  GitHubPullRequestFiles,
+  RepositoryContributor,
+} from '@packages/github';
 import { JiraService } from '../jira/jira.service';
 import { EmployeeService } from '../employee/employee.service';
 import { JiraSprintDto } from '../jira/dto/jira-sprint.dto';
@@ -88,6 +92,79 @@ export class GithubService {
       where: { id: projectId },
       data: { codeRepositoryCredentials: settings },
     });
+  }
+
+  async getAllChangedFilesByUser(owner: string, name: string, token: string) {
+    const cacheKey = `project-pulls-${owner}-${name}-files`;
+
+    const pullRequests = await this.GithubRepository.getPullRequests(
+      owner,
+      name,
+      token,
+      null,
+      null,
+      'all'
+    );
+
+    const files = (
+      await Promise.all(
+        pullRequests.map(async (pullRequest) =>
+          this.GithubRepository.getChangedFilesByPullRequestNumber(
+            owner,
+            name,
+            token,
+            pullRequest
+          )
+        )
+      )
+    ).flat();
+
+    await this.cacheManager.set(cacheKey, files);
+    return files;
+  }
+
+  async getServerClientDistribution(codeRepositoryCredentials: any) {
+    const { owner, name, token } = codeRepositoryCredentials;
+    const SERVER = ['server', 'backend'];
+    const CLIENT = ['ui', 'client', 'frontend'];
+
+    let stats: any = {};
+    const files = await this.getAllChangedFilesByUser(owner, name, token);
+
+    files.forEach((file: GitHubPullRequestFiles) => {
+      const user = file.user ?? 'Unknown';
+
+      if (stats[user]) {
+        if (SERVER.some((sub) => file.filename.includes(sub))) {
+          stats[user].server += file.changes;
+        } else if (CLIENT.some((sub) => file.filename.includes(sub))) {
+          stats[user].client += file.changes;
+        }
+      } else {
+        stats = {
+          ...stats,
+          [user]: { server: 0, client: 0 },
+        };
+      }
+    });
+
+    const users = await this.GithubRepository.getRepositoryContributors(
+      owner,
+      name,
+      token
+    );
+    const statsWithEmployeesUsername: any = {};
+
+    await Promise.all(
+      users.map(async (user) => {
+        const employee =
+          await this.employeeService.findEmployeeByGithubUsername(user.login);
+        const displayName = employee?.displayName ?? user.login;
+        statsWithEmployeesUsername[displayName] = stats[user.login];
+      })
+    );
+
+    return statsWithEmployeesUsername;
   }
 
   async getProjectPullRequests(

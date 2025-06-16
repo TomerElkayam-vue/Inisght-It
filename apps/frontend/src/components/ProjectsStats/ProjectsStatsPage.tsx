@@ -1,46 +1,18 @@
 import { CircularProgress } from './CircularProgress';
-import {
-  githubDataTypeToText,
-  jiraDataTypeToText,
-  StatsDashboard,
-} from './StatsDashboard';
-
+import { ServerClientDistribution } from './ServerClientDistribution';
 import {
   getGithubAvgStats,
-  getGithubStats,
   GithubAvgDataType,
-  GithubDataType,
 } from '../../services/github.service';
-import {
-  getJiraAvgStats,
-  getJiraStats,
-  JiraAvgDataType,
-  JiraDataType,
-} from '../../services/jira.service';
-import { IssueTimeline } from '../Timeline/IssueTimeline';
+import { getJiraAvgStats, JiraAvgDataType } from '../../services/jira.service';
 
-export const TeamStatsPage = () => {
+export const ProjectsStatsPage = () => {
   return (
     <div className="container mx-auto px-4 py-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
         <div className="h-full">
-          <StatsDashboard
-            dataTypeToText={jiraDataTypeToText}
-            initialSelectedDataType={JiraDataType.ISSUES}
-            fetchData={getJiraStats}
-            isWorkerView={false}
-          />
+          <ServerClientDistribution />
         </div>
-        <div className="h-full">
-          <StatsDashboard
-            dataTypeToText={githubDataTypeToText}
-            initialSelectedDataType={GithubDataType.PR}
-            fetchData={getGithubStats}
-          />
-        </div>
-      </div>
-      <div className="h-full">
-        <IssueTimeline />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-4">
         <CircularProgress<JiraAvgDataType>

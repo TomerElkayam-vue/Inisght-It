@@ -59,6 +59,14 @@ export type GitHubPullRequest = {
   changed_files: number;
 };
 
+export type GitHubPullRequestFiles = {
+  user?: string;
+  changes: number;
+  additions: number;
+  deletions: number;
+  filename: string;
+};
+
 export type RepositoryContributor = {
   created_at: number;
   login: string;

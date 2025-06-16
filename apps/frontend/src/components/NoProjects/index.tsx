@@ -19,7 +19,7 @@ const NoProjects = () => {
   // Redirect to error page only if there's an error from the server or no projects
   useEffect(() => {
     if (!isLoadingProjects && projects?.length !== 0) {
-      navigate('/stats');
+      navigate('/sprints-stats');
     }
   }, [isLoadingProjects, navigate]);
 
