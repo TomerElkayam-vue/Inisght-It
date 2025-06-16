@@ -154,7 +154,6 @@ export class AiController {
   @Get('team-insights')
   async getTeamInsights(
     @Query('projectId') projectId: string,
-    @Query('employeeIds') employeeIds: string,
     @Query('isHebrew') isHebrew: boolean = true,
     @Req() req: any
   ): Promise<InsightsResponse> {
@@ -177,49 +176,126 @@ export class AiController {
         this.aiService.getJiraData(projectId, req.projectCredentials),
       ]);
 
-      // Filter data for specific employees if employeeIds is provided
-      const targetEmployeeIds = employeeIds ? employeeIds.split(',') : [];
-      const filteredGithubData =
-        targetEmployeeIds.length > 0
-          ? Object.entries(githubData).filter(([_, data]: [string, any]) =>
-              targetEmployeeIds.includes(data.employeeId)
-            )
-          : Object.entries(githubData);
-
       // Calculate team metrics by aggregating individual metrics
-      const teamMetrics = filteredGithubData.reduce(
-        (acc: any, [_, workerData]: [string, any]) => {
-          const jiraUserData =
-            jiraData[JiraDataType.ISSUES]?.[workerData.name] || {};
-          const storyPointsData =
-            jiraData[JiraDataType.STORY_POINTS]?.[workerData.name] || {};
+      const teamMetrics = {
+        pullRequests: 0,
+        codeReviews: 0,
+        averageCommentsPerPR: 0,
+        issuesCompleted: 0,
+        averageIssueTime: 0,
+        totalStoryPoints: 0,
+        commits: 0,
+        fileChanges: { additions: 0, deletions: 0 },
+        comments: 0,
+        issueStatus: {} as Record<string, number>,
+        issueTypes: {} as Record<string, number>,
+      };
 
-          return {
-            pullRequests: (acc.pullRequests || 0) + (workerData.total || 0),
-            codeReviews: (acc.codeReviews || 0) + (workerData.reviews || 0),
-            averageCommentsPerPR:
-              (acc.averageCommentsPerPR || 0) +
-              (workerData.averageComments || 0),
-            issuesCompleted:
-              (acc.issuesCompleted || 0) + (jiraUserData.completed || 0),
-            averageIssueTime:
-              (acc.averageIssueTime || 0) + (jiraUserData.averageTime || 0),
-            totalStoryPoints:
-              (acc.totalStoryPoints || 0) + (storyPointsData.storyPoints || 0),
-          };
-        },
-        {}
-      );
+      // Aggregate GitHub metrics
+      const prData = githubData[GithubDataType.PR] || {};
+      const commentsData = githubData[GithubDataType.COMMENTS] || {};
+      const commitsData = githubData[GithubDataType.COMMITS] || {};
+      const fileChangesData = githubData[GithubDataType.FILE_CHANGES] || {};
 
-      // Calculate averages
-      const workerCount = filteredGithubData.length;
-      teamMetrics.averageCommentsPerPR /= workerCount;
-      teamMetrics.averageIssueTime /= workerCount;
+      // Aggregate PR data
+      Object.entries(prData).forEach(([_, sprintData]) => {
+        if (sprintData && typeof sprintData === 'object') {
+          Object.values(sprintData).forEach((value) => {
+            if (typeof value === 'number') {
+              teamMetrics.pullRequests += value;
+            }
+          });
+        }
+      });
+
+      // Aggregate comments data
+      Object.entries(commentsData).forEach(([_, sprintData]) => {
+        if (sprintData && typeof sprintData === 'object') {
+          Object.values(sprintData).forEach((value) => {
+            if (typeof value === 'number') {
+              teamMetrics.codeReviews += value;
+            }
+          });
+        }
+      });
+
+      // Aggregate commits data
+      Object.entries(commitsData).forEach(([_, sprintData]) => {
+        if (sprintData && typeof sprintData === 'object') {
+          Object.values(sprintData).forEach((value) => {
+            if (typeof value === 'number') {
+              teamMetrics.commits += value;
+            }
+          });
+        }
+      });
+
+      // Aggregate file changes
+      Object.entries(fileChangesData).forEach(([_, sprintData]) => {
+        if (sprintData && typeof sprintData === 'object') {
+          Object.values(sprintData).forEach((value) => {
+            if (value && typeof value === 'object') {
+              const changes = value as { additions: number; deletions: number };
+              if (typeof changes.additions === 'number') {
+                teamMetrics.fileChanges.additions += changes.additions;
+              }
+              if (typeof changes.deletions === 'number') {
+                teamMetrics.fileChanges.deletions += changes.deletions;
+              }
+            }
+          });
+        }
+      });
+
+      // Calculate average comments per PR
+      teamMetrics.averageCommentsPerPR =
+        teamMetrics.pullRequests > 0
+          ? teamMetrics.codeReviews / teamMetrics.pullRequests
+          : 0;
+
+      // Aggregate Jira metrics
+      const issuesData = jiraData[JiraDataType.ISSUES] || {};
+      const storyPointsData = jiraData[JiraDataType.STORY_POINTS] || {};
+      const issueStatusData = jiraData[JiraDataType.ISSUE_STATUS] || {};
+      const issueTypesData = jiraData[JiraDataType.ISSUE_TYPE] || {};
+
+      Object.values(issuesData).forEach((userData: any) => {
+        teamMetrics.issuesCompleted += Number(userData.completed) || 0;
+        teamMetrics.averageIssueTime += Number(userData.averageTime) || 0;
+      });
+
+      Object.values(storyPointsData).forEach((userData: any) => {
+        teamMetrics.totalStoryPoints += Number(userData.storyPoints) || 0;
+      });
+
+      // Aggregate issue status and types
+      Object.values(
+        issueStatusData as Record<string, Record<string, number>>
+      ).forEach((statusData) => {
+        Object.entries(statusData).forEach(([status, count]) => {
+          teamMetrics.issueStatus[status] =
+            (teamMetrics.issueStatus[status] || 0) + Number(count);
+        });
+      });
+
+      Object.values(
+        issueTypesData as Record<string, Record<string, number>>
+      ).forEach((typeData) => {
+        Object.entries(typeData).forEach(([type, count]) => {
+          teamMetrics.issueTypes[type] =
+            (teamMetrics.issueTypes[type] || 0) + Number(count);
+        });
+      });
+
+      // Calculate average issue time
+      const totalUsers = Object.keys(issuesData).length;
+      teamMetrics.averageIssueTime =
+        totalUsers > 0 ? teamMetrics.averageIssueTime / totalUsers : 0;
 
       // Get AI insights
       const [summary, recommendations] = await Promise.all([
         this.aiService.getTeamSummary(teamMetrics),
-        this.aiService.getTeamRecommendation(teamMetrics),
+        this.aiService.getAiRecoomendation(teamMetrics),
       ]);
 
       return {
@@ -267,12 +343,7 @@ export class AiController {
         );
         data = response.metrics;
       } else {
-        const response = await this.getTeamInsights(
-          projectId,
-          '', // Empty string for userIds when getting team metrics
-          true,
-          req
-        );
+        const response = await this.getTeamInsights(projectId, true, req);
         data = response.metrics;
       }
       // Get AI answer

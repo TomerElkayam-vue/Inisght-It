@@ -177,6 +177,17 @@ export const Navbar = () => {
             }
             {userRole === 'OWNER' && (
               <Link
+                to="/team-insights"
+                className={`block px-4 py-3 rounded-lg text-white text-lg font-medium transition-colors ${isActive(
+                  '/team-insights'
+                )}`}
+                onClick={() => setDrawerOpen(false)}
+              >
+                תובנות צוות
+              </Link>
+            )}
+            {userRole === 'OWNER' && (
+              <Link
                 to="/insights"
                 className={`block px-4 py-3 rounded-lg text-white text-lg font-medium transition-colors ${isActive(
                   '/insights'
