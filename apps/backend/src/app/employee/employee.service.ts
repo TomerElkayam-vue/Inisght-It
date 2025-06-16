@@ -32,6 +32,10 @@ export class EmployeeService {
     return this.employeeRepository.findEmployeeByGithubUsername(githubUsername);
   }
 
+  async findEmployeeById(id: string): Promise<Employee | null> {
+    return this.employeeRepository.findEmployeeById(id);
+  }
+
   async connectEmployeesNames(projectId: string, projectSettings: any) {
     const jiraContributors = await this.jiraService.getProjectContributors(
       projectSettings.missionManagementCredentials,

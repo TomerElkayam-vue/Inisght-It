@@ -1,4 +1,4 @@
-import { Role, User } from '@prisma/client';
+import { Employee, Role, User } from '@prisma/client';
 
 export interface ProjectPermission {
   id: string;
@@ -19,6 +19,7 @@ export interface Project {
   recommendations?: Record<string, any> | null;
   createdAt: Date;
   projectPermissions?: ProjectPermission[];
+  employees: Employee[];
 }
 
 export interface ProjectCreateInput {
@@ -58,4 +59,4 @@ export type InsiteitUser = {
 export type AvgStats = {
   avg: number;
   max: number;
-}
+};

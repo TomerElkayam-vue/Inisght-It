@@ -19,43 +19,30 @@ export interface InsightsResponse {
   recommendations: string[];
 }
 
-interface QuestionDTO {
-  question: string;
-  metrics?: {
-    pullRequests: number;
-    codeReviews: number;
-    averageCommentsPerPR: number;
-    issuesCompleted: number;
-    averageIssueTime: number;
-    totalStoryPoints: number;
-  };
-  type?: 'worker' | 'team';
-}
-
 interface QuestionResponse {
   answer: string;
 }
 
 export const getWorkerInsights = async (
   projectId: string,
-  userId: string,
+  employeeId: string,
   isHebrew: boolean = true
 ): Promise<InsightsResponse> => {
   const response = await api.get<InsightsResponse>(
-    `/ai/worker-insights?projectId=${projectId}&userId=${userId}&isHebrew=${isHebrew}`
+    `/ai/worker-insights?projectId=${projectId}&employeeId=${employeeId}&isHebrew=${isHebrew}`
   );
   return response.data;
 };
 
 export const getTeamInsights = async (
   projectId: string,
-  userIds?: string[],
+  employeeIds?: string[],
   isHebrew: boolean = true
 ): Promise<InsightsResponse> => {
   const queryParams = new URLSearchParams();
   queryParams.append('projectId', projectId);
-  if (userIds?.length) {
-    queryParams.append('userIds', userIds.join(','));
+  if (employeeIds?.length) {
+    queryParams.append('employeeIds', employeeIds.join(','));
   }
   queryParams.append('isHebrew', isHebrew.toString());
 
@@ -66,25 +53,23 @@ export const getTeamInsights = async (
 };
 
 export const getQuestionAnswer = async (
-  question: QuestionDTO,
+  question: string,
   projectId: string,
-  userId?: string,
+  employeeId?: string,
   type?: 'worker' | 'team'
 ): Promise<QuestionResponse> => {
   const queryParams = new URLSearchParams();
   queryParams.append('projectId', projectId);
-  if (userId) {
-    queryParams.append('userId', userId);
+  queryParams.append('question', question);
+  if (employeeId) {
+    queryParams.append('employeeId', employeeId);
   }
   if (type) {
     queryParams.append('type', type);
   }
 
   const response = await api.get<QuestionResponse>(
-    `/ai/questions?${queryParams.toString()}`,
-    {
-      data: question,
-    }
+    `/ai/question?${queryParams.toString()}`
   );
   return response.data;
 };
