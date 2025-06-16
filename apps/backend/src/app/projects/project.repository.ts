@@ -13,6 +13,7 @@ export class ProjectsRepository {
       where: projectWhereUniqueInput,
       include: {
         projectPermissions: { include: { user: true, role: true } },
+        employees: true,
       },
     });
   }
@@ -33,6 +34,7 @@ export class ProjectsRepository {
       orderBy,
       include: {
         projectPermissions: { include: { user: true, role: true } },
+        employees: true,
       },
     });
   }
@@ -62,6 +64,10 @@ export class ProjectsRepository {
     return this.prisma.project.update({
       data,
       where,
+      include: {
+        projectPermissions: { include: { user: true, role: true } },
+        employees: true,
+      },
     });
   }
 

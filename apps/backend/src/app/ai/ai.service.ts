@@ -8,6 +8,7 @@ import { Cache } from 'cache-manager';
 import { GithubDataType } from '../github/enums/github-data-type';
 import { JiraDataType } from '../jira/enums/jira-data-type.enum';
 import { JiraService } from '../jira/jira.service';
+import { EmployeeService } from '../employee/employee.service';
 
 @Injectable()
 export class AiService {
@@ -17,6 +18,8 @@ export class AiService {
     private githubService: GithubService,
     @Inject(forwardRef(() => JiraService))
     private jiraService: JiraService,
+    @Inject(forwardRef(() => EmployeeService))
+    private employeeService: EmployeeService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache
   ) {}
 
@@ -117,5 +120,9 @@ export class AiService {
       codeRepositoryCredentials
     );
     return this.aiRepository.getRelatedMergeRequestTitle(mergeRequests, issues);
+  }
+
+  async getEmployeeById(employeeId: string) {
+    return this.employeeService.findEmployeeById(employeeId);
   }
 }

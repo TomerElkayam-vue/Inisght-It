@@ -49,7 +49,12 @@ export const Navbar = () => {
 
   // Auto-select first project if none is selected
   useEffect(() => {
-    if (!currentProject && !isLoadingProjects && projects && projects.length > 0) {
+    if (
+      !currentProject &&
+      !isLoadingProjects &&
+      projects &&
+      projects.length > 0
+    ) {
       setCurrentProject(projects[0]);
     }
   }, [isLoadingProjects, projects]);
@@ -148,29 +153,40 @@ export const Navbar = () => {
             >
               ×
             </button>
-            {userRole === 'OWNER' && (
+            {
               <>
-              <Link
-                to="/sprints-stats"
-                className={`block px-4 py-3 rounded-lg text-white text-lg font-medium transition-colors ${isActive(
-                  '/sprints-stats'
-                )}`}
-                onClick={() => setDrawerOpen(false)}
-              >
-                תובנות לפי ספרינט
-              </Link>
-              <Link
-                to="/project-stats"
-                className={`block px-4 py-3 rounded-lg text-white text-lg font-medium transition-colors ${isActive(
-                  '/project-stats'
-                )}`}
-                onClick={() => setDrawerOpen(false)}
-              >
-                תובנות על הפרויקט
-              </Link>
+                <Link
+                  to="/sprints-stats"
+                  className={`block px-4 py-3 rounded-lg text-white text-lg font-medium transition-colors ${isActive(
+                    '/sprints-stats'
+                  )}`}
+                  onClick={() => setDrawerOpen(false)}
+                >
+                  תובנות לפי ספרינט
+                </Link>
+                <Link
+                  to="/project-stats"
+                  className={`block px-4 py-3 rounded-lg text-white text-lg font-medium transition-colors ${isActive(
+                    '/project-stats'
+                  )}`}
+                  onClick={() => setDrawerOpen(false)}
+                >
+                  תובנות על הפרויקט
+                </Link>
               </>
+            }
+            {userRole === 'OWNER' && (
+              <Link
+                to="/team-insights"
+                className={`block px-4 py-3 rounded-lg text-white text-lg font-medium transition-colors ${isActive(
+                  '/team-insights'
+                )}`}
+                onClick={() => setDrawerOpen(false)}
+              >
+                תובנות צוות
+              </Link>
             )}
-            {userRole && (
+            {userRole === 'OWNER' && (
               <Link
                 to="/insights"
                 className={`block px-4 py-3 rounded-lg text-white text-lg font-medium transition-colors ${isActive(

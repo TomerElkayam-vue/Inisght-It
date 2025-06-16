@@ -1,4 +1,4 @@
-import { Controller, Get, Body, Query, Req } from '@nestjs/common';
+import { Controller, Get, Query, Req } from '@nestjs/common';
 import { AiService } from './ai.service';
 import { ApiBody, ApiOperation } from '@nestjs/swagger';
 import { QuestionDTO } from './dto/question.class';
@@ -29,7 +29,7 @@ export class AiController {
   @Get('worker-insights')
   async getWorkerInsights(
     @Query('projectId') projectId: string,
-    @Query('userId') userId: string,
+    @Query('employeeId') employeeId: string,
     @Query('isHebrew') isHebrew: boolean = true,
     @Req() req: any
   ): Promise<InsightsResponse> {
@@ -52,13 +52,24 @@ export class AiController {
         this.aiService.getJiraData(projectId, req.projectCredentials),
       ]);
 
-      // Find worker data by userId and aggregate sprint data
-      const findWorkerData = (data: Record<string, Record<string, number>>) => {
+      // Find worker data by employeeId and aggregate sprint data
+      const findWorkerData = async (
+        data: Record<string, Record<string, number>>
+      ) => {
+        // Get employee name from employee service
+        const employee = await this.aiService.getEmployeeById(employeeId);
+        if (!employee) {
+          console.log('Employee not found for id:', employeeId);
+          return null;
+        }
+
         const workerEntry = Object.entries(data).find(
-          // TODO changeeee
-          ([name]) => name === 'Tomer Elkayam'
+          ([name]) => name === employee.displayName
         );
-        if (!workerEntry) return null;
+        if (!workerEntry) {
+          console.log('No data found for employee:', employee.displayName);
+          return null;
+        }
 
         // Sum up all sprint values
         return Object.values(workerEntry[1]).reduce(
@@ -70,29 +81,29 @@ export class AiController {
       // Aggregate GitHub metrics across all sprints
       const githubMetrics = {
         pullRequests:
-          findWorkerData(
+          (await findWorkerData(
             githubData[GithubDataType.PR] as unknown as Record<
               string,
               Record<string, number>
             >
-          ) || 0,
+          )) || 0,
         commits:
-          findWorkerData(
+          (await findWorkerData(
             githubData[GithubDataType.COMMITS] as unknown as Record<
               string,
               Record<string, number>
             >
-          ) || 0,
+          )) || 0,
         comments:
-          findWorkerData(
+          (await findWorkerData(
             githubData[GithubDataType.COMMENTS] as unknown as Record<
               string,
               Record<string, number>
             >
-          ) || 0,
+          )) || 0,
         fileChanges: Object.entries(
           githubData[GithubDataType.FILE_CHANGES] || {}
-        ).find(([name]) => name === userId)?.[1] || {
+        ).find(([name]) => name === employeeId)?.[1] || {
           additions: 0,
           deletions: 0,
         },
@@ -111,17 +122,17 @@ export class AiController {
 
         // Jira metrics
         issuesCompleted:
-          (jiraData[JiraDataType.ISSUES] as any)[userId]?.completed || 0,
+          (jiraData[JiraDataType.ISSUES] as any)[employeeId]?.completed || 0,
         averageIssueTime:
-          (jiraData[JiraDataType.ISSUES] as any)[userId]?.averageTime || 0,
+          (jiraData[JiraDataType.ISSUES] as any)[employeeId]?.averageTime || 0,
         totalStoryPoints:
-          (jiraData[JiraDataType.STORY_POINTS] as any)[userId]?.storyPoints ||
-          0,
-        issueStatus: (jiraData[JiraDataType.ISSUE_STATUS] as any)[userId] || {},
-        issueTypes: (jiraData[JiraDataType.ISSUE_TYPE] as any)[userId] || {},
+          (jiraData[JiraDataType.STORY_POINTS] as any)[employeeId]
+            ?.storyPoints || 0,
+        issueStatus:
+          (jiraData[JiraDataType.ISSUE_STATUS] as any)[employeeId] || {},
+        issueTypes:
+          (jiraData[JiraDataType.ISSUE_TYPE] as any)[employeeId] || {},
       };
-
-      console.log('Calculated Metrics:', metrics);
 
       // Get AI insights
       const [summary, recommendations] = await Promise.all([
@@ -143,7 +154,6 @@ export class AiController {
   @Get('team-insights')
   async getTeamInsights(
     @Query('projectId') projectId: string,
-    @Query('userIds') userIds: string,
     @Query('isHebrew') isHebrew: boolean = true,
     @Req() req: any
   ): Promise<InsightsResponse> {
@@ -166,51 +176,126 @@ export class AiController {
         this.aiService.getJiraData(projectId, req.projectCredentials),
       ]);
 
-      // Filter data for specific users if userIds is provided
-      const targetUserIds = userIds ? userIds.split(',') : [];
-      const filteredGithubData =
-        targetUserIds.length > 0
-          ? Object.entries(githubData).filter(([_, data]: [string, any]) =>
-              targetUserIds.includes(data.userId)
-            )
-          : Object.entries(githubData);
-
       // Calculate team metrics by aggregating individual metrics
-      const teamMetrics = filteredGithubData.reduce(
-        (acc: any, [_, workerData]: [string, any]) => {
-          const jiraUserData =
-            jiraData[JiraDataType.ISSUES]?.[workerData.name] || {};
-          const storyPointsData =
-            jiraData[JiraDataType.STORY_POINTS]?.[workerData.name] || {};
+      const teamMetrics = {
+        pullRequests: 0,
+        codeReviews: 0,
+        averageCommentsPerPR: 0,
+        issuesCompleted: 0,
+        averageIssueTime: 0,
+        totalStoryPoints: 0,
+        commits: 0,
+        fileChanges: { additions: 0, deletions: 0 },
+        comments: 0,
+        issueStatus: {} as Record<string, number>,
+        issueTypes: {} as Record<string, number>,
+      };
 
-          return {
-            pullRequests: (acc.pullRequests || 0) + (workerData.total || 0),
-            codeReviews: (acc.codeReviews || 0) + (workerData.reviews || 0),
-            averageCommentsPerPR:
-              (acc.averageCommentsPerPR || 0) +
-              (workerData.averageComments || 0),
-            issuesCompleted:
-              (acc.issuesCompleted || 0) + (jiraUserData.completed || 0),
-            averageIssueTime:
-              (acc.averageIssueTime || 0) + (jiraUserData.averageTime || 0),
-            totalStoryPoints:
-              (acc.totalStoryPoints || 0) + (storyPointsData.storyPoints || 0),
-          };
-        },
-        {}
-      );
+      // Aggregate GitHub metrics
+      const prData = githubData[GithubDataType.PR] || {};
+      const commentsData = githubData[GithubDataType.COMMENTS] || {};
+      const commitsData = githubData[GithubDataType.COMMITS] || {};
+      const fileChangesData = githubData[GithubDataType.FILE_CHANGES] || {};
 
-      // Calculate averages
-      const workerCount = filteredGithubData.length;
-      teamMetrics.averageCommentsPerPR /= workerCount;
-      teamMetrics.averageIssueTime /= workerCount;
+      // Aggregate PR data
+      Object.entries(prData).forEach(([_, sprintData]) => {
+        if (sprintData && typeof sprintData === 'object') {
+          Object.values(sprintData).forEach((value) => {
+            if (typeof value === 'number') {
+              teamMetrics.pullRequests += value;
+            }
+          });
+        }
+      });
 
-      console.log('Final Team Metrics:', teamMetrics);
+      // Aggregate comments data
+      Object.entries(commentsData).forEach(([_, sprintData]) => {
+        if (sprintData && typeof sprintData === 'object') {
+          Object.values(sprintData).forEach((value) => {
+            if (typeof value === 'number') {
+              teamMetrics.codeReviews += value;
+            }
+          });
+        }
+      });
+
+      // Aggregate commits data
+      Object.entries(commitsData).forEach(([_, sprintData]) => {
+        if (sprintData && typeof sprintData === 'object') {
+          Object.values(sprintData).forEach((value) => {
+            if (typeof value === 'number') {
+              teamMetrics.commits += value;
+            }
+          });
+        }
+      });
+
+      // Aggregate file changes
+      Object.entries(fileChangesData).forEach(([_, sprintData]) => {
+        if (sprintData && typeof sprintData === 'object') {
+          Object.values(sprintData).forEach((value) => {
+            if (value && typeof value === 'object') {
+              const changes = value as { additions: number; deletions: number };
+              if (typeof changes.additions === 'number') {
+                teamMetrics.fileChanges.additions += changes.additions;
+              }
+              if (typeof changes.deletions === 'number') {
+                teamMetrics.fileChanges.deletions += changes.deletions;
+              }
+            }
+          });
+        }
+      });
+
+      // Calculate average comments per PR
+      teamMetrics.averageCommentsPerPR =
+        teamMetrics.pullRequests > 0
+          ? teamMetrics.codeReviews / teamMetrics.pullRequests
+          : 0;
+
+      // Aggregate Jira metrics
+      const issuesData = jiraData[JiraDataType.ISSUES] || {};
+      const storyPointsData = jiraData[JiraDataType.STORY_POINTS] || {};
+      const issueStatusData = jiraData[JiraDataType.ISSUE_STATUS] || {};
+      const issueTypesData = jiraData[JiraDataType.ISSUE_TYPE] || {};
+
+      Object.values(issuesData).forEach((userData: any) => {
+        teamMetrics.issuesCompleted += Number(userData.completed) || 0;
+        teamMetrics.averageIssueTime += Number(userData.averageTime) || 0;
+      });
+
+      Object.values(storyPointsData).forEach((userData: any) => {
+        teamMetrics.totalStoryPoints += Number(userData.storyPoints) || 0;
+      });
+
+      // Aggregate issue status and types
+      Object.values(
+        issueStatusData as Record<string, Record<string, number>>
+      ).forEach((statusData) => {
+        Object.entries(statusData).forEach(([status, count]) => {
+          teamMetrics.issueStatus[status] =
+            (teamMetrics.issueStatus[status] || 0) + Number(count);
+        });
+      });
+
+      Object.values(
+        issueTypesData as Record<string, Record<string, number>>
+      ).forEach((typeData) => {
+        Object.entries(typeData).forEach(([type, count]) => {
+          teamMetrics.issueTypes[type] =
+            (teamMetrics.issueTypes[type] || 0) + Number(count);
+        });
+      });
+
+      // Calculate average issue time
+      const totalUsers = Object.keys(issuesData).length;
+      teamMetrics.averageIssueTime =
+        totalUsers > 0 ? teamMetrics.averageIssueTime / totalUsers : 0;
 
       // Get AI insights
       const [summary, recommendations] = await Promise.all([
         this.aiService.getTeamSummary(teamMetrics),
-        this.aiService.getTeamRecommendation(teamMetrics),
+        this.aiService.getAiRecoomendation(teamMetrics),
       ]);
 
       return {
@@ -224,13 +309,13 @@ export class AiController {
     }
   }
 
-  @Get('questions')
+  @Get('question')
   @ApiOperation({ summary: 'Get AI recommendation' })
   @ApiBody({ type: QuestionDTO })
   async getQuestionAnswer(
-    @Body() question: QuestionDTO,
+    @Query() question: string,
     @Query('projectId') projectId: string,
-    @Query('userId') userId: string,
+    @Query('employeeId') employeeId: string,
     @Query('type') type: 'worker' | 'team',
     @Req() req: any
   ): Promise<QuestionResponse> {
@@ -248,30 +333,26 @@ export class AiController {
       }
 
       // Get metrics based on type
-      let metrics;
+      let data;
       if (type === 'worker') {
         const response = await this.getWorkerInsights(
           projectId,
-          userId,
+          employeeId,
           true,
           req
         );
-        metrics = response.metrics;
+        data = response.metrics;
       } else {
-        const response = await this.getTeamInsights(
-          projectId,
-          '', // Empty string for userIds when getting team metrics
-          true,
-          req
-        );
-        metrics = response.metrics;
+        const response = await this.getTeamInsights(projectId, true, req);
+        data = response.metrics;
       }
-
+      // Get AI answer
       const answer = await this.aiService.getQuestionAnswer({
-        ...question,
-        metrics,
+        question,
+        data,
         type,
       });
+
       return { answer };
     } catch (error) {
       console.error('Error getting question answer:', error);

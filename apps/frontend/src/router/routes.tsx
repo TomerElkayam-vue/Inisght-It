@@ -10,6 +10,7 @@ import ProjectManagement from '../components/ProjectManagment/ProjectManagment';
 import { ProjectManagementProvider } from '../context/ProjectManagementContext';
 import NoProjects from '../components/NoProjects';
 import { WorkerInsights } from '../components/insights/WorkerInsights';
+import { TeamInsights } from '../components/insights/TeamInsights';
 import { ProjectsStatsPage } from '../components/ProjectsStats/ProjectsStatsPage';
 
 // Helper function to determine where to redirect on 404
@@ -50,6 +51,10 @@ export const routes: RouteObject[] = [
       {
         path: '/insights',
         element: <WorkerInsights />,
+      },
+      {
+        path: '/team-insights',
+        element: <TeamInsights />,
       },
       {
         path: '/project-management',

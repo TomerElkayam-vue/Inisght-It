@@ -36,11 +36,11 @@ const generatePrompt = ({
       ? `Based on the following ${context} data, provide a forward-looking recommendation in Hebrew for the manager or the ${context} itself. Do NOT summarize the data or describe what it shows. Focus only on suggesting actions or directions, using phrasing like "מומלץ להתמקד ב..." or "נראה שרוב העבודה היא בתחום X ולכן כדאי...".`
       : `Answer the following question in Hebrew based on the provided ${context} data.
 DO NOT simply repeat or summarize the data fields.
-Instead, ONLY answer the question`;
-
+Instead, ONLY answer the question based on the provided datas`;
   return `
 ${baseInstructions}
 CRITICAL INSTRUCTIONS:
+- The data concerns programmers involved in a software development project. Research relevant subfields within this topic if needed.
 - Never translate, explain, or modify field names. They must appear in English, exactly as-is, in the Hebrew text. Keep names like "pullRequests", "fileChanges", "commits", etc. EXACTLY as they appear.
 - The Hebrew text should refer to those fields using their original English names.
 - Do not invent or assume data. If some fields are empty or null, simply omit them from your reasoning.
@@ -114,7 +114,7 @@ export class AiRepository {
         context: question.type === 'worker' ? 'worker' : 'team',
         type: 'question',
         question: question.question,
-        data: question.metrics as UserInfo,
+        data: question.data as UserInfo,
       })
     );
     console.log('generated', generated);
