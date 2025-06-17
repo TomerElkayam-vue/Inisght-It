@@ -60,15 +60,23 @@ export class JiraService {
       (settings) => this.jiraRepository.getJiraSprints(settings)
     );
 
-    return jiraSprints.map(
-      (sprint: any): JiraSprintDto => ({
-        id: sprint.id,
-        name: sprint.name,
-        startDate: sprint.startDate ?? null,
-        endDate: sprint.endDate ?? null,
-        state: sprint.state,
-      })
-    );
+    return jiraSprints
+      .map(
+        (sprint: any): JiraSprintDto => ({
+          id: sprint.id,
+          name: sprint.name,
+          startDate: sprint.startDate ?? null,
+          endDate: sprint.endDate ?? null,
+          state: sprint.state,
+        })
+      )
+      .sort((a, b) =>
+        !a.startDate
+          ? -1
+          : !b.startDate
+          ? 1
+          : new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
+      );
   }
 
   async countJiraStatsPerUser(
