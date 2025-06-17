@@ -14,7 +14,7 @@ export const ProjectsStatsPage = () => {
         <div className="h-full">
           <ServerClientDistribution />
         </div>
-        <div className="h-full overflow-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent hover:scrollbar-thumb-gray-400">
+        <div className="h-full overflow-y-auto custom-scrollbar">
           <CodeBlindSpots />
         </div>
       </div>
