@@ -72,9 +72,9 @@ export class JiraService {
       )
       .sort((a, b) =>
         !a.startDate
-          ? -1
-          : !b.startDate
           ? 1
+          : !b.startDate
+          ? -1
           : new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
       );
   }
