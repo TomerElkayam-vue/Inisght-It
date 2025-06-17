@@ -65,22 +65,22 @@ export const CodeBlindSpots = () => {
   const filteredExpertise = Object.entries(expertise);
 
   return (
-    <div className="flex flex-col bg-gray-900 rounded-lg">
-      <div className="">
-        <h2 className="text-xl font-bold text-white">
+    <div className="flex flex-col h-full bg-gray-900 rounded-lg">
+      <div className="pb-4">
+        <h2 className="text-xl font-bold text-white text-center">
           Places In Your Code That Only One Developer Knows
         </h2>
       </div>
-      <div className="flex-1 min-h-[240px] bg-gray-900 p-4">
+      <div className="flex-1 overflow-y-auto custom-scrollbar mx-2 mb-4">
         {isLoading ? (
-          <div className="w-full h-full bg-[#151921] bg-opacity-90 flex items-center justify-center rounded-lg">
+          <div className="h-full flex items-center justify-center">
             <div className="flex flex-col items-center gap-4">
               <div className="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
               <span className="text-white text-lg">טוען מידע...</span>
             </div>
           </div>
         ) : (
-          <div className="w-full max-w-6xl mx-auto p-1 bg-gray-900 text-white rounded-xl custom-scrollbar">
+          <div className="w-full max-w-6xl mx-auto p-1 bg-gray-900 text-white rounded-xl">
             <div className="space-y-3">
               {filteredExpertise.length === 0 ? (
                 <div className="text-center py-12 text-slate-400">
@@ -92,7 +92,7 @@ export const CodeBlindSpots = () => {
                   {filteredExpertise.map(([path, developer]) => (
                     <div
                       key={path}
-                      className="bg-slate-800/30 backdrop-blur rounded-lg p-4 border border-slate-700/50 hover:border-slate-600 transition-all duration-200 hover:bg-slate-800/50"
+                      className="bg-slate-800/30 backdrop-blur rounded-lg p-2 border border-slate-700/50 hover:border-slate-600 transition-all duration-200 hover:bg-slate-800/50"
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3 flex-1 min-w-0">
