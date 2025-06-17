@@ -15,6 +15,10 @@ import { GithubDtoTransformationMapper } from './mappers/github-dto-transformati
 import { GithubDataType } from './enums/github-data-type';
 import { GithubAvgDataType } from './enums/github-avg-data-type';
 import { AvgStats } from '@packages/projects';
+import {
+  getTopBlindSpotsInCode,
+  sumPRChangesPoints,
+} from './utils/code-blind-spot-utils';
 
 @Injectable()
 export class GithubService {
@@ -286,6 +290,7 @@ export class GithubService {
       codeReposityCredentials.missionManagementCredentials,
       projectId
     );
+
     sprints.forEach(
       (sprint) =>
         (stats[sprint.name] =
@@ -303,6 +308,20 @@ export class GithubService {
     });
 
     return stats;
+  }
+
+  async getBlindsSpotsInCode(codeRepositoryCredentials: any) {
+    const { owner, name, token } = codeRepositoryCredentials;
+
+    const allPRChanges = await this.getAllChangedFilesByUser(
+      owner,
+      name,
+      token
+    );
+
+    const sumPointsFromAllPrs = sumPRChangesPoints(allPRChanges);
+
+    return getTopBlindSpotsInCode(sumPointsFromAllPrs, 10);
   }
 
   async getAvgStatsBySprint(
