@@ -46,7 +46,7 @@ const JiraProjectSelector = ({
     };
 
     fetchData();
-  }, [currentProject, selectedJiraProject]);
+  }, [currentProject?.id, selectedJiraProject]);
 
   useEffect(() => {
     prevRef.current = selectedJiraProject;
@@ -71,7 +71,7 @@ const JiraProjectSelector = ({
         projectId: selected.id,
         projectName: selected.name,
       });
-      if (currentProject.codeRepositoryCredentials.name) {
+      if (currentProject.codeRepositoryCredentials?.name) {
         await connectEmployeesOnProject(currentProject?.id);
       }
       queryClient.invalidateQueries({ queryKey: ['projects'] });
