@@ -175,7 +175,7 @@ export const Navbar = () => {
                 </Link>
               </>
             }
-            {userRole === 'OWNER' && (
+            {/* {userRole === 'OWNER' && (
               <Link
                 to="/team-insights"
                 className={`block px-4 py-3 rounded-lg text-white text-lg font-medium transition-colors ${isActive(
@@ -185,7 +185,7 @@ export const Navbar = () => {
               >
                 תובנות צוות
               </Link>
-            )}
+            )} */}
             {userRole === 'OWNER' && (
               <Link
                 to="/insights"

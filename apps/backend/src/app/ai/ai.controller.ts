@@ -322,8 +322,6 @@ export class AiController {
       // Aggregate Jira metrics
       const issuesData = jiraData[JiraDataType.ISSUES] || {};
       const storyPointsData = jiraData[JiraDataType.STORY_POINTS] || {};
-      const issueStatusData = jiraData[JiraDataType.ISSUE_STATUS] || {};
-      const issueTypesData = jiraData[JiraDataType.ISSUE_TYPE] || {};
 
       Object.values(issuesData).forEach((userData: any) => {
         teamMetrics.issuesCompleted += Number(userData.completed) || 0;
