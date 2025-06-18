@@ -46,7 +46,7 @@ const GithubProjectSelector = ({
     };
 
     fetchData();
-  }, [currentProject, selectedGithubProject]);
+  }, [currentProject?.id, selectedGithubProject]);
 
   useEffect(() => {
     prevRef.current = selectedGithubProject;
@@ -68,7 +68,7 @@ const GithubProjectSelector = ({
         };
       });
       await updateGithubProject(currentProject?.id ?? '', selectedRepo);
-      if (currentProject.missionManagementCredentials.name) {
+      if (currentProject.missionManagementCredentials?.name) {
         await connectEmployeesOnProject(currentProject?.id);
       }
       queryClient.invalidateQueries({ queryKey: ['projects'] });

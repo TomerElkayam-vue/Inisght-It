@@ -7,24 +7,24 @@ import {
   Body,
   Post,
   Param,
-} from "@nestjs/common";
-import { GithubService } from "./github.service";
-import { GithubDataType } from "./enums/github-data-type";
-import { GithubAvgDataType } from "./enums/github-avg-data-type";
+} from '@nestjs/common';
+import { GithubService } from './github.service';
+import { GithubDataType } from './enums/github-data-type';
+import { GithubAvgDataType } from './enums/github-avg-data-type';
 
-@Controller("github")
+@Controller('github')
 export class GithubController {
   private clientEndpoint: string;
 
   constructor(private readonly GithubService: GithubService) {
     this.clientEndpoint =
-      process.env.CLIENT_ENDPOINT || "http://localhost:4200";
+      process.env.CLIENT_ENDPOINT || 'http://localhost:4200';
   }
-  @Get("/stats/:statType")
+  @Get('/stats/:statType')
   async getProjectStats(
-    @Query("projectId") projectId: string,
-    @Query("teamStats") teamStats: boolean = false,
-    @Param("statType") statType: GithubDataType,
+    @Query('projectId') projectId: string,
+    @Query('teamStats') teamStats: boolean = false,
+    @Param('statType') statType: GithubDataType,
     @Req() req: any
   ) {
     if (teamStats)
@@ -41,10 +41,10 @@ export class GithubController {
       );
   }
 
-  @Get("/avg-stats/:avgDataType")
+  @Get('/avg-stats/:avgDataType')
   async getGithubAvgStats(
-    @Query("projectId") projectId: string,
-    @Param("avgDataType") avgDataType: GithubAvgDataType,
+    @Query('projectId') projectId: string,
+    @Param('avgDataType') avgDataType: GithubAvgDataType,
     @Req() req: any
   ) {
     return this.GithubService.getAvgStatsBySprint(
@@ -56,17 +56,30 @@ export class GithubController {
 
   @Get('/distribution')
   async getGithubChangedFilesByUser(
-    @Query('projectId') projectId: string, 
-    @Req() req: any) {
-      return this.GithubService.getServerClientDistribution(req?.projectCredentials?.codeRepositoryCredentials);
+    @Query('projectId') projectId: string,
+    @Req() req: any
+  ) {
+    return this.GithubService.getServerClientDistribution(
+      req?.projectCredentials?.codeRepositoryCredentials
+    );
+  }
+
+  @Get('/blind-spots')
+  async getCodeBlindSpots(
+    @Query('projectId') projectId: string,
+    @Req() req: any
+  ) {
+    return this.GithubService.getBlindsSpotsInCode(
+      req?.projectCredentials?.codeRepositoryCredentials
+    );
   }
 
   // for Tommer
-  @Get("/pull-requests/")
+  @Get('/pull-requests/')
   async getProjectPullsRequests(
-    @Query("projectId") projectId: string,
-    @Query("startDate") startDate: string,
-    @Query("endDate") endDate: string,
+    @Query('projectId') projectId: string,
+    @Query('startDate') startDate: string,
+    @Query('endDate') endDate: string,
     @Req() req: any
   ) {
     const { owner, name, token } =
@@ -80,9 +93,9 @@ export class GithubController {
     );
   }
 
-  @Get("/users/repos")
+  @Get('/users/repos')
   async getUsersRepositories(
-    @Query("projectId") projectId: string,
+    @Query('projectId') projectId: string,
     @Req() req: any
   ) {
     return this.GithubService.getUsersRepositories(
@@ -90,9 +103,9 @@ export class GithubController {
     );
   }
 
-  @Post("/update-github-project")
+  @Post('/update-github-project')
   async updateGithubProject(
-    @Query("projectId") projectId: string,
+    @Query('projectId') projectId: string,
     @Body() githubProject: { id: string; name: string; owner: string },
     @Req() req: any
   ) {
@@ -102,11 +115,11 @@ export class GithubController {
     );
   }
 
-  @Get("/callback")
+  @Get('/callback')
   async githubCallback(
     // This is a type and not a string because the it's a redirect from github, causing the parameter to be sent as an object
-    @Query("projectId") projectId: string,
-    @Query("code") code: string,
+    @Query('projectId') projectId: string,
+    @Query('code') code: string,
     @Res() res: any,
     @Req() req: any
   ) {

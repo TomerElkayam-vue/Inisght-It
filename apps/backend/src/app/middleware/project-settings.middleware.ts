@@ -27,46 +27,46 @@ export class ProjectSettingsMiddleware implements NestMiddleware {
     next: NextFunction
   ) {
     if ((!req.user || !req.user.sub) && !req.originalUrl.includes('callback')) {
-        throw new HttpException(
-          'Unauthorized - User not authenticated',
-          HttpStatus.UNAUTHORIZED
-        );
-      }
+      throw new HttpException(
+        'Unauthorized - User not authenticated',
+        HttpStatus.UNAUTHORIZED
+      );
+    }
 
-      // Ensure the projectId is provided in the query
-      if (!req.query?.projectId) {
-        throw new HttpException(
-          'Bad Request - Project id is required',
-          HttpStatus.BAD_REQUEST
-        );
-      }
+    // Ensure the projectId is provided in the query
+    if (!req.query?.projectId) {
+      throw new HttpException(
+        'Bad Request - Project id is required',
+        HttpStatus.BAD_REQUEST
+      );
+    }
 
-      // Fetch project settings using the projectId
-      const projectSettings = await this.projectsSerivce.getProject({
-        id: req.query.projectId?.toString(),
-      });
+    // Fetch project settings using the projectId
+    const projectSettings = await this.projectsSerivce.getProject({
+      id: req.query.projectId?.toString(),
+    });
 
-      if (!projectSettings) {
-        throw new HttpException(
-          'Bad Request - Project does not exist',
-          HttpStatus.BAD_REQUEST
-        );
-      }
+    if (!projectSettings) {
+      throw new HttpException(
+        'Bad Request - Project does not exist',
+        HttpStatus.BAD_REQUEST
+      );
+    }
 
-      const { missionManagementCredentials, codeRepositoryCredentials } =
-        projectSettings;
+    const { missionManagementCredentials, codeRepositoryCredentials } =
+      projectSettings;
 
-      // Attach credentials and user info to the request for use in controllers
-      req.projectCredentials = {
-        missionManagementCredentials: missionManagementCredentials as Record<
-          string,
-          any
-        > | null,
-        codeRepositoryCredentials: codeRepositoryCredentials as Record<
-          string,
-          any
-        > | null,
-      };
+    // Attach credentials and user info to the request for use in controllers
+    req.projectCredentials = {
+      missionManagementCredentials: missionManagementCredentials as Record<
+        string,
+        any
+      > | null,
+      codeRepositoryCredentials: codeRepositoryCredentials as Record<
+        string,
+        any
+      > | null,
+    };
 
     next();
   }

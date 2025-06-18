@@ -62,9 +62,9 @@ export const ServerClientDistribution = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center p-6 space-y-6 bg-gray-900 rounded-lg">
+    <div className="flex flex-col items-center justify-center space-y-6 bg-gray-900 rounded-lg h-full">
       <h2 className="text-xl font-bold text-white">Server Client Distribution</h2>
-      <div className="w-full h-60 bg-gray-900 p-4 flex items-center justify-center relative">
+      <div className="w-full flex-1 bg-gray-900 p-4 flex items-center justify-center relative">
         {isLoading ? (
           <div className="absolute inset-0 bg-[#151921] bg-opacity-90 flex items-center justify-center z-0">
             <div className="flex flex-col items-center gap-4">

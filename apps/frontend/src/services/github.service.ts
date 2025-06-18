@@ -14,18 +14,19 @@ export enum GithubAvgDataType {
   COMMITS = 'COMMITS',
 }
 
-export const getPullRequestsSummery = async (projectId: string): Promise<
-  SprintCommentsPerUser[]
-> => {
+export const getPullRequestsSummery = async (
+  projectId: string
+): Promise<SprintCommentsPerUser[]> => {
   const response = await api.get<SprintCommentsPerUser[]>(
     `/github/project-stats?projectId=${projectId}`
   );
   return response.data;
 };
 
-export const getUsersRepositories = async (projectId: string): Promise<{id: string, name: string, owner: string}[]
-> => {
-  const response = await api.get<{id: string, name: string, owner: string}[]>(
+export const getUsersRepositories = async (
+  projectId: string
+): Promise<{ id: string; name: string; owner: string }[]> => {
+  const response = await api.get<{ id: string; name: string; owner: string }[]>(
     `/github/users/repos?projectId=${projectId}`
   );
   return response.data;
@@ -63,9 +64,18 @@ export const getGithubServerClientDistribution = async (
   return response.data;
 };
 
+export const getGithubBlindSpotsInCode = async (
+  projectId: string
+): Promise<Record<string, Record<string, any>>> => {
+  const response = await api.get<Record<string, Record<string, any>>>(
+    `/github/blind-spots/?projectId=${projectId}`
+  );
+  return response.data;
+};
+
 export const getGithubAvgStats = async (
   projectId: string,
-  statType: GithubAvgDataType,
+  statType: GithubAvgDataType
 ): Promise<AvgStats> => {
   const response = await api.get<AvgStats>(
     `/github/avg-stats/${statType}?projectId=${projectId}`

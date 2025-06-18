@@ -2,11 +2,31 @@
 @tailwind components;
 @tailwind utilities;
 
-html{
-    height: 100%;
-    width: 100%;
+html {
+  height: 100%;
+  width: 100%;
 }
 
 /* Custom styles below */
 
 /* You can add global styles to this file, and also import other style files */
+
+/* Custom Scrollbar for CodeBlindSpots */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 12px;
+  border-radius: 8px;
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #60a5fa; /* Tailwind blue-400 */
+  border-radius: 8px;
+  border: 3px solid #e0e7ef; /* Optional: adds a gap around the thumb */
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #e0e7ef; /* Tailwind slate-100 */
+  border-radius: 8px;
+}
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #60a5fa #e0e7ef;
+}
