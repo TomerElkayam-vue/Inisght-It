@@ -9,7 +9,7 @@ interface InsightsResponse {
   metrics: {
     pullRequests: number;
     codeReviews: number;
-    averageCommentsPerPR: number;
+    averageCommentsUserGotPerPR: number;
     issuesCompleted: number;
     averageIssueTime: number;
     totalStoryPoints: number;
@@ -78,6 +78,31 @@ export class AiController {
         );
       };
 
+      const findWorkerDataObj = async (
+        data: Record<string, Record<string, any>>,
+        field: string
+      ) => {
+        // Get employee name from employee service
+        const employee = await this.aiService.getEmployeeById(employeeId);
+        if (!employee) {
+          console.log('Employee not found for id:', employeeId);
+          return null;
+        }
+
+        const workerEntry = Object.entries(data).find(
+          ([name]) => name === employee.displayName
+        );
+        if (!workerEntry) {
+          console.log('No data found for employee:', employee.displayName);
+          return null;
+        }
+
+        // Sum up all sprint values
+        return Object.values(workerEntry[1]).reduce(
+          (sum, value) => sum + (value[field] || 0),
+          0
+        );
+      };
       // Aggregate GitHub metrics across all sprints
       const githubMetrics = {
         pullRequests:
@@ -101,11 +126,23 @@ export class AiController {
               Record<string, number>
             >
           )) || 0,
-        fileChanges: Object.entries(
-          githubData[GithubDataType.FILE_CHANGES] || {}
-        ).find(([name]) => name === employeeId)?.[1] || {
-          additions: 0,
-          deletions: 0,
+        fileChanges: {
+          deletions:
+            (await findWorkerDataObj(
+              githubData[GithubDataType.COMMENTS] as unknown as Record<
+                string,
+                Record<string, number>
+              >,
+              'deletions'
+            )) || 0,
+          additions:
+            (await findWorkerDataObj(
+              githubData[GithubDataType.COMMENTS] as unknown as Record<
+                string,
+                Record<string, number>
+              >,
+              'additions'
+            )) || 0,
         },
       };
 
@@ -114,7 +151,7 @@ export class AiController {
         // GitHub metrics
         pullRequests: githubMetrics.pullRequests,
         codeReviews: githubMetrics.pullRequests, // Assuming each PR is a code review
-        averageCommentsPerPR:
+        averageCommentsUserGotPerPR:
           githubMetrics.comments / (githubMetrics.pullRequests || 1),
         commits: githubMetrics.commits,
         fileChanges: githubMetrics.fileChanges,
@@ -122,16 +159,45 @@ export class AiController {
 
         // Jira metrics
         issuesCompleted:
-          (jiraData[JiraDataType.ISSUES] as any)[employeeId]?.completed || 0,
+          (await findWorkerData(
+            jiraData[JiraDataType.ISSUES] as unknown as Record<
+              string,
+              Record<string, number>
+            >
+          )) || 0,
+
         averageIssueTime:
-          (jiraData[JiraDataType.ISSUES] as any)[employeeId]?.averageTime || 0,
+          (await findWorkerData(
+            jiraData[JiraDataType.ISSUES] as unknown as Record<
+              string,
+              Record<string, number>
+            >
+          )) || 0,
         totalStoryPoints:
-          (jiraData[JiraDataType.STORY_POINTS] as any)[employeeId]
-            ?.storyPoints || 0,
-        issueStatus:
-          (jiraData[JiraDataType.ISSUE_STATUS] as any)[employeeId] || {},
-        issueTypes:
-          (jiraData[JiraDataType.ISSUE_TYPE] as any)[employeeId] || {},
+          (await findWorkerData(
+            jiraData[JiraDataType.STORY_POINTS] as unknown as Record<
+              string,
+              Record<string, number>
+            >
+          )) || 0,
+        issueTypes: {
+          Bug:
+            (await findWorkerDataObj(
+              jiraData[JiraDataType.ISSUE_TYPE] as unknown as Record<
+                string,
+                Record<string, number>
+              >,
+              'Bug'
+            )) || 0,
+          Task:
+            (await findWorkerDataObj(
+              jiraData[JiraDataType.ISSUE_TYPE] as unknown as Record<
+                string,
+                Record<string, number>
+              >,
+              'Task'
+            )) || 0,
+        },
       };
 
       // Get AI insights
@@ -187,8 +253,8 @@ export class AiController {
         commits: 0,
         fileChanges: { additions: 0, deletions: 0 },
         comments: 0,
-        issueStatus: {} as Record<string, number>,
-        issueTypes: {} as Record<string, number>,
+        issueTypes: { Bug: 0, Task: 0 },
+        averageCommentsUserGotPerPR: 0,
       };
 
       // Aggregate GitHub metrics
@@ -256,8 +322,6 @@ export class AiController {
       // Aggregate Jira metrics
       const issuesData = jiraData[JiraDataType.ISSUES] || {};
       const storyPointsData = jiraData[JiraDataType.STORY_POINTS] || {};
-      const issueStatusData = jiraData[JiraDataType.ISSUE_STATUS] || {};
-      const issueTypesData = jiraData[JiraDataType.ISSUE_TYPE] || {};
 
       Object.values(issuesData).forEach((userData: any) => {
         teamMetrics.issuesCompleted += Number(userData.completed) || 0;
@@ -268,25 +332,6 @@ export class AiController {
         teamMetrics.totalStoryPoints += Number(userData.storyPoints) || 0;
       });
 
-      // Aggregate issue status and types
-      Object.values(
-        issueStatusData as Record<string, Record<string, number>>
-      ).forEach((statusData) => {
-        Object.entries(statusData).forEach(([status, count]) => {
-          teamMetrics.issueStatus[status] =
-            (teamMetrics.issueStatus[status] || 0) + Number(count);
-        });
-      });
-
-      Object.values(
-        issueTypesData as Record<string, Record<string, number>>
-      ).forEach((typeData) => {
-        Object.entries(typeData).forEach(([type, count]) => {
-          teamMetrics.issueTypes[type] =
-            (teamMetrics.issueTypes[type] || 0) + Number(count);
-        });
-      });
-
       // Calculate average issue time
       const totalUsers = Object.keys(issuesData).length;
       teamMetrics.averageIssueTime =
@@ -294,8 +339,14 @@ export class AiController {
 
       // Get AI insights
       const [summary, recommendations] = await Promise.all([
-        this.aiService.getTeamSummary(teamMetrics),
-        this.aiService.getAiRecoomendation(teamMetrics),
+        this.aiService.getTeamSummary({
+          ...teamMetrics,
+          averageCommentsUserGotPerPR: teamMetrics.averageCommentsPerPR,
+        }),
+        this.aiService.getAiRecoomendation({
+          ...teamMetrics,
+          averageCommentsUserGotPerPR: teamMetrics.averageCommentsPerPR,
+        }),
       ]);
 
       return {

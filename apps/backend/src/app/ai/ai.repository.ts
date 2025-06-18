@@ -36,16 +36,56 @@ const generatePrompt = ({
       ? `Based on the following ${context} data, provide a forward-looking recommendation in Hebrew for the manager or the ${context} itself. Do NOT summarize the data or describe what it shows. Focus only on suggesting actions or directions, using phrasing like "מומלץ להתמקד ב..." or "נראה שרוב העבודה היא בתחום X ולכן כדאי...".`
       : `Answer the following question in Hebrew based on the provided ${context} data.
 DO NOT simply repeat or summarize the data fields.
-Instead, ONLY answer the question based on the provided datas`;
+Instead, ONLY answer the question based on the provided data.`;
+
+  const fieldDescriptions = `
+FIELD DESCRIPTIONS (for understanding only — do not repeat or explain these in your output):
+
+- pullRequests: Number of pull requests the user/team created.
+- codeReviews: Number of code review actions they performed.
+- averageCommentsUserGotPerPR: Average number of comments received per pull request. High values may indicate unclear code.
+- commits: Total number of commits submitted.
+- fileChanges.additions: Number of lines of code added across all commits.
+- fileChanges.deletions: Number of lines of code deleted across all commits.
+- comments: Number of comments made during reviews.
+- issuesCompleted: Number of issues/tasks completed during the period.
+- averageIssueTime: Average time taken to complete one issue (in hours/days).
+- totalStoryPoints: Sum of estimated effort units completed (e.g., story points from Jira).
+- issueTypes.Task: Count of completed tasks labeled as "Task".
+- issueTypes.Bug: Count of completed issues labeled as "Bug".
+`;
+
+  const displayNames = `
+Use the following display names (in English) for the fields in your Hebrew response instead of the technical field names:
+
+- pullRequests → Pull Requests
+- codeReviews → Code Reviews
+- averageCommentsUserGotPerPR → Average Comments per PR
+- commits → Commits
+- fileChanges.additions → Lines Added
+- fileChanges.deletions → Lines Deleted
+- comments → Comments
+- issuesCompleted → Issues Completed
+- averageIssueTime → Average Issue Time
+- totalStoryPoints → Story Points
+- issueTypes.Task → Tasks
+- issueTypes.Bug → Bugs
+`;
+
   return `
 ${baseInstructions}
+
+${displayNames}
+
+${fieldDescriptions}
+
 CRITICAL INSTRUCTIONS:
-- The data concerns programmers involved in a software development project. Research relevant subfields within this topic if needed.
-- Never translate, explain, or modify field names. They must appear in English, exactly as-is, in the Hebrew text. Keep names like "pullRequests", "fileChanges", "commits", etc. EXACTLY as they appear.
+- Do NOT translate or modify the display names listed above. Always use these exact English phrases in the Hebrew response.
+- When referring to any field, use its display name (e.g., "Pull Requests") instead of the field key (e.g., "pullRequests").
 - The Hebrew text should refer to those fields using their original English names.
 - Do not invent or assume data. If some fields are empty or null, simply omit them from your reasoning.
 - Limit the result to five balanced, neutral sentences.
-- For the metric "averageCommentsPerPR", interpret high values as potentially indicating unclear code or room for code quality improvement. Do not describe the metric directly.
+- For the metric "averageCommentsUserGotPerPR", interpret high values as potentially indicating unclear code or room for code quality improvement. Do not describe the metric directly.
 - Return a valid JSON object with a single field called "text", containing the full Hebrew response as a string.
 
 === BEGIN DATA ===

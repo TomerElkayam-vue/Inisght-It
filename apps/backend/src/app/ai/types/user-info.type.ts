@@ -1,12 +1,18 @@
 export interface UserInfo {
   pullRequests: number;
   codeReviews: number;
-  averageCommentsPerPR: number;
+  averageCommentsUserGotPerPR: number;
   commits: number;
-  fileChanges: any;
+  fileChanges: {
+    additions: number;
+    deletions: number;
+  };
   comments: number;
   issuesCompleted: number;
   averageIssueTime: number;
   totalStoryPoints: number;
-  issueStatus: any;
+  issueTypes: {
+    Task: number;
+    Bug: number;
+  };
 }
