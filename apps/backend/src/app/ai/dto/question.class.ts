@@ -11,7 +11,7 @@ export class QuestionDTO {
   data: {
     pullRequests: number;
     codeReviews: number;
-    averageCommentsPerPR: number;
+    averageCommentsUserGotPerPR: number;
     issuesCompleted: number;
     averageIssueTime: number;
     totalStoryPoints: number;
