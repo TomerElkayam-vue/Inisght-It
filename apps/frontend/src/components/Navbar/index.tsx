@@ -14,10 +14,7 @@ export const Navbar = () => {
   const { currentProject, setCurrentProject } = useCurrentProjectContext();
   const { user } = useCurrentConnectedUser();
 
-  const userRole = useMemo(
-    () => useProjectRole(currentProject, user),
-    [currentProject?.id, user?.id]
-  );
+  const userRole = useProjectRole(currentProject, user)
 
   const isActive = (path: string) => {
     return location.pathname === path
