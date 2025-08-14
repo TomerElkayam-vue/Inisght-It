@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
-import { Prisma, Project } from '@prisma/client';
-import { PrismaService } from '../prisma/prisma.service';
+import { Injectable } from "@nestjs/common";
+import { Prisma, Project } from "@prisma/client";
+import { PrismaService } from "../prisma/prisma.service";
 
 @Injectable()
 export class ProjectsRepository {
@@ -53,7 +53,13 @@ export class ProjectsRepository {
       },
     });
 
-    return project;
+    const projectWithPermissions = await this.getProject({ id: project.id });
+
+    if (!projectWithPermissions) {
+      throw new Error("Failed to retrieve created project");
+    }
+
+    return projectWithPermissions;
   }
 
   async updateProject(params: {
