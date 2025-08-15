@@ -35,23 +35,30 @@ export const IssueTimeline = () => {
   }, [currentProject]);
 
   useEffect(() => {
-    const fetchSprintsIssuesChanglog = async () => {
-      if (
-        currentProject &&
-        selectedSprintId &&
-        issuesTimelines?.[0].sprint !== selectedSprintId
-      ) {
-        const changelog = await getSprintsIssuesChangelog(
-          currentProject?.id,
-          String(selectedSprintId)
-        );
-        setLoadingChangelog(false);
-        setIssuesTimelines(changelog);
-      }
-    };
+  const fetchSprintsIssuesChanglog = async () => {
+    if (
+      currentProject &&
+      selectedSprintId &&
+      issuesTimelines?.[0]?.sprint !== selectedSprintId
+    ) {
+      const changelog = await getSprintsIssuesChangelog(
+        currentProject?.id,
+        String(selectedSprintId)
+      );
+      setLoadingChangelog(false);
+      setIssuesTimelines(changelog);
+    }
+  };
+
     fetchSprintsIssuesChanglog();
   }, [selectedSprintId, currentProject]);
 
+  useEffect(() => {
+    if (currentSprints && currentSprints[0]?.id && !selectedSprintId) {  
+      setSelectedSprintId(currentSprints[0].id)
+    }
+  }, [currentSprints])
+  
   const timelineGroups = useMemo(() => {
     const assigneeSet = new Set<string>();
 
