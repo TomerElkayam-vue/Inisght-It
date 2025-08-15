@@ -35,9 +35,6 @@ const NoProjects = () => {
         <p className="text-gray-300 mb-6">
           נראה שלא מקושר אליך אף פרויקט, צור אחד חדש כעת!
         </p>
-        <p className="text-gray-300 mb-6">
-          במידה ומדובר בטעות, פנה למנהל המערכת שלך כך שיסדר לך הרשאות מתאימות
-        </p>
         <div className="flex flex-row-reverse gap-4 justify-center">
           <CreateProjectButton
             onProjectCreated={() => navigate('/')}

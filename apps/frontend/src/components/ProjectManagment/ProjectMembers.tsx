@@ -92,7 +92,7 @@ const ProjectMembers = ({
         className="bg-[#2e2e3e] p-6 rounded-3xl w-80 shadow-lg relative"
       >
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-lg font-bold">רשימת עובדים</h2>
+          <h2 className="text-lg font-bold">משתמשים</h2>
           <button
             onClick={() => {
               setShowModal(true);
@@ -100,7 +100,7 @@ const ProjectMembers = ({
               setSearchValue('');
             }}
             className="bg-blue-600 hover:bg-blue-700 text-white rounded-full w-8 h-8 flex items-center justify-center text-lg"
-            title="הוסף עובד"
+            title="הוסף משתמש"
           >
             +
           </button>
@@ -115,7 +115,7 @@ const ProjectMembers = ({
               <button
                 onClick={() => handleDelete(index)}
                 className="text-red-500 hover:text-red-400"
-                title="הסר עובד"
+                title="הסר משתמש"
               >
                 ✕
               </button>
@@ -126,11 +126,11 @@ const ProjectMembers = ({
             <button
               onClick={save}
               className={`relative px-10 py-1 text-base font-medium rounded-md shadow-md transition duration-300 ease-in-out ${
-              disableSave
-                ? 'bg-gray-400 cursor-not-allowed'
-                : noNewChange
-                ? 'bg-gray-500 cursor-not-allowed'
-                : 'bg-blue-500 hover:bg-blue-600'
+                disableSave
+                  ? 'bg-gray-400 cursor-not-allowed'
+                  : noNewChange
+                  ? 'bg-gray-500 cursor-not-allowed'
+                  : 'bg-blue-500 hover:bg-blue-600'
               }`}
               disabled={noNewChange || disableSave}
             >
@@ -143,11 +143,11 @@ const ProjectMembers = ({
         {showModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-[#2e2e3e] p-6 rounded-xl w-80" dir="rtl">
-              <h3 className="text-md font-bold mb-4">הוסף עובד חדש</h3>
+              <h3 className="text-md font-bold mb-4">הוסף משתמש לפרויקט</h3>
               <input
                 type="text"
                 className="w-full p-2 mb-2 rounded-md bg-[#3a3a4d] text-white focus:outline-none"
-                placeholder="שם העובד"
+                placeholder="שם המשתמש"
                 value={searchValue}
                 onChange={(e) => handleInputChange(e.target.value)}
               />
