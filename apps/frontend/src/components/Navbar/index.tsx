@@ -1,12 +1,17 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import logoDark from '../../assets/logo-dark.png';
 import { removeTokens } from '../../services/auth.service';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useProjects } from '../hooks/useProjectQueries';
 import { useCurrentProjectContext } from '../../context/CurrentProjectContext';
 import CreateProjectButton from './CreateProjectButton';
 import { useProjectRole } from '../../hooks/useProjectRole';
 import { useCurrentConnectedUser } from '../../context/CurrentConnectedUserContext';
+
+import { MdInsights, MdManageAccounts } from 'react-icons/md';
+import { FaProjectDiagram, FaUser, FaUserCircle } from 'react-icons/fa';
+import { RiTeamFill } from 'react-icons/ri';
+import { nameToDisplay } from '../../utils/text';
 
 export const Navbar = () => {
   const location = useLocation();
@@ -14,14 +19,13 @@ export const Navbar = () => {
   const { currentProject, setCurrentProject } = useCurrentProjectContext();
   const { user } = useCurrentConnectedUser();
 
-  const userRole = useProjectRole(currentProject, user)
+  const userRole = useProjectRole(currentProject, user);
 
   const isActive = (path: string) => {
     return location.pathname === path
-      ? 'bg-[#23263a] text-blue-400'
-      : 'hover:bg-[#23263a] hover:text-blue-300';
+      ? 'text-yellow-400'
+      : 'hover:bg-[#2b2f46] ';
   };
-
   const handleLogout = () => {
     removeTokens();
     setCurrentProject(null);
@@ -49,7 +53,9 @@ export const Navbar = () => {
       projects &&
       projects.length > 0
     ) {
-      setCurrentProject(projects[0]);
+      if (!currentProject) {
+        setCurrentProject(projects[projects.length - 1]);
+      }
     }
   }, [isLoadingProjects, projects]);
 
@@ -77,6 +83,7 @@ export const Navbar = () => {
     type: 'error' | 'success';
   } | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [projectMenuOpen, setProjectMenuOpen] = useState(false);
 
   return (
     <>
@@ -88,22 +95,31 @@ export const Navbar = () => {
           </div>
         </div>
       )}
-      {/* Toast notification */}
       {toast && (
         <div
           className={`fixed top-4 right-1/2 translate-x-1/2 z-[100] px-6 py-3 rounded-lg shadow-lg text-white text-lg transition-all
-            ${toast.type === 'error' ? 'bg-red-600' : 'bg-green-600'}`}
+          ${toast.type === 'error' ? 'bg-red-600' : 'bg-green-600'}`}
         >
           {toast.message}
         </div>
       )}
-      {/* Top bar */}
       <nav className="bg-[#1e2530] h-16 fixed w-full top-0 z-40 shadow-lg flex items-center justify-between px-6">
         <div className="flex items-center gap-4">
           <img src={logoDark} alt="Logo" className="h-10 w-auto" />
         </div>
-        <div className="flex items-center gap-4">
-          {/* Hamburger menu */}
+        <div className="flex items-center gap-4 text-white">
+          {user?.username && (
+            <div
+              className="flex items-center gap-2 bg-[#f8d94e]/60 text-black px-4 py-1.5 rounded-full cursor-default"
+              dir="rtl"
+              title={nameToDisplay(user.username)}
+            >
+              <FaUserCircle className="w-4 h-4 opacity-80" />
+              <span className="text-sm font-medium max-w-[160px] truncate">
+                {nameToDisplay(user.username)}
+              </span>
+            </div>
+          )}
           <button
             className="text-white text-2xl focus:outline-none ml-2"
             onClick={() => setDrawerOpen(true)}
@@ -126,7 +142,6 @@ export const Navbar = () => {
           </button>
         </div>
       </nav>
-      {/* Drawer overlay */}
       {drawerOpen && (
         <div className="fixed inset-0" style={{ zIndex: 150 }}>
           <div
@@ -134,93 +149,139 @@ export const Navbar = () => {
             onClick={() => setDrawerOpen(false)}
           />
           <aside
-            className="fixed right-0 top-0 h-full w-80 bg-[#23263a] shadow-2xl flex flex-col p-6 gap-6 animate-slideIn z-50"
+            className="fixed right-0 top-0 h-full w-80 bg-[#23263a] shadow-2xl flex flex-col p-6 gap-3 animate-slideIn"
             dir="rtl"
           >
-            <button
-              className="self-end text-gray-400 hover:text-white text-2xl font-bold focus:outline-none mb-2"
+            <div className="flex items-center justify-between mb-2 w-full">
+              {user?.username && (
+                <div
+                  className="flex items-center gap-2 bg-[#f8d94e]/60 text-black px-4 py-1.5 rounded-full cursor-default"
+                  dir="rtl"
+                  title={user.username}
+                >
+                  <FaUserCircle className="w-5 h-5 opacity-80" />
+                  <span className="text-sm font-medium truncate">
+                    {nameToDisplay(user.username)}
+                  </span>
+                </div>
+              )}
+              <button
+                className="text-gray-400 hover:text-white text-2xl font-bold focus:outline-none"
+                onClick={() => setDrawerOpen(false)}
+                aria-label="סגור תפריט"
+              >
+                ×
+              </button>
+            </div>
+
+            <Link
+              to="/sprints-stats"
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-white text-lg font-medium transition-colors ${isActive(
+                '/sprints-stats'
+              )}`}
               onClick={() => setDrawerOpen(false)}
-              aria-label="סגור תפריט"
             >
-              ×
-            </button>
-            {
-              <>
-                <Link
-                  to="/sprints-stats"
-                  className={`block px-4 py-3 rounded-lg text-white text-lg font-medium transition-colors ${isActive(
-                    '/sprints-stats'
-                  )}`}
-                  onClick={() => setDrawerOpen(false)}
-                >
-                  תובנות לפי ספרינט
-                </Link>
-                <Link
-                  to="/project-stats"
-                  className={`block px-4 py-3 rounded-lg text-white text-lg font-medium transition-colors ${isActive(
-                    '/project-stats'
-                  )}`}
-                  onClick={() => setDrawerOpen(false)}
-                >
-                  תובנות על הפרויקט
-                </Link>
-              </>
-            }
-            {/* {userRole === 'OWNER' && (
+              <MdInsights className="w-5 h-5" />
+              תובנות לפי ספרינט
+            </Link>
+
+            <Link
+              to="/project-stats"
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-white text-lg font-medium transition-colors ${isActive(
+                '/project-stats'
+              )}`}
+              onClick={() => setDrawerOpen(false)}
+            >
+              <FaProjectDiagram className="w-5 h-5" />
+              תובנות על הפרויקט
+            </Link>
+
+            {userRole === 'OWNER' && (
               <Link
                 to="/team-insights"
-                className={`block px-4 py-3 rounded-lg text-white text-lg font-medium transition-colors ${isActive(
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-white text-lg font-medium transition-colors ${isActive(
                   '/team-insights'
                 )}`}
                 onClick={() => setDrawerOpen(false)}
               >
-                תובנות צוות
+                <RiTeamFill className="w-5 h-5" />
+                פרופיל צוות{' '}
               </Link>
-            )} */}
+            )}
+
             {userRole === 'OWNER' && (
               <Link
                 to="/insights"
-                className={`block px-4 py-3 rounded-lg text-white text-lg font-medium transition-colors ${isActive(
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-white text-lg font-medium transition-colors ${isActive(
                   '/insights'
                 )}`}
                 onClick={() => setDrawerOpen(false)}
               >
+                <FaUser className="w-5 h-5" />
                 פרופיל עובד
               </Link>
             )}
+
             {userRole === 'OWNER' && (
               <Link
                 to="/project-management"
-                className={`block px-4 py-3 rounded-lg text-white text-lg font-medium transition-colors ${isActive(
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-white text-lg font-medium transition-colors ${isActive(
                   '/project-management'
                 )}`}
                 onClick={() => setDrawerOpen(false)}
               >
+                <MdManageAccounts className="w-5 h-5" />
                 ניהול פרויקט
               </Link>
             )}
+
             {projects && projects.length > 0 && (
               <div className="flex flex-col gap-2">
                 <label className="text-white text-sm mb-1">בחר פרויקט</label>
-                <select
-                  value={currentProject?.id || projects[0].id}
-                  onChange={(e) => {
-                    handleProjectChange(e.target.value);
-                    setDrawerOpen(false);
-                  }}
-                  className="bg-[#2b3544] text-white px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 border border-blue-900"
-                  disabled={isLoadingProjects}
-                >
-                  {projects.map((project) => (
-                    <option key={project.id} value={project.id}>
-                      {project.name}
-                    </option>
-                  ))}
-                </select>
+                <div className="relative" dir="rtl">
+                  <button
+                    type="button"
+                    className="w-full bg-[#3a3a4d] text-white px-4 py-2 rounded-md flex items-center justify-between border border-white/10"
+                    onClick={() => setProjectMenuOpen((open) => !open)}
+                  >
+                    <span className="truncate text-right">
+                      {currentProject?.name || projects[0]?.name}
+                    </span>
+                    <svg
+                      className="w-4 h-4 opacity-80"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" />
+                    </svg>
+                  </button>
+                  {projectMenuOpen && (
+                    <ul className="absolute right-0 mt-2 w-full bg-[#3a3a4d] rounded-md max-h-48 overflow-auto custom-scrollbar text-sm text-right shadow-lg z-50">
+                      {projects.map((project) => (
+                        <li
+                          key={project.id}
+                          className="p-2 hover:bg-[#e6c937] hover:text-black text-white cursor-pointer rounded-md"
+                          onClick={() => {
+                            handleProjectChange(project.id);
+                            setProjectMenuOpen(false);
+                            setDrawerOpen(false);
+                          }}
+                          title={project.name}
+                        >
+                          <span className="truncate block">{project.name}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
               </div>
             )}
             <CreateProjectButton
-              onProjectCreated={(project) => setCurrentProject(project)}
+              onProjectCreated={(project) => {
+                navigate('/project-management');
+                setDrawerOpen(false);
+                setCurrentProject(project);
+              }}
               setToast={setToast}
             />
             <button
@@ -232,15 +293,13 @@ export const Navbar = () => {
           </aside>
         </div>
       )}
-      {/* Drawer animation */}
+
       <style>{`
         @keyframes slideIn {
           from { transform: translateX(100%); }
           to { transform: translateX(0); }
         }
-        .animate-slideIn {
-          animation: slideIn 0.2s cubic-bezier(0.4,0,0.2,1);
-        }
+        .animate-slideIn { animation: slideIn 0.2s cubic-bezier(0.4,0,0.2,1); }
       `}</style>
     </>
   );

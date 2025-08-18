@@ -40,7 +40,7 @@ export const useCreateProject = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (newProject: Omit<Project, 'id' | 'createdAt'>) =>
+    mutationFn: (newProject: Omit<Project, 'id' | 'createdAt' | 'employees'>) =>
       projectsService.createProject(newProject),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: projectKeys.lists() });

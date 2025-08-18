@@ -11,6 +11,7 @@ import {
 import { getGithubStats, GithubDataType } from '../../services/github.service';
 import { getJiraStats, JiraDataType } from '../../services/jira.service';
 import { InsightsAI } from './InsightsAI';
+import ToolsConfigureMessage from '../ToolsConfigureMessage';
 
 export type EmployeeSelection = {
   id: string;
@@ -134,11 +135,7 @@ export const WorkerInsights = () => {
           )}
         </div>
       ) : (
-        <div className="flex items-center justify-center p-6 bg-gray-900 rounded-lg min-h-[80vh]">
-          <p className="text-xl text-gray-400 text-center">
-            לא קיים מידע על עובדים בפרויקט
-          </p>
-        </div>
+        <ToolsConfigureMessage/>
       )}
     </>
   );

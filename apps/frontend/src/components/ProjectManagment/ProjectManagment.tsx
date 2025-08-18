@@ -102,7 +102,7 @@ const ProjectContent = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center gap-8 bg-[#1e1e2f] text-white relative">
+    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center gap-8 bg-[#1e1e2f] text-white relative">
       {updateProjectMutation.isError && (
         <div className="fixed bottom-4 right-4 bg-red-500 text-white p-2 rounded">
           Error saving:{' '}
