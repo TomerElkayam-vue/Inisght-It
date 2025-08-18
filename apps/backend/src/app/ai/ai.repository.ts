@@ -97,7 +97,33 @@ ${JSON.stringify(data, null, 2)}
 
 @Injectable()
 export class AiRepository {
-  private async callModel(prompt: string): Promise<string> {
+  private monthlyBudget = 10;
+  private estimatedCost = 0;
+  private modelPrice = { input: 0.1, output: 0.4 };
+
+  constructor(
+    @Inject(geminiConfig.geminiConfig.KEY)
+    private readonly geminiConfigValues: geminiConfig.GeminiConfigType
+  ) {}
+
+  genAI = new GoogleGenerativeAI(this.geminiConfigValues.geminiKey ?? '');
+  model = this.genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' });
+
+  private async safeCallModel(
+    tokens: { input: number; output: number },
+    prompt: string
+  ): Promise<string | null> {
+    const callCost =
+      (tokens.input * this.modelPrice.input) / 1_000_000 +
+      (tokens.output * this.modelPrice.output) / 1_000_000;
+
+    if (this.estimatedCost + callCost > this.monthlyBudget) {
+      console.warn('Monthly budget exceeded, skipping AI call.');
+      return null;
+    }
+
+    this.estimatedCost += callCost;
+
     const result = await this.model.generateContent({
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
       generationConfig: { responseMimeType: 'application/json' },
@@ -106,15 +132,17 @@ export class AiRepository {
     return JSON.parse(result.response.text()).text;
   }
 
-  constructor(
-    @Inject(geminiConfig.geminiConfig.KEY)
-    private readonly geminiConfigValues: geminiConfig.GeminiConfigType
-  ) {}
+  private estimateTokens(prompt: string): { input: number; output: number } {
+    const inputTokens = Math.ceil(prompt.length / 4);
+    const outputTokens = 100;
+    return { input: inputTokens, output: outputTokens };
+  }
 
-  genAI = new GoogleGenerativeAI(this.geminiConfigValues.geminiKey ?? '');
-  model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-
-  async getWorkerRecommendation(userInfo: UserInfo): Promise<string> {
+  private async callModel(prompt: string): Promise<string | null> {
+    const tokens = this.estimateTokens(prompt);
+    return this.safeCallModel(tokens, prompt);
+  }
+  async getWorkerRecommendation(userInfo: UserInfo): Promise<string | null> {
     return this.callModel(
       generatePrompt({
         context: 'worker',
@@ -124,7 +152,7 @@ export class AiRepository {
     );
   }
 
-  async getTeamRecommendation(userInfo: UserInfo): Promise<string> {
+  async getTeamRecommendation(userInfo: UserInfo): Promise<string | null> {
     return this.callModel(
       generatePrompt({
         context: 'team',
@@ -134,24 +162,20 @@ export class AiRepository {
     );
   }
 
-  async getWorkerSummary(userInfo: UserInfo): Promise<string> {
-    const generated = this.callModel(
+  async getWorkerSummary(userInfo: UserInfo): Promise<string | null> {
+    return this.callModel(
       generatePrompt({ context: 'worker', type: 'summary', data: userInfo })
     );
-    console.log('userInfo', userInfo);
-    console.log('ai data', generated);
-
-    return generated;
   }
 
-  async getTeamSummary(userInfo: UserInfo): Promise<string> {
+  async getTeamSummary(userInfo: UserInfo): Promise<string | null> {
     return this.callModel(
       generatePrompt({ context: 'team', type: 'summary', data: userInfo })
     );
   }
 
-  async getQuestionAnswer(question: QuestionDTO): Promise<string> {
-    const generated = this.callModel(
+  async getQuestionAnswer(question: QuestionDTO): Promise<string | null> {
+    return this.callModel(
       generatePrompt({
         context: question.type === 'worker' ? 'worker' : 'team',
         type: 'question',
@@ -159,8 +183,6 @@ export class AiRepository {
         data: question.data as UserInfo,
       })
     );
-    console.log('generated', generated);
-    return generated;
   }
 
   async getArrayMatchingRecord(
