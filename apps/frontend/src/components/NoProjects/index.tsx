@@ -24,7 +24,7 @@ const NoProjects = () => {
   }, [isLoadingProjects, navigate]);
 
   return (
-    <div className="min-h-screen bg-[#151921] flex items-center justify-center">
+    <div className="min-h-[calc(100vh-4rem)] bg-[#151921] flex items-center justify-center">
       <div
         className="bg-[#1e2530] p-8 rounded-lg shadow-lg max-w-md w-full text-center"
         dir="rtl"

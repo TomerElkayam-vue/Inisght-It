@@ -5,6 +5,11 @@
 html {
   height: 100%;
   width: 100%;
+  overflow-x: hidden;
+}
+body {
+  height: 100%;
+  overflow-x: hidden;
 }
 
 /* Custom styles below */
