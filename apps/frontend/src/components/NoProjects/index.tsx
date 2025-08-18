@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import CreateProjectButton from '../Navbar/CreateProjectButton';
 import { useProjects } from '../hooks/useProjectQueries';
 import { useCurrentConnectedUser } from '../../context/CurrentConnectedUserContext';
+import { useCurrentProjectContext } from '../../context/CurrentProjectContext';
 
 const NoProjects = () => {
   const navigate = useNavigate();
@@ -12,6 +13,7 @@ const NoProjects = () => {
   } | null>(null);
 
   const { user } = useCurrentConnectedUser();
+  const { setCurrentProject } = useCurrentProjectContext();
   const { data: projects, isLoading: isLoadingProjects } = useProjects(
     user?.id
   );
@@ -37,7 +39,10 @@ const NoProjects = () => {
         </p>
         <div className="flex flex-row-reverse gap-4 justify-center">
           <CreateProjectButton
-            onProjectCreated={() => navigate('/')}
+            onProjectCreated={(project) => {
+              navigate('/project-management');
+              setCurrentProject(project);
+            }}
             setToast={setToast}
           />
           <button

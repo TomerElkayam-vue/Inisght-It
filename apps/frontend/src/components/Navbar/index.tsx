@@ -205,7 +205,7 @@ export const Navbar = () => {
                 onClick={() => setDrawerOpen(false)}
               >
                 <RiTeamFill className="w-5 h-5" />
-                פרופיל צוות ותובנות AI{' '}
+                פרופיל צוות{' '}
               </Link>
             )}
 
@@ -218,7 +218,7 @@ export const Navbar = () => {
                 onClick={() => setDrawerOpen(false)}
               >
                 <FaUser className="w-5 h-5" />
-                פרופיל עובד ותובנות AI
+                פרופיל עובד
               </Link>
             )}
 
