@@ -7,7 +7,9 @@
     "start:ui": "npx nx serve frontend",
     "start:server": "npx nx serve backend --watch",
     "build:ui": "npx nx build frontend",
-    "build:server": "npx nx build backend"
+    "build:server": "npx nx build backend",
+    "create-migration": "prisma migrate dev --create-only",
+    "prestart:server": "prisma migrate deploy"
   },
   "private": true,
   "dependencies": {
