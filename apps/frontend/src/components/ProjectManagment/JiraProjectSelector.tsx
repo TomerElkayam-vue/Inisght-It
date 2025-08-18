@@ -56,14 +56,13 @@ const JiraProjectSelector = ({
     try {
       setSelectedJiraProject(value);
       const selected = JSON.parse(value);
-      console.log('selected', selected);
+
       await updateJiraProjectOnProject(currentProject?.id ?? '', {
         projectId: selected.id,
         projectName: selected.name,
       });
       //@ts-ignore
       setCurrentProject((prev: Project | null) => {
-        console.log('prev', prev);
         if (!prev) return prev;
         return {
           ...prev,
