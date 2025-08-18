@@ -56,6 +56,11 @@ const JiraProjectSelector = ({
     try {
       setSelectedJiraProject(value);
       const selected = JSON.parse(value);
+
+      await updateJiraProjectOnProject(currentProject?.id ?? '', {
+        projectId: selected.id,
+        projectName: selected.name,
+      });
       //@ts-ignore
       setCurrentProject((prev: Project | null) => {
         if (!prev) return prev;
@@ -67,10 +72,7 @@ const JiraProjectSelector = ({
           },
         };
       });
-      await updateJiraProjectOnProject(currentProject?.id ?? '', {
-        projectId: selected.id,
-        projectName: selected.name,
-      });
+
       if (currentProject.codeRepositoryCredentials?.name) {
         await connectEmployeesOnProject(currentProject?.id);
       }
