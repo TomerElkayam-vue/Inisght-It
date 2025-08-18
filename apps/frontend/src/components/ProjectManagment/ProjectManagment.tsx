@@ -1,4 +1,3 @@
-import { Project } from '@packages/projects';
 import ProjectMembers from './ProjectMembers';
 import ToolCredentials from './ToolsCredentials';
 import { useEffect, useMemo, useState } from 'react';
@@ -7,7 +6,7 @@ import {
   projectKeys,
   useUpdateProject,
   useProjects,
-} from '../hooks/useProjectQueries'; // ✅ added useProjects
+} from '../hooks/useProjectQueries';
 import { useCurrentProjectContext } from '../../context/CurrentProjectContext';
 import { useCurrentConnectedUser } from '../../context/CurrentConnectedUserContext';
 import {
@@ -30,12 +29,10 @@ const ProjectContent = () => {
 
   const [isSaving, setIsSaving] = useState(false);
 
-  // ✅ Use your existing query hook instead of getQueryData
   const { data: projects = [] } = useProjects(user?.id, {
     enabled: !!user?.id,
   });
 
-  // ✅ Keep currentProject in sync with latest projects list
   useEffect(() => {
     if (projects.length > 0 && currentProject) {
       const latest = projects.find((p) => p.id === currentProject.id);
@@ -45,7 +42,6 @@ const ProjectContent = () => {
     }
   }, [projects, currentProject, setCurrentProject]);
 
-  // ✅ Sync management context whenever currentProject changes
   useMemo(() => {
     if (currentProject) {
       setCodeBaseCredentials(currentProject.codeRepositoryCredentials ?? null);
@@ -94,7 +90,6 @@ const ProjectContent = () => {
         data: { projectPermissions },
       });
 
-      // ✅ After saving, refetch projects list from server
       queryClient.invalidateQueries({
         queryKey: [...projectKeys.lists(), user?.id],
       });
