@@ -11,7 +11,8 @@ interface Message {
 }
 
 interface PromptProps {
-  target: string; // userId for worker insights, projectId for team insights
+  // userId for worker insights, projectId for team insights
+  target: string; 
   type: 'worker' | 'team';
 }
 
