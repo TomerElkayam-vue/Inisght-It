@@ -45,9 +45,12 @@ const ProjectMembers = ({
     );
   }, [users, members, managersIds]);
 
-  const [filteredUsers, setFilteredUsers] = useState<simpleUser[] | undefined>(
-    suggestedUsers
-  );
+  const filteredUsers = useMemo(() => {
+    const base = suggestedUsers ?? [];
+    if (!searchValue) return base;
+    const lowered = searchValue.toLowerCase();
+    return base.filter((user) => user.username.toLowerCase().includes(lowered));
+  }, [suggestedUsers, searchValue]);
 
   const noNewChange = useMemo(() => {
     const originalEmployeesIds =
@@ -78,14 +81,9 @@ const ProjectMembers = ({
 
   const handleInputChange = (value: string) => {
     setSearchValue(value);
-    const filter = suggestedUsers?.filter((user) =>
-      user.username.toLowerCase().includes(value.toLowerCase())
-    );
-    setFilteredUsers(filter);
   };
 
-  const usernameToDisplay = (username: string, lenght?: number) => {
-    const maxLength = lenght ?? 18;
+  const usernameToDisplay = (username: string, maxLength: number = 18) => {
     if (!username) return '';
     if (username.length <= maxLength) return username;
     return username.slice(0, maxLength - 1) + '…';
