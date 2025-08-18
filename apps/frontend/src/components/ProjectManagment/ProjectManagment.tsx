@@ -14,8 +14,8 @@ import {
 const ProjectContent = () => {
   const { currentProject, setCurrentProject } = useCurrentProjectContext();
   const {
-    employees,
-    setEmployees,
+    members,
+    setMembers,
     setCodeBaseCredentials,
     setManagementCredentials,
   } = useProjectManagementContext();
@@ -53,7 +53,7 @@ const ProjectContent = () => {
           .filter((permission) => permission.roleId !== 1)
           .map(({ user }) => ({ id: user.id, username: user.username }));
 
-        setEmployees(memberEmployees);
+        setMembers(memberEmployees);
       }
     }
   }, [currentProject]);
@@ -66,8 +66,8 @@ const ProjectContent = () => {
       const projectPermissions = {
         deleteMany: {},
         create: [
-          ...employees.map((employee) => ({
-            userId: employee.id,
+          ...members.map((member) => ({
+            userId: member.id,
             roleId: 2, // Member role
           })),
           ...(currentProject.projectPermissions

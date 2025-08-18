@@ -15,8 +15,8 @@ type ManagementCredentials = {
 };
 
 type ProjectContextType = {
-  employees: simpleUser[];
-  setEmployees: React.Dispatch<React.SetStateAction<simpleUser[]>>;
+  members: simpleUser[];
+  setMembers: React.Dispatch<React.SetStateAction<simpleUser[]>>;
   codeBaseCredentials: CodeBaseCredentials | null;
   setCodeBaseCredentials: (credentials: CodeBaseCredentials | null) => void;
   managementCredentials: ManagementCredentials | null;
@@ -32,7 +32,7 @@ export const ProjectManagementProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const [employees, setEmployees] = useState<simpleUser[]>([]);
+  const [members, setMembers] = useState<simpleUser[]>([]);
   const [codeBaseCredentials, setCodeBaseCredentials] =
     useState<CodeBaseCredentials | null>(null);
   const [managementCredentials, setManagementCredentials] =
@@ -41,8 +41,8 @@ export const ProjectManagementProvider = ({
   return (
     <ProjectManagementContext.Provider
       value={{
-        employees,
-        setEmployees,
+        members,
+        setMembers,
         codeBaseCredentials: codeBaseCredentials,
         setCodeBaseCredentials: setCodeBaseCredentials,
         managementCredentials: managementCredentials,

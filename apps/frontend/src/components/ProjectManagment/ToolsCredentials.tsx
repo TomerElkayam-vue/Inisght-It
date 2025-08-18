@@ -40,11 +40,11 @@ const ToolCredentials = () => {
     <div className="flex flex-col items-center justify-center gap-8 bg-[#1e1e2f] text-white">
       <div
         dir="rtl"
-        className="bg-[#2e2e3e] p-6 rounded-3xl w-[672px] text-center shadow-lg border border-blue-500/20"
+        className="bg-[#2e2e3e] p-6 rounded-3xl w-[672px] text-center shadow-lg border border-yellow-500/20"
       >
         <div className="flex items-center justify-center gap-3">
           <svg
-            className="w-5 h-5 text-blue-400 flex-shrink-0"
+            className="w-5 h-5 text-yellow-400 flex-shrink-0"
             fill="currentColor"
             viewBox="0 0 20 20"
           >
