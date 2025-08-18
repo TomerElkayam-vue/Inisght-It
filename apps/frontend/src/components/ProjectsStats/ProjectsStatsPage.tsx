@@ -7,6 +7,7 @@ import {
 import { getJiraAvgStats, JiraAvgDataType } from '../../services/jira.service';
 import { CodeBlindSpots } from './CodeBlindSpots';
 import { useCurrentProjectContext } from '../../context/CurrentProjectContext';
+import ToolsConfigureMessage from '../ToolsConfigureMessage';
 
 export const ProjectsStatsPage = () => {
   const { currentProject } = useCurrentProjectContext();
@@ -46,12 +47,7 @@ export const ProjectsStatsPage = () => {
       </div>
     </div>
   ) : (
-    <div className="flex items-center justify-center p-6 bg-gray-900 rounded-lg min-h-[80vh]">
-      <p className="text-xl text-gray-400 text-center">
-        על מנת להציג תובנות עליך לקשר את הפרוייקט לכלי לניהול המשימות ולכלי ניהול הקוד בעמוד ניהול הפרוייקט 
-        או לבחור פרוייקט שכבר מקושר לכלים אלו
-      </p>
-    </div>
+    <ToolsConfigureMessage/>
     )
   );
 };
