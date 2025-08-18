@@ -7,16 +7,8 @@ interface UserInfo {
 }
 
 export interface InsightsResponse {
-  metrics: {
-    pullRequests: number;
-    codeReviews: number;
-    averageCommentsPerPR: number;
-    issuesCompleted: number;
-    averageIssueTime: number;
-    totalStoryPoints: number;
-  };
   summary: string;
-  recommendations: string[];
+  recommendations: string;
 }
 
 interface QuestionResponse {
@@ -71,12 +63,5 @@ export const getQuestionAnswer = async (
   const response = await api.get<QuestionResponse>(
     `/ai/question?${queryParams.toString()}`
   );
-  return response.data;
-};
-
-export const getRecommendation = async (
-  userInfo: UserInfo
-): Promise<string> => {
-  const response = await api.post<string>('/ai/recommendation', userInfo);
   return response.data;
 };

@@ -1,7 +1,5 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { AiRepository } from './ai.repository';
-import { UserInfo } from './types/user-info.type';
-import { QuestionDTO } from './dto/question.class';
 import { GithubService } from '../github/github.service';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
@@ -39,22 +37,48 @@ export class AiService {
   async getGitHubData(projectId: string, credentials: any) {
     const cacheKey = `github_data_${projectId}`;
     return this.getCachedOrFetch(cacheKey, async () => {
-      const githubDataPromises = Object.values(GithubDataType).map((dataType) =>
-        this.githubService.getProjectStatsByUser(
-          {
-            codeRepositoryCredentials: credentials.codeRepositoryCredentials,
-            missionManagementCredentials:
-              credentials.missionManagementCredentials,
-          },
-          dataType,
-          projectId
-        )
-      );
+  
+      const githubDataTypes = Object.values(GithubDataType);
+
+      const githubDataPromises = githubDataTypes.map((dataType) => {
+
+        return this.githubService
+          .getProjectStatsByUser(
+            {
+              codeRepositoryCredentials: credentials.codeRepositoryCredentials,
+              missionManagementCredentials:
+                credentials.missionManagementCredentials,
+            },
+            dataType,
+            projectId
+          )
+          .then((res) => {
+            return res;
+          })
+          .catch((err) => {
+            console.error(
+              `[getGitHubData] Error for type=${dataType}`,
+              err.message || err
+            );
+            // return fallback instead of throwing
+            return {
+              [dataType]: {
+                total: 0,
+                userId: 'unknown',
+                reviews: 0,
+                averageComments: 0,
+                note: 'missing data',
+              },
+            };
+          });
+      });
 
       const githubDataResults = await Promise.all(githubDataPromises);
-      return githubDataResults.reduce((acc, curr, index) => {
-        const dataType = Object.values(GithubDataType)[index];
-        acc[dataType] = curr as unknown as Record<
+
+      const reduced = githubDataResults.reduce((acc, curr, index) => {
+        const dataType = githubDataTypes[index];
+
+        acc[dataType] = curr as Record<
           string,
           {
             total: number;
@@ -63,49 +87,74 @@ export class AiService {
             averageComments: number;
           }
         >;
+
         return acc;
       }, {} as Record<GithubDataType, Record<string, { total: number; userId: string; reviews: number; averageComments: number }>>);
+
+      return reduced;
     });
   }
 
   async getJiraData(projectId: string, credentials: any) {
     const cacheKey = `jira_data_${projectId}`;
+
     return this.getCachedOrFetch(cacheKey, async () => {
-      const jiraDataPromises = Object.values(JiraDataType).map((dataType) =>
-        this.jiraService.countJiraStatsPerUser(
-          credentials.missionManagementCredentials,
-          dataType,
-          projectId
-        )
-      );
+
+
+      const dataTypes = Object.values(JiraDataType);
+
+      const jiraDataPromises = dataTypes.map((dataType) => {
+        return this.jiraService
+          .countJiraStatsPerUser(
+            credentials.missionManagementCredentials,
+            dataType,
+            projectId
+          )
+          .catch((err: any) => {
+            console.error(
+              `[getJiraData] Error for dataType=${dataType}`,
+              err.message || err
+            );
+            return { error: true, message: err.message || String(err) }; // fallback
+          });
+      });
 
       const jiraDataResults = await Promise.all(jiraDataPromises);
-      return jiraDataResults.reduce((acc, curr, index) => {
-        const dataType = Object.values(JiraDataType)[index];
+   
+
+      const reduced = jiraDataResults.reduce((acc, curr, index) => {
+        const dataType = dataTypes[index];
+        
         acc[dataType] = curr;
         return acc;
       }, {} as Record<JiraDataType, any>);
+
+      return reduced;
     });
   }
 
-  async getAiRecoomendation(userInfo: UserInfo) {
-    return this.aiRepository.getWorkerRecommendation(userInfo);
+  async getAiRecoomendation(info: any) {
+    return this.aiRepository.getWorkerRecommendation(info);
   }
 
-  async getTeamRecommendation(userInfo: UserInfo) {
-    return this.aiRepository.getTeamRecommendation(userInfo);
+  async getTeamRecommendation(info: any) {
+    return this.aiRepository.getTeamRecommendation(info);
   }
 
-  async getWorkerSummary(userInfo: UserInfo) {
-    return this.aiRepository.getWorkerSummary(userInfo);
+  async getWorkerSummary(info: any) {
+    return this.aiRepository.getWorkerSummary(info);
   }
 
-  async getTeamSummary(userInfo: UserInfo) {
-    return this.aiRepository.getTeamSummary(userInfo);
+  async getTeamSummary(info: any) {
+    return this.aiRepository.getTeamSummary(info);
   }
 
-  async getQuestionAnswer(question: QuestionDTO) {
-    return this.aiRepository.getQuestionAnswer(question);
+  async getWorkerQuestionAnswer(question: any, info: any) {
+    return this.aiRepository.getWorkerQuestionAnswer(question, info);
+  }
+
+  async getTeamQuestionAnswer(question: any, info: any) {
+    return this.aiRepository.getTeamQuestionAnswer(question, info);
   }
 
   async getArrayMatchingRecord(

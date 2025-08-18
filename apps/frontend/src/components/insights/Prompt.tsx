@@ -10,9 +10,8 @@ interface Message {
   isLoading?: boolean;
 }
 
-interface PromptProps {
-  // userId for worker insights, projectId for team insights
-  target: string; 
+export interface PromptProps {
+  target: string;
   type: 'worker' | 'team';
 }
 

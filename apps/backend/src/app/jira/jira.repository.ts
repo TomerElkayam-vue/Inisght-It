@@ -20,6 +20,7 @@ export class JiraRepository {
     private jiraConfigValues: ConfigType<typeof jiraConfig>
   ) {
     this.apiEndpoint = process.env.API_URL || 'http://localhost:3000/api';
+    this.httpService.axiosRef.defaults.timeout = 60000;
   }
 
   async getJiraIssues(
@@ -50,7 +51,7 @@ export class JiraRepository {
         id: issue.id,
       }));
     } catch (error: any) {
-      console.log('Error', error);
+      // console.log('Error', error);
       throw error;
     }
   }
@@ -74,7 +75,7 @@ export class JiraRepository {
 
       return response.data.values;
     } catch (error: any) {
-      console.log('Error', error);
+      // console.log('Error', error);
       throw error;
     }
   }
@@ -106,7 +107,7 @@ export class JiraRepository {
         refreshToken: data.refresh_token,
       };
     } catch (error: any) {
-      console.log('Error', error);
+      // console.log('Error', error);
       throw error;
     }
   }
@@ -137,7 +138,7 @@ export class JiraRepository {
         refreshToken: data.refresh_token,
       };
     } catch (error: any) {
-      console.log('Error', error);
+      // console.log('Error', error);
       throw error;
     }
   }
@@ -155,7 +156,7 @@ export class JiraRepository {
 
       return data;
     } catch (e: any) {
-      console.log('Error', e);
+      // console.log('Error', e);
       throw e;
     }
   }
@@ -238,7 +239,7 @@ export class JiraRepository {
 
       return Array.from(contributors);
     } catch (error: any) {
-      console.log('Error fetching project contributors:', error);
+      // console.log('Error fetching project contributors:', error);
       throw error;
     }
   }

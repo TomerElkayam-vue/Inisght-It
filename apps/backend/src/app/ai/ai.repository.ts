@@ -1,8 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { UserInfo } from './types/user-info.type';
 import * as geminiConfig from '../../config/gemini-config';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { QuestionDTO } from './dto/question.class';
 
 interface MergeRequest {
   title: string | undefined;
@@ -18,86 +16,9 @@ interface JiraIssue {
   name: string;
 }
 
-const generatePrompt = ({
-  context,
-  type,
-  question,
-  data,
-}: {
-  context: 'worker' | 'team';
-  type: 'summary' | 'recommendation' | 'question';
-  question?: string;
-  data: UserInfo;
-}): string => {
-  // A persona gives the AI a frame of reference for its analysis.
-  const persona = `You are an expert and insightful Engineering Manager. Your goal is to analyze development metrics to uncover meaningful patterns about performance, collaboration, and code quality. You look beyond the surface numbers to provide a balanced and actionable perspective.`;
-
-  // Core objective is more direct and focused on "insights" rather than just "analysis".
-  const baseInstructions =
-    type === 'summary'
-      ? `Based on your persona, write a concise performance insight summary in Hebrew for the ${context}.
-Your summary must:
-1. Synthesize the provided data into a cohesive narrative of 5-6 sentences.
-2. Go beyond listing data; identify underlying trends, strengths, and potential areas for attention.
-3. Formulate hypotheses by correlating different metrics (e.g., how do 'Pull Requests' relate to 'Story Points'?).
-4. Conclude with a balanced view. Avoid overly positive or negative tones.
-Do not use bullet points; write a flowing paragraph.`
-      : type === 'recommendation'
-      ? `Based on your persona and the provided data, give one or two forward-looking recommendations in Hebrew for the manager or ${context}. Focus only on actionable advice. Use phrasing like "כדי לשפר את היעילות, מומלץ לבחון את..." or "לאור ההתמקדות במשימות מסוג X, כדאי לשקול...".`
-      : `Based on your persona and the provided data, answer the following question in Hebrew: "${question}". Provide a direct answer synthesized from the data, not a summary of it.`;
-
-  // THIS IS THE MOST CRITICAL NEW SECTION. It teaches the AI HOW to think.
-  const interpretationPrinciples = `
-## Key Interpretation Principles (Your analytical framework):
-- Your primary goal is to **correlate metrics**. An insight comes from connecting two or more data points. A single metric in isolation is often meaningless.
-- **Pull Requests (PRs) vs. Story Points/Issues:** A high number of PRs for a low number of Story Points might suggest small, incremental changes (good) or inefficient work needing many fixes (bad). A low number of PRs for high Story Points suggests work on large, complex features.
-- **Code Review Comments (averageCommentsUserGotPerPR):** This is a nuanced metric.
-    - **A LOW number of comments** is ambiguous. It could mean **(a)** very high-quality code that needs no correction, **(b)** simple tasks, OR **(c)** a superficial or rushed review process where teammates don't comment enough. Your analysis should acknowledge this ambiguity.
-    - **A HIGH number of comments** could mean **(a)** complex code, **(b)** unclear initial code quality, OR **(c)** a healthy and thorough review culture.
-- **Lines Added vs. Lines Deleted:** High 'Lines Deleted' is not negative. It often indicates positive activities like **refactoring** and code cleanup, which improves long-term health.
-- **Code Reviews vs. Comments:** A high number of 'Code Reviews' but a low number of 'Comments' made might indicate "rubber-stamping" (approving PRs without deep analysis).
-- **Bugs vs. Tasks:** A high ratio of 'Bugs' to 'Tasks' could suggest quality issues in previous sprints or a focus on stabilization. A low ratio suggests a focus on new feature development.
-`;
-
-  const displayNames = `
-## Display Names:
-Use these exact English phrases for fields in your Hebrew response:
-- pullRequests → Pull Requests
-- codeReviews → Code Reviews
-- averageCommentsUserGotPerPR → Average Comments per PR
-- commits → Commits
-- fileChanges.additions → Lines Added
-- fileChanges.deletions → Lines Deleted
-- comments → Comments Made
-- issuesCompleted → Issues Completed
-- averageIssueTime → Average Issue Time
-- totalStoryPoints → Story Points
-- issueTypes.Task → Tasks
-- issueTypes.Bug → Bugs
-`;
-
-  return `
-${persona}
-
-${baseInstructions}
-
-${interpretationPrinciples}
-
-${displayNames}
-
-## Critical Output Instructions:
-- **Language and Formatting:** The entire output must be a single valid JSON object with one key, "text", containing the full response as a Hebrew string.
-- **Referring to Data:** When you mention a metric, use its English display name (e.g., "Pull Requests").
-- **Grounded Analysis:** Base all conclusions strictly on the provided data and the interpretation principles. Do not invent data or assume context not present. If data is missing, note that a full picture is not possible.
-
-=== BEGIN DATA ===
-${JSON.stringify(data, null, 2)}
-=== END DATA ===`;
-};
-
 @Injectable()
 export class AiRepository {
-  private monthlyBudget = 10;
+  private monthlyBudget = 20;
   private estimatedCost = 0;
   private modelPrice = { input: 0.1, output: 0.4 };
 
@@ -112,14 +33,14 @@ export class AiRepository {
   private async safeCallModel(
     tokens: { input: number; output: number },
     prompt: string
-  ): Promise<string | null> {
+  ): Promise<string> {
     const callCost =
       (tokens.input * this.modelPrice.input) / 1_000_000 +
       (tokens.output * this.modelPrice.output) / 1_000_000;
 
     if (this.estimatedCost + callCost > this.monthlyBudget) {
       console.warn('Monthly budget exceeded, skipping AI call.');
-      return null;
+      return 'There was a problem with the AI service.';
     }
 
     this.estimatedCost += callCost;
@@ -128,6 +49,7 @@ export class AiRepository {
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
       generationConfig: { responseMimeType: 'application/json' },
     });
+
 
     return JSON.parse(result.response.text()).text;
   }
@@ -138,51 +60,199 @@ export class AiRepository {
     return { input: inputTokens, output: outputTokens };
   }
 
-  private async callModel(prompt: string): Promise<string | null> {
+  private async callModel(prompt: string): Promise<string> {
     const tokens = this.estimateTokens(prompt);
     return this.safeCallModel(tokens, prompt);
   }
-  async getWorkerRecommendation(userInfo: UserInfo): Promise<string | null> {
-    return this.callModel(
-      generatePrompt({
-        context: 'worker',
-        type: 'recommendation',
-        data: userInfo,
-      })
-    );
+
+  async getWorkerRecommendation(info: any): Promise<string> {
+    const prompt = `You are a development team manager AI assistant. You are given detailed data for a single employee in a software development team.
+    When generating the content, consider that the company has both male and female employees. Ensure that the wording is gender-inclusive or neutral so that it appropriately addresses all employees
+
+Your task is to generate a *Recommendations* section of the employee’s profile page.  
+The output must be written in **Hebrew** and concise (4-5 sentences total). 
+Use the following structure with bold section titles and line breaks (\\n):
+
+*text*  
+**המלצות כלליות** – Actionable advice on improving the employee’s productivity, collaboration, or skill growth. Focus on both strengths and areas for improvement.
+**אזורי מיקוד** – Suggest specific types of tasks or skills the employee should prioritize or diversify.
+**תכנון קריירה ופיתוח אישי** – Recommend career or personal development goals, such as promotion, mentoring, training, or performance improvement.
+**הזדמנויות לצמיחה**– Identify 1–2 areas for improvement and propose concrete steps the manager can take to support the employee’s development.
+
+
+
+Requirements:  
+- Use '\\n' for readability.  
+- Write in **plain Hebrew**.
+- Follow exactly the phrasing style of the example
+-Always use gender-neutral or gender-inclusive phrasing for all employees. For example, instead of saying ravid מוביל, write ravid מוביל.ה to reflect that employees may be of any gender.
+-Keep all usernames exactly as they appear in the data
+- The entire output must be a single valid JSON object with one key, "text"
+
+Example Output:
+המלצות כלליות – רון הוא חבר צוות התורם רבות לאיכות הקוד דרך ביצוע מספר רב של סקירות קוד (code reviews) מפורטות, אך נראה שתפוקת הפיתוח האישית שלו נמוכה יחסית. מומלץ למצוא איזון נכון בין השקעה בסקירת קוד של אחרים לבין קידום משימות הפיתוח האישיות
+אזורי מיקוד –  על פי הנתונים, רון מתמקד כמעט באופן בלעדי בטיפול בבאגים. חשוב לגוון את סוג המשימות שהוא מבצע ולשלב אותו יותר במשימות פיתוח (Tasks) של פיצ'רים חדשים כדי להרחיב את יכולותיו
+תכנון קריירה ופיתוח אישי – העובד ב10% הנמוכים של הצוות מבחינת ביצועים, כדאי לשקף לו את זה ולחשוב על המשך תפקידו בחברה
+הזדמנויות לצמיחה –  כדי לתמוך בצמיחתו, אפשר לשבץ את רון באופן יזום במשימות פיתוח מורכבות יותר, אולי בציוות עם מפתח בכיר. בנוסף, יש לקבוע יחד איתו יעד כמותי למשימות פיתוח שישלים בכל ספרינט, כדי להבטיח איזון טוב יותר במשימותיו
+
+data: ${JSON.stringify(info)}
+`;
+    const result = await this.callModel(prompt);
+    return result;
   }
 
-  async getTeamRecommendation(userInfo: UserInfo): Promise<string | null> {
-    return this.callModel(
-      generatePrompt({
-        context: 'team',
-        type: 'recommendation',
-        data: userInfo,
-      })
-    );
+  async getTeamRecommendation(info: any): Promise<string> {
+    const prompt = `
+    You are a development team manager AI assistant. You are given detailed data for a software development team.
+
+Your task is to generate a Summary section of the team’s profile page.
+The output must be written in Hebrew and concise (5-6 sentences total).
+Use the following structure with bold section titles and line breaks (\n):
+
+Summary
+**סיכום כללי** – a short sentence about overall team performance.
+השוואה בין ספרינטים של הצוות ביחס לעצמו – a short sentence about performance changes across sprints.
+**חוזקות וחולשות** – a short sentence about team strengths/weaknesses.
+**נתונים יוצאי דופן** – a short sentence about unusual data in the team.
+**מאזן הכוחות בצוות** – a short sentence describing which team members are strong in which areas, which members are involved in the most tasks and code reviews, and who provides more comments, etc.
+**זמנים** – a short sentence about on-time vs delayed tasks across the team.
+**תמונת מצב** – a short sentence providing a snapshot that helps the manager understand whether the team is improving over time in productivity and task quality.
+
+Requirements:  
+- Use '\\n' for readability.  
+- Write in **plain Hebrew**.
+- Follow exactly the phrasing style of the example
+-Always use gender-neutral or gender-inclusive phrasing for all employees. For example, instead of saying ravid מוביל, write ravid מוביל.ה to reflect that employees may be of any gender.
+-Keep all usernames exactly as they appear in the data
+- The entire output must be a single valid JSON object with one key, "text"
+
+Example Output:
+**סיכום כללי** – הצוות מציג ביצועים יציבים עם עלייה הדרגתית בפרודוקטיביות ובמסירת משימות בזמן.
+השוואה בין ספרינטים של הצוות ביחס לעצמו – לאורך ארבעת הספרינטים נרשמת עלייה במספר ה‑pull requests, commits ו‑story points שהושלמו, לצד שיפור בזמני פתרון המשימות.
+**חוזקות וחולשות** – הצוות חזק בביצוע code reviews ובשיתוף פעולה, אך חלק מהחברים משתתפים פחות בפרויקטים מסוימים ועומסים אינם שווים בין כולם.
+**נתונים יוצאי דופן** – ראוי לציין את ravid ו‑ron שהצטיינו במספר pull requests ו‑comments, כמו גם זמנים יוצאי דופן של noam בהשלמת משימות.
+**מאזן הכוחות בצוות** – ravid מוביל.ה בביצועים ובמסירת משימות, ron מצטיין.ת בביקורות קוד ובמתן feedback, bob ו‑alice חזקים בביצוע משימות רבות, בעוד noam מעורב.ת פחות ומספק.ת פחות comments.
+**זמנים** – רוב המשימות נמסרות בזמן, עם חריגים בולטים של noam שמוציא.ה את המשימות באיטיות יחסית.
+**תמונת מצב** – הצוות משתפר לאורך זמן הן בפרודוקטיביות והן באיכות המשימות, עם פוטנציאל שיפור בשוויון עומסים והגברת מעורבות של חברי צוות מעורבים פחות.
+
+data: ${JSON.stringify(info)}
+`;
+    return await this.callModel(prompt);
   }
 
-  async getWorkerSummary(userInfo: UserInfo): Promise<string | null> {
-    return this.callModel(
-      generatePrompt({ context: 'worker', type: 'summary', data: userInfo })
-    );
+  async getWorkerSummary(info: any): Promise<string> {
+    const prompt = `You are a development team manager AI assistant. You are given detailed data for a single employee in a software development team.
+When generating the content, consider that the company has both male and female employees. Ensure that the wording is gender-inclusive or neutral so that it appropriately addresses all employees
+
+Your task is to generate a *Summary* section of the employee’s profile page.  
+The output must be written in **Hebrew** and concise (5-6 sentences total).  
+Use the following structure with bold section titles and line breaks (\\n):
+
+*text*  
+**סיכום כללי** – a short sentence about overall performance.  
+**השוואה בין עובדים** – a short sentence comparing employee vs team (positive/negative outliers).  
+**השוואה בין ספרינטים של העובד ביחס לעצמו** – a short sentence about performance changes across sprints.  
+**חוזקות וחולשות** – a short sentence about strengths/weaknesses.  
+**נתונים יוצאי דופן** – a short sentence about unusual data.  
+**זמנים** – a short sentence about on-time vs delayed tasks.
+
+
+Requirements:  
+- Use '\\n' for readability.  
+- Write in **plain Hebrew**.
+- Follow exactly the phrasing style of the example.
+- Always use gender-neutral or gender-inclusive phrasing for all employees. For example, instead of saying ravid מוביל, write ravid מוביל.ה to reflect that employees may be of any gender.
+- Keep all usernames exactly as they appear in the data.
+- The entire output must be a single valid JSON object with one key, "text"
+
+Example Output:
+סיכום כללי 
+העובד כתב הערות על מספר גבוהה של Pull Requests, אך מספר המשימות שהושלמו בזמן נמוך מהממוצע בצוות
+השוואה בין עובדים
+הוא בולט בתיקוני באגים אך מעט מאחור בהשלמת User Stories לעומת חברי הצוות האחרים
+השוואה בין ספרינטים של העובד ביחס לעצמו 
+בספרינט 4 העובד ביצע 10% מכמות הUser Stories שהוא עשה בשאר הספרינטים 
+חוזקות וחולשות 
+חוזק בולט הוא פתרון באגים ושיתופי פעולה, בדגש על מעבר על Pull Requests, חולשה בולטת היא ניהול זמן ועמידה בזמנים
+נתונים יוצאי דופן 
+מספר גבוה של הערות שהעובד מקבל
+זמנים 
+אחוז משימות שהושלמו באיחור גבוה מהממוצע
+
+data: ${JSON.stringify(info)}
+`;
+    const result = await this.callModel(prompt);
+    return result;
   }
 
-  async getTeamSummary(userInfo: UserInfo): Promise<string | null> {
-    return this.callModel(
-      generatePrompt({ context: 'team', type: 'summary', data: userInfo })
-    );
+  async getTeamSummary(info: any): Promise<string> {
+    const prompt = `
+    You are a development team manager AI assistant. You are given detailed data for a software development team.
+
+
+Your task is to generate a Recommendations section of the team’s profile page.
+ The output must be written in Hebrew and concise (8-11 sentences total).
+ Use the following structure with bold section titles and line breaks (\\n):
+**המלצות כלליות** – Actionable advice on improving the team’s productivity, collaboration, or skill growth. Focus on both strengths and areas for improvement.
+ **אזורי מיקוד** – Suggest specific types of tasks or skills the team should prioritize or diversify.
+ **הזדמנויות לצמיחה** – Identify 1–2 areas for improvement and propose concrete steps the manager can take to support the team’s development.
+**חלוקת משימות בצוות** – Based on the given data, provide insights for future task planning and allocation.
+**הקצאת משאבים בארגון** – Recommend adjustments in personnel allocation within the team to improve efficiency, e.g., identifying members who are underutilized or overloaded, considering redistributing tasks, or evaluating whether team size matches the current workload.
+
+Requirements:  
+- Use '\\n' for readability.  
+- Write in **plain Hebrew**.
+- Follow exactly the phrasing style of the example
+- Keep all usernames exactly as they appear in the data
+- Always use gender-neutral or gender-inclusive phrasing for all employees. For example, instead of saying ravid מוביל, write ravid מוביל.ה to reflect that employees may be of any gender.
+- The entire output must be a single valid JSON object with one key, "text"
+
+Example Output:
+
+המלצות כלליות – מומלץ למנף את תרבות בדיקות הקוד (Code Review) החזקה בצוות כדי לגשר על פערי המיומנויות, באמצעות חניכה של חברי.ות הצוות המנוסים.ות יותר את חברי.ות הצוות החדשים.ות או החלשים.ות יותר.
+אזורי מיקוד – יש להתמקד בהגברת המעורבות של נועם, בעל.ת התפוקה הנמוכה, באמצעות משימות מוגדרות היטב, ולשקול להרחיב את תחומי האחריות של רון, המתמקד.ת בעיקר בבדיקות קוד, גם למשימות פיתוח מורכבות יותר.
+הזדמנויות לצמיחה – הזדמנות מרכזית היא צמצום פערי הידע; ניתן לעשות זאת על ידי יצירת תוכנית חניכה רשמית בין רביד לנועם, וכן על ידי עידוד עבודה בזוגות (Pair Programming) במשימות מורכבות.
+חלוקת משימות בצוות – בתכנון עתידי, יש לאזן את העומס המוטל על רביד כדי למנוע היווצרות של נקודת כשל תלותית (Single Point of Failure), ובמקביל להקצות לרון משימות קריטיות של בקרת איכות לפני שחרור גרסה.
+הקצאת משאבים בארגון – יש לבחון את חלוקת העבודה הפנימית: רביד נמצא.ת בעומס יתר מתמשך שעלול להוביל לשחיקה, בעוד שנעם מהווה משאב שאינו מנוצל במלואו וניתן להשקיע בפיתוחו.ה כדי להגביר את תפוקת הצוות הכוללת.
+
+data: ${JSON.stringify(info)}
+
+`;
+    return await this.callModel(prompt);
   }
 
-  async getQuestionAnswer(question: QuestionDTO): Promise<string | null> {
-    return this.callModel(
-      generatePrompt({
-        context: question.type === 'worker' ? 'worker' : 'team',
-        type: 'question',
-        question: question.question,
-        data: question.data as UserInfo,
-      })
-    );
+  async getWorkerQuestionAnswer(question: string, info: any): Promise<string> {
+    const prompt = `
+    Answer the question based on the context below. Keep the answer short and concise. Respond "אין ודאות לגבי התשובה" if not sure about the answer.
+Context: The following data represents a software development team across multiple sprints.  ${JSON.stringify(
+      info
+    )}
+Requirements:  
+- Write in **plain Hebrew**.
+-Always use gender-neutral or gender-inclusive phrasing for all employees. For example, instead of saying ravid ביצע, write ravid ביצע.ה to reflect that employees may be of any gender.
+-Keep all usernames exactly as they appear in the data
+- The entire output must be a single valid JSON object with one key, "text"
+Question:${question}
+ Answer:
+    `;
+    return await this.callModel(prompt);
+  }
+
+  async getTeamQuestionAnswer(question: string, info: any): Promise<string> {
+    const prompt = `
+    Answer the question based on the context below. Keep the answer short and concise. Respond "אין ודאות לגבי התשובה" if not sure about the answer.
+Context: The following data represents a software development team across multiple sprints.  ${JSON.stringify(
+      info
+    )}
+Requirements:  
+- Write in **plain Hebrew**.
+-Always use gender-neutral or gender-inclusive phrasing for all employees. For example, instead of saying ravid ביצע, write ravid ביצע.ה to reflect that employees may be of any gender.
+-Keep all usernames exactly as they appear in the data
+- The entire output must be a single valid JSON object with one key, "text"
+Question:${question}
+ Answer:
+    `;
+    return await this.callModel(prompt);
   }
 
   async getArrayMatchingRecord(
@@ -312,10 +382,10 @@ Respond with a JSON object containing one field called 'text'. This 'text' field
             ...originalJira,
           });
         } else {
-          console.warn(
-            `Could not find original MR or Jira issue for match:`,
-            match
-          );
+          // console.warn(
+          //   `Could not find original MR or Jira issue for match:`,
+          //   match
+          // );
         }
       }
 
