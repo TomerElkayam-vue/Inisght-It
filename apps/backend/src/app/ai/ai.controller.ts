@@ -208,8 +208,8 @@ export class AiController {
 
       return {
         metrics,
-        summary,
-        recommendations: [recommendations], // Convert single recommendation to array
+        summary: summary || '',
+        recommendations: [recommendations || ''], // Convert single recommendation to array
       };
     } catch (error) {
       console.error('Error getting worker insights:', error);
@@ -351,8 +351,8 @@ export class AiController {
 
       return {
         metrics: teamMetrics,
-        summary,
-        recommendations: [recommendations], // Convert single recommendation to array
+        summary: summary || '',
+        recommendations: [recommendations || ''], // Convert single recommendation to array
       };
     } catch (error) {
       console.error('Error getting team insights:', error);
@@ -404,7 +404,7 @@ export class AiController {
         type,
       });
 
-      return { answer };
+      return { answer: answer || '' };
     } catch (error) {
       console.error('Error getting question answer:', error);
       throw error;
