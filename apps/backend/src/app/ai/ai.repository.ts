@@ -29,42 +29,46 @@ const generatePrompt = ({
   question?: string;
   data: UserInfo;
 }): string => {
+  // A persona gives the AI a frame of reference for its analysis.
+  const persona = `You are an expert and insightful Engineering Manager. Your goal is to analyze development metrics to uncover meaningful patterns about performance, collaboration, and code quality. You look beyond the surface numbers to provide a balanced and actionable perspective.`;
+
+  // Core objective is more direct and focused on "insights" rather than just "analysis".
   const baseInstructions =
     type === 'summary'
-      ? `Provide a detailed performance summary in Hebrew for the following ${context} data.`
+      ? `Based on your persona, write a concise performance insight summary in Hebrew for the ${context}.
+Your summary must:
+1. Synthesize the provided data into a cohesive narrative of 5-6 sentences.
+2. Go beyond listing data; identify underlying trends, strengths, and potential areas for attention.
+3. Formulate hypotheses by correlating different metrics (e.g., how do 'Pull Requests' relate to 'Story Points'?).
+4. Conclude with a balanced view. Avoid overly positive or negative tones.
+Do not use bullet points; write a flowing paragraph.`
       : type === 'recommendation'
-      ? `Based on the following ${context} data, provide a forward-looking recommendation in Hebrew for the manager or the ${context} itself. Do NOT summarize the data or describe what it shows. Focus only on suggesting actions or directions, using phrasing like "מומלץ להתמקד ב..." or "נראה שרוב העבודה היא בתחום X ולכן כדאי...".`
-      : `Answer the following question in Hebrew based on the provided ${context} data.
-DO NOT simply repeat or summarize the data fields.
-Instead, ONLY answer the question based on the provided data.`;
+      ? `Based on your persona and the provided data, give one or two forward-looking recommendations in Hebrew for the manager or ${context}. Focus only on actionable advice. Use phrasing like "כדי לשפר את היעילות, מומלץ לבחון את..." or "לאור ההתמקדות במשימות מסוג X, כדאי לשקול...".`
+      : `Based on your persona and the provided data, answer the following question in Hebrew: "${question}". Provide a direct answer synthesized from the data, not a summary of it.`;
 
-  const fieldDescriptions = `
-FIELD DESCRIPTIONS (for understanding only — do not repeat or explain these in your output):
-
-- pullRequests: Number of pull requests the user/team created.
-- codeReviews: Number of code review actions they performed.
-- averageCommentsUserGotPerPR: Average number of comments received per pull request. High values may indicate unclear code.
-- commits: Total number of commits submitted.
-- fileChanges.additions: Number of lines of code added across all commits.
-- fileChanges.deletions: Number of lines of code deleted across all commits.
-- comments: Number of comments made during reviews.
-- issuesCompleted: Number of issues/tasks completed during the period.
-- averageIssueTime: Average time taken to complete one issue (in hours/days).
-- totalStoryPoints: Sum of estimated effort units completed (e.g., story points from Jira).
-- issueTypes.Task: Count of completed tasks labeled as "Task".
-- issueTypes.Bug: Count of completed issues labeled as "Bug".
+  // THIS IS THE MOST CRITICAL NEW SECTION. It teaches the AI HOW to think.
+  const interpretationPrinciples = `
+## Key Interpretation Principles (Your analytical framework):
+- Your primary goal is to **correlate metrics**. An insight comes from connecting two or more data points. A single metric in isolation is often meaningless.
+- **Pull Requests (PRs) vs. Story Points/Issues:** A high number of PRs for a low number of Story Points might suggest small, incremental changes (good) or inefficient work needing many fixes (bad). A low number of PRs for high Story Points suggests work on large, complex features.
+- **Code Review Comments (averageCommentsUserGotPerPR):** This is a nuanced metric.
+    - **A LOW number of comments** is ambiguous. It could mean **(a)** very high-quality code that needs no correction, **(b)** simple tasks, OR **(c)** a superficial or rushed review process where teammates don't comment enough. Your analysis should acknowledge this ambiguity.
+    - **A HIGH number of comments** could mean **(a)** complex code, **(b)** unclear initial code quality, OR **(c)** a healthy and thorough review culture.
+- **Lines Added vs. Lines Deleted:** High 'Lines Deleted' is not negative. It often indicates positive activities like **refactoring** and code cleanup, which improves long-term health.
+- **Code Reviews vs. Comments:** A high number of 'Code Reviews' but a low number of 'Comments' made might indicate "rubber-stamping" (approving PRs without deep analysis).
+- **Bugs vs. Tasks:** A high ratio of 'Bugs' to 'Tasks' could suggest quality issues in previous sprints or a focus on stabilization. A low ratio suggests a focus on new feature development.
 `;
 
   const displayNames = `
-Use the following display names (in English) for the fields in your Hebrew response instead of the technical field names:
-
+## Display Names:
+Use these exact English phrases for fields in your Hebrew response:
 - pullRequests → Pull Requests
 - codeReviews → Code Reviews
 - averageCommentsUserGotPerPR → Average Comments per PR
 - commits → Commits
 - fileChanges.additions → Lines Added
 - fileChanges.deletions → Lines Deleted
-- comments → Comments
+- comments → Comments Made
 - issuesCompleted → Issues Completed
 - averageIssueTime → Average Issue Time
 - totalStoryPoints → Story Points
@@ -73,20 +77,18 @@ Use the following display names (in English) for the fields in your Hebrew respo
 `;
 
   return `
+${persona}
+
 ${baseInstructions}
+
+${interpretationPrinciples}
 
 ${displayNames}
 
-${fieldDescriptions}
-
-CRITICAL INSTRUCTIONS:
-- Do NOT translate or modify the display names listed above. Always use these exact English phrases in the Hebrew response.
-- When referring to any field, use its display name (e.g., "Pull Requests") instead of the field key (e.g., "pullRequests").
-- The Hebrew text should refer to those fields using their original English names.
-- Do not invent or assume data. If some fields are empty or null, simply omit them from your reasoning.
-- Limit the result to five balanced, neutral sentences.
-- For the metric "averageCommentsUserGotPerPR", interpret high values as potentially indicating unclear code or room for code quality improvement. Do not describe the metric directly.
-- Return a valid JSON object with a single field called "text", containing the full Hebrew response as a string.
+## Critical Output Instructions:
+- **Language and Formatting:** The entire output must be a single valid JSON object with one key, "text", containing the full response as a Hebrew string.
+- **Referring to Data:** When you mention a metric, use its English display name (e.g., "Pull Requests").
+- **Grounded Analysis:** Base all conclusions strictly on the provided data and the interpretation principles. Do not invent data or assume context not present. If data is missing, note that a full picture is not possible.
 
 === BEGIN DATA ===
 ${JSON.stringify(data, null, 2)}

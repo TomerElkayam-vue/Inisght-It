@@ -27,7 +27,6 @@ export class JiraRepository {
     dataType: JiraDataType | JiraAvgDataType
   ): Promise<JiraTaskDto['fields'][]> {
     try {
-      // TODO - replace 1 with boardId
       const response = await firstValueFrom(
         this.httpService.get(
           `https://api.atlassian.com/ex/jira/${projectSettings.id}/rest/agile/1.0/board/1/issue`,
