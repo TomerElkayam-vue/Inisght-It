@@ -5,10 +5,8 @@ export const PublicRoute = () => {
   const refreshToken = getRefreshToken();
 
   if (refreshToken) {
-    // Redirect to stats if already authenticated
     return <Navigate to="/sprints-stats" replace />;
   }
 
-  // Render child routes if not authenticated
   return <Outlet />;
 };

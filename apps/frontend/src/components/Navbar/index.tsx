@@ -29,14 +29,12 @@ export const Navbar = () => {
     navigate('/');
   };
 
-  // Fetch all projects
   const {
     data: projects,
     isLoading: isLoadingProjects,
     isError: isProjectsError,
   } = useProjects(user?.id);
 
-  // Handle project change
   const handleProjectChange = (projectId: string) => {
     const selectedProject = projects?.find((p) => p.id === projectId);
     if (selectedProject) {
@@ -44,7 +42,6 @@ export const Navbar = () => {
     }
   };
 
-  // Auto-select first project if none is selected
   useEffect(() => {
     if (
       !currentProject &&
@@ -56,14 +53,12 @@ export const Navbar = () => {
     }
   }, [isLoadingProjects, projects]);
 
-  // Redirect to error page only if there's an error from the server or no projects
   useEffect(() => {
     if (!isLoadingProjects && (projects?.length == 0 || isProjectsError)) {
       navigate('/no-projects');
     }
   }, [isLoadingProjects, isProjectsError, navigate]);
 
-  // Check if current route requires a project
   const isProtectedRoute = [
     '/sprints-stats',
     '/project-stats',
@@ -71,7 +66,6 @@ export const Navbar = () => {
     '/project-management',
   ].includes(location.pathname);
 
-  // Redirect to error page if trying to access protected route without a project
   useEffect(() => {
     if (isProtectedRoute && !isLoadingProjects && isProjectsError) {
       navigate('/no-projects');

@@ -1,7 +1,9 @@
-@import url('https://fonts.googleapis.com/css?family=Work+Sans');
+/* @import url('https://fonts.googleapis.com/css?family=Work+Sans'); */
+@import url('https://fonts.googleapis.com/css?family=Heebo:400,700&display=swap');
+
 @import './items.css';
 body {
-  font-family: 'Work Sans', sans-serif;
+  font-family: 'Heebo', sans-serif;
   font-size: 18px;
 }
 

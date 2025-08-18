@@ -6,7 +6,7 @@ import {
 } from '@tanstack/react-query';
 import { Project, ProjectUpdateInput } from '@packages/projects';
 import { projectsService } from '../../services/projects.service';
-// Keys for query caching
+
 export const projectKeys = {
   all: ['projects'] as const,
   lists: () => [...projectKeys.all, 'list'] as const,
@@ -15,7 +15,7 @@ export const projectKeys = {
   detail: (id: string) => [...projectKeys.details(), id] as const,
 };
 
-// Hook for fetching multiple projects
+
 export const useProjects = (userId = '') => {
   return useQuery({
     queryKey: [...projectKeys.lists(), userId],
@@ -23,7 +23,7 @@ export const useProjects = (userId = '') => {
   });
 };
 
-// Hook for fetching a single project
+
 export const useProject = (id?: string): UseQueryResult<Project, Error> => {
   return useQuery({
     queryKey: projectKeys.detail(id || ''),
@@ -35,7 +35,6 @@ export const useProject = (id?: string): UseQueryResult<Project, Error> => {
   });
 };
 
-// Hook for creating a new project
 export const useCreateProject = () => {
   const queryClient = useQueryClient();
 
@@ -43,13 +42,11 @@ export const useCreateProject = () => {
     mutationFn: (newProject: Omit<Project, 'id' | 'createdAt'>) =>
       projectsService.createProject(newProject),
     onSuccess: () => {
-      // Invalidate the projects list query to trigger a refetch
       queryClient.invalidateQueries({ queryKey: projectKeys.lists() });
     },
   });
 };
 
-// Hook for updating a project
 export const useUpdateProject = () => {
   const queryClient = useQueryClient();
 
@@ -57,7 +54,6 @@ export const useUpdateProject = () => {
     mutationFn: ({ id, data }: { id: string; data: ProjectUpdateInput }) =>
       projectsService.updateProject(id, data),
     onSuccess: (updatedProject) => {
-      // Update both the list and the individual project in the cache
       queryClient.invalidateQueries({ queryKey: projectKeys.lists() });
       queryClient.invalidateQueries({
         queryKey: projectKeys.detail(updatedProject.id),
@@ -66,14 +62,12 @@ export const useUpdateProject = () => {
   });
 };
 
-// Hook for deleting a project
 export const useDeleteProject = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (id: string) => projectsService.deleteProject(id),
     onSuccess: (_data, id) => {
-      // Remove the deleted project from the cache and invalidate the list
       queryClient.removeQueries({ queryKey: projectKeys.detail(id) });
       queryClient.invalidateQueries({ queryKey: projectKeys.lists() });
     },

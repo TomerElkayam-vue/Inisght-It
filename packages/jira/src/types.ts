@@ -8,5 +8,5 @@ export type IssueWithMrAndChangelog = {
   created: string; // ISO 8601 with timezone offset
   createdAt: string; // ISO 8601 UTC
   mergedAt: string;
-  inProgress?: string; // ISO 8601 UTC
+  inProgress?: string;
 };

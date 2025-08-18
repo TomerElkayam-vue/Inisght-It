@@ -74,7 +74,6 @@ export class GithubController {
     );
   }
 
-  // for Tommer
   @Get('/pull-requests/')
   async getProjectPullsRequests(
     @Query('projectId') projectId: string,
@@ -125,7 +124,6 @@ export class GithubController {
   ) {
     const token = await this.GithubService.getUserGithubToken(code, projectId);
 
-    // For dev: pass token in URL (insecure for prod)
     return res.redirect(
       `${
         this.clientEndpoint

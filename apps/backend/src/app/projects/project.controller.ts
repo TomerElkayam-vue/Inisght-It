@@ -6,12 +6,12 @@ import { CreateProjectDto } from './dto/CreateProjectDto';
 import { Request } from 'express';
 
 export interface AuthenticatedUser {
-  sub: string; // Define the expected structure of the user object
+  sub: string; 
 }
 
 declare module 'express' {
   interface Request {
-    user?: AuthenticatedUser; // Extend the Request interface to include user
+    user?: AuthenticatedUser;
   }
 }
 
@@ -26,7 +26,8 @@ export class ProjectsController {
 
   @Get('/user')
   getUserProjects(@Req() req: Request) {
-    const userId = req.user?.sub; // Extract user ID from the token (populated by AuthMiddleware)
+    // Extract user ID from the token (populated by AuthMiddleware)
+    const userId = req.user?.sub; 
     if (!userId) {
       throw new Error('User ID is undefined');
     }
@@ -52,7 +53,8 @@ export class ProjectsController {
     @Body() project: Prisma.ProjectCreateInput,
     @Req() req: Request
   ) {
-    const userId = req.user?.sub; // Extract user ID from the token (populated by AuthMiddleware)
+    // Extract user ID from the token (populated by AuthMiddleware)
+    const userId = req.user?.sub; 
     if (!userId) {
       throw new Error('User ID is undefined');
     }

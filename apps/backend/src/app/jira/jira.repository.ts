@@ -229,7 +229,6 @@ export class JiraRepository {
         )
       );
 
-      // Extract unique assignees from the response
       const contributors = new Set<string>();
       response.data.issues.forEach((issue: any) => {
         if (issue.fields.assignee?.displayName) {
