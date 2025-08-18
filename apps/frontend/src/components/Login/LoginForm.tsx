@@ -70,9 +70,11 @@ const LoginForm: React.FC = () => {
           <button
             type="submit"
             className={`w-full bg-[#2b3544] text-white rounded-lg p-3 mb-6 ${
-              isLoading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#353f4f]'
+              isLoading || !username || !password
+                ? 'opacity-50 cursor-not-allowed'
+                : 'hover:bg-[#353f4f]'
             }`}
-            disabled={isLoading}
+            disabled={isLoading || !username || !password}
           >
             התחברות
           </button>

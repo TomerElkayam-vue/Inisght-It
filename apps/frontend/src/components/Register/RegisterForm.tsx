@@ -102,9 +102,13 @@ const RegisterForm: React.FC = () => {
           <button
             type="submit"
             className={`w-full bg-[#2b3544] text-white rounded-lg p-3 mb-6 ${
-              isLoading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#353f4f]'
+              isLoading || !firstName || !lastName || !username || !password
+                ? 'opacity-50 cursor-not-allowed'
+                : 'hover:bg-[#353f4f]'
             }`}
-            disabled={isLoading}
+            disabled={
+              isLoading || !firstName || !lastName || !username || !password
+            }
           >
             הרשמה
           </button>
