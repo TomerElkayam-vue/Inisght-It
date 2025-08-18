@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import CreateProjectButton from '../Navbar/CreateProjectButton';
 import { useProjects } from '../hooks/useProjectQueries';
 import { useCurrentConnectedUser } from '../../context/CurrentConnectedUserContext';
+import { useCurrentProjectContext } from '../../context/CurrentProjectContext';
 
 const NoProjects = () => {
   const navigate = useNavigate();
@@ -12,6 +13,7 @@ const NoProjects = () => {
   } | null>(null);
 
   const { user } = useCurrentConnectedUser();
+  const { setCurrentProject } = useCurrentProjectContext();
   const { data: projects, isLoading: isLoadingProjects } = useProjects(
     user?.id
   );
@@ -24,7 +26,7 @@ const NoProjects = () => {
   }, [isLoadingProjects, navigate]);
 
   return (
-    <div className="min-h-screen bg-[#151921] flex items-center justify-center">
+    <div className="min-h-[calc(100vh-4rem)] bg-[#151921] flex items-center justify-center">
       <div
         className="bg-[#1e2530] p-8 rounded-lg shadow-lg max-w-md w-full text-center"
         dir="rtl"
@@ -37,7 +39,10 @@ const NoProjects = () => {
         </p>
         <div className="flex flex-row-reverse gap-4 justify-center">
           <CreateProjectButton
-            onProjectCreated={() => navigate('/')}
+            onProjectCreated={(project) => {
+              navigate('/project-management');
+              setCurrentProject(project);
+            }}
             setToast={setToast}
           />
           <button

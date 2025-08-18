@@ -14,7 +14,7 @@ export const projectsService = {
   },
 
   createProject: async (
-    project: Omit<Project, 'id' | 'createdAt'>
+    project: Omit<Project, 'id' | 'createdAt' | 'employees'>
   ): Promise<Project> => {
     const response = await api.post<Project>('/projects', project);
     return response.data;

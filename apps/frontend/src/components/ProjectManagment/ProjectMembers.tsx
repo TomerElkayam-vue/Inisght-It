@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { usersService } from '../../services/users.service';
 import { useCurrentProjectContext } from '../../context/CurrentProjectContext';
 import { useProjectManagementContext } from '../../context/ProjectManagementContext';
+import { nameToDisplay } from '../../utils/text';
 
 const ProjectMembers = ({
   save,
@@ -83,12 +84,6 @@ const ProjectMembers = ({
     setSearchValue(value);
   };
 
-  const usernameToDisplay = (username: string, maxLength: number = 18) => {
-    if (!username) return '';
-    if (username.length <= maxLength) return username;
-    return username.slice(0, maxLength - 1) + '…';
-  };
-
   return (
     <div className="flex items-center justify-center bg-[#1e1e2f] text-white">
       <div
@@ -118,7 +113,7 @@ const ProjectMembers = ({
               dir="rtl"
             >
               <span title={employee.username} className="text-right">
-                {usernameToDisplay(employee.username)}
+                {nameToDisplay(employee.username)}
               </span>
               <button
                 onClick={() => handleDelete(index)}
@@ -170,7 +165,7 @@ const ProjectMembers = ({
                       }}
                       title={user.username}
                     >
-                      {usernameToDisplay(user.username, 35)}
+                      {nameToDisplay(user.username, 35)}
                     </li>
                   ))}
                 </ul>

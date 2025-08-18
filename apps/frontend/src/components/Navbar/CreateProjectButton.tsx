@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useCreateProject } from '../hooks/useProjectQueries';
 import { Project } from '@packages/projects';
-
 interface CreateProjectButtonProps {
   onProjectCreated: (project: Project) => void;
   setToast: (
@@ -39,7 +38,6 @@ const CreateProjectButton: React.FC<CreateProjectButtonProps> = ({
       const newProject = await createProjectMutation.mutateAsync({
         name: newProjectName,
       });
-      // Ensure we have all the necessary project data
       const completeProject: Project = {
         ...newProject,
         projectPermissions: newProject.projectPermissions || [],
@@ -87,7 +85,7 @@ const CreateProjectButton: React.FC<CreateProjectButtonProps> = ({
             )}
             <div className="flex gap-2 w-full">
               <button
-                className="flex-1 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors flex items-center justify-center"
+                className="flex-1 bg-[#f8d94e] hover:bg-[#e6c937] text-black  px-4 py-2 rounded-lg transition-colors flex items-center justify-center"
                 onClick={handleCreateProject}
                 disabled={createProjectMutation.isPending}
               >
