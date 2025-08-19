@@ -82,18 +82,18 @@ export const WorkerInsights = () => {
               <div className="flex flex-col md:flex-row gap-6 w-full">
                 <div className="w-full md:w-1/2">
                   <StatsDashboard
-                    dataTypeToText={githubDataTypeToText}
-                    initialSelectedDataType={GithubDataType.PR}
-                    fetchData={getGithubStats}
+                    dataTypeToText={jiraDataTypeToText}
+                    initialSelectedDataType={JiraDataType.ISSUES}
+                    fetchData={getJiraStats}
                     isWorkerView={true}
                     currentWorker={selectedEmployee.displayName}
                   />
                 </div>
                 <div className="w-full md:w-1/2">
                   <StatsDashboard
-                    dataTypeToText={jiraDataTypeToText}
-                    initialSelectedDataType={JiraDataType.ISSUES}
-                    fetchData={getJiraStats}
+                    dataTypeToText={githubDataTypeToText}
+                    initialSelectedDataType={GithubDataType.PR}
+                    fetchData={getGithubStats}
                     isWorkerView={true}
                     currentWorker={selectedEmployee.displayName}
                   />
@@ -135,7 +135,7 @@ export const WorkerInsights = () => {
           )}
         </div>
       ) : (
-        <ToolsConfigureMessage/>
+        <ToolsConfigureMessage />
       )}
     </>
   );

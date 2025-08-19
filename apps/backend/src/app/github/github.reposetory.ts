@@ -17,7 +17,9 @@ export class GithubRepository {
     @Inject(githubConfig.KEY)
     private githubConfigValues: config.ConfigType<typeof githubConfig>,
     private httpService: HttpService
-  ) {}
+  ) {
+    this.httpService.axiosRef.defaults.timeout = 60000;
+  }
 
   async getPullRequests(
     owner: string,
@@ -84,7 +86,7 @@ export class GithubRepository {
         updated_at,
         closed_at,
         user,
-        review_comments,
+        comments,
         commits,
         additions,
         deletions,
@@ -98,7 +100,7 @@ export class GithubRepository {
         updated_at,
         closed_at,
         user,
-        review_comments,
+        comments,
         commits,
         additions,
         deletions,
@@ -136,7 +138,7 @@ export class GithubRepository {
           additions,
           deletions,
           changes,
-          user : pullRequest.user?.login
+          user: pullRequest.user?.login,
         };
       });
     } catch (error: any) {

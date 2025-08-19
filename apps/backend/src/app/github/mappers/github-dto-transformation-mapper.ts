@@ -1,4 +1,4 @@
-import { GithubDataType } from "../enums/github-data-type";
+import { GithubDataType } from '../enums/github-data-type';
 
 export const GithubDtoTransformationMapper: Record<
   GithubDataType,
@@ -11,10 +11,10 @@ export const GithubDtoTransformationMapper: Record<
     sprintInitaliztionValue: 0,
     dataTransformation: (currentData: any, fields: any) => currentData + 1,
   },
-  [GithubDataType.COMMENTS]: {
+  [GithubDataType.COMMENTS_RECEIVED]: {
     sprintInitaliztionValue: 0,
     dataTransformation: (currentData: any, fields: any) =>
-      currentData + fields.review_comments,
+      currentData + fields.comments,
   },
   [GithubDataType.COMMITS]: {
     sprintInitaliztionValue: 0,

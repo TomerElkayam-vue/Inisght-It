@@ -6,7 +6,7 @@ export enum GithubDataType {
   PR = 'PR',
   COMMITS = 'COMMITS',
   FILE_CHANGES = 'FILE_CHANGES',
-  COMMENTS = 'COMMENTS',
+  COMMENTS_RECEIVED = 'COMMENTS_RECEIVED',
 }
 
 export enum GithubAvgDataType {
