@@ -23,7 +23,6 @@ export class AiController {
     @Req() req: any
   ): Promise<InsightsResponse> {
     try {
-
       if (!req.projectCredentials?.codeRepositoryCredentials) {
         throw new Error(
           'GitHub credentials not found. Please connect GitHub to the project.'
@@ -167,7 +166,7 @@ export class AiController {
           ? await this.aiService.getWorkerQuestionAnswer(question, data)
           : await this.aiService.getTeamQuestionAnswer(question, data);
 
-      return { answer };
+      return { answer: answer || '' };
     } catch (error) {
       // console.error('Error getting question answer:', error);
       throw error;

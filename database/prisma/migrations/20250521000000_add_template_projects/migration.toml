@@ -1,4 +1,0 @@
-# This is an empty migration.
-
-migration_name = "20250521000000_add_template_projects"
-migration_hash = "20250521000000_add_template_projects" 

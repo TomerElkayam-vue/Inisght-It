@@ -6,6 +6,7 @@ import {
 } from '@tanstack/react-query';
 import { Project, ProjectUpdateInput } from '@packages/projects';
 import { projectsService } from '../../services/projects.service';
+import { ApiOperation } from '@nestjs/swagger';
 
 export const projectKeys = {
   all: ['projects'] as const,
@@ -15,14 +16,14 @@ export const projectKeys = {
   detail: (id: string) => [...projectKeys.details(), id] as const,
 };
 
-
-export const useProjects = (userId = '') => {
+export const useProjects = (userId = '', options = {}) => {
   return useQuery({
     queryKey: [...projectKeys.lists(), userId],
     queryFn: projectsService.getProjects,
+    enabled: !!userId, // only run if userId exists
+    ...options,
   });
 };
-
 
 export const useProject = (id?: string): UseQueryResult<Project, Error> => {
   return useQuery({

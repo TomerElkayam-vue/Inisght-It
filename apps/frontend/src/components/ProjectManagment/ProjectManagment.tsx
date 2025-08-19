@@ -1,9 +1,12 @@
-import { Project } from '@packages/projects';
 import ProjectMembers from './ProjectMembers';
 import ToolCredentials from './ToolsCredentials';
 import { useEffect, useMemo, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { projectKeys, useUpdateProject } from '../hooks/useProjectQueries';
+import {
+  projectKeys,
+  useUpdateProject,
+  useProjects,
+} from '../hooks/useProjectQueries';
 import { useCurrentProjectContext } from '../../context/CurrentProjectContext';
 import { useCurrentConnectedUser } from '../../context/CurrentConnectedUserContext';
 import {
@@ -21,25 +24,23 @@ const ProjectContent = () => {
   } = useProjectManagementContext();
 
   const updateProjectMutation = useUpdateProject();
+  const queryClient = useQueryClient();
+  const { user } = useCurrentConnectedUser();
 
   const [isSaving, setIsSaving] = useState(false);
 
-  const queryClient = useQueryClient();
-  const { user } = useCurrentConnectedUser();
-  const projects =
-    queryClient.getQueryData<Project[]>([...projectKeys.lists(), user?.id]) ||
-    [];
+  const { data: projects = [] } = useProjects(user?.id, {
+    enabled: !!user?.id,
+  });
 
   useEffect(() => {
-    if (projects && projects.length > 0 && currentProject) {
-      const currentProjectId = projects.find(
-        (project) => project.id === currentProject.id
-      );
-      if (currentProjectId) {
-        setCurrentProject(currentProjectId);
+    if (projects.length > 0 && currentProject) {
+      const latest = projects.find((p) => p.id === currentProject.id);
+      if (latest) {
+        setCurrentProject(latest);
       }
     }
-  }, [projects]);
+  }, [projects, currentProject, setCurrentProject]);
 
   useMemo(() => {
     if (currentProject) {
@@ -47,9 +48,6 @@ const ProjectContent = () => {
       setManagementCredentials(
         currentProject.missionManagementCredentials ?? null
       );
-
-      // Initialize employees list from project permissions
-      // Filter out owners (roleId === 1) from the employees list
 
       if (currentProject.projectPermissions) {
         const memberEmployees = currentProject.projectPermissions
@@ -59,7 +57,12 @@ const ProjectContent = () => {
         setMembers(memberEmployees);
       }
     }
-  }, [currentProject]);
+  }, [
+    currentProject,
+    setCodeBaseCredentials,
+    setManagementCredentials,
+    setMembers,
+  ]);
 
   const handleSave = async () => {
     if (!currentProject?.id) return;
@@ -71,10 +74,10 @@ const ProjectContent = () => {
         create: [
           ...members.map((member) => ({
             userId: member.id,
-            roleId: 2, // Member role
+            roleId: 2,
           })),
           ...(currentProject.projectPermissions
-            ?.filter((permission) => permission.roleId == 1)
+            ?.filter((permission) => permission.roleId === 1)
             ?.map((user) => ({
               userId: user.userId,
               roleId: 1,
@@ -84,9 +87,11 @@ const ProjectContent = () => {
 
       await updateProjectMutation.mutateAsync({
         id: currentProject.id,
-        data: {
-          projectPermissions: projectPermissions,
-        },
+        data: { projectPermissions },
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: [...projectKeys.lists(), user?.id],
       });
 
       setTimeout(() => setIsSaving(false), 1000);
