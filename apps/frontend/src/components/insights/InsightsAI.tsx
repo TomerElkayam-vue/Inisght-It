@@ -21,9 +21,23 @@ export const InsightsAI = ({ target, type }: PromptProps) => {
           type === 'worker'
             ? await getWorkerInsights(currentProject.id, target)
             : await getTeamInsights(currentProject.id);
-        setInsights(response);
+
+        const sanitizedResponse: InsightsResponse = {
+          summary: response.summary?.trim()
+            ? response.summary
+            : 'אין ודאות לגבי התשובה',
+          recommendations: response.recommendations?.trim()
+            ? response.recommendations
+            : 'אין ודאות לגבי התשובה',
+        };
+
+        setInsights(sanitizedResponse);
       } catch (error) {
         console.error('Error fetching insights:', error);
+        setInsights({
+          summary: 'נראה כי התרחשה שגיאה',
+          recommendations: 'נראה כי התרחשה שגיאה',
+        });
       } finally {
         setIsLoading(false);
       }

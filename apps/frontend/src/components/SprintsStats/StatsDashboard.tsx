@@ -42,7 +42,7 @@ ChartJS.register(
 
 export const githubDataTypeToText: Record<string, string> = {
   [GithubDataType.PR]: 'Pull Request',
-  [GithubDataType.COMMENTS]: 'Comments Review',
+  [GithubDataType.COMMENTS_RECEIVED]: 'Comments Received',
   [GithubDataType.COMMITS]: 'Commits',
   [GithubDataType.FILE_CHANGES]: 'File Changes',
 };

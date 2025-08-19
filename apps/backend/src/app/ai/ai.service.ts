@@ -37,11 +37,9 @@ export class AiService {
   async getGitHubData(projectId: string, credentials: any) {
     const cacheKey = `github_data_${projectId}`;
     return this.getCachedOrFetch(cacheKey, async () => {
-  
       const githubDataTypes = Object.values(GithubDataType);
 
       const githubDataPromises = githubDataTypes.map((dataType) => {
-
         return this.githubService
           .getProjectStatsByUser(
             {
@@ -91,7 +89,16 @@ export class AiService {
         return acc;
       }, {} as Record<GithubDataType, Record<string, { total: number; userId: string; reviews: number; averageComments: number }>>);
 
-      return reduced;
+      const blindSpotsInCode = await this.githubService.getBlindsSpotsInCode(
+        credentials.codeRepositoryCredentials
+      );
+
+      const serverClientDistribution =
+        await this.githubService.getServerClientDistribution(
+          credentials.codeRepositoryCredentials
+        );
+
+      return { reduced, blindSpotsInCode, serverClientDistribution };
     });
   }
 
@@ -99,8 +106,6 @@ export class AiService {
     const cacheKey = `jira_data_${projectId}`;
 
     return this.getCachedOrFetch(cacheKey, async () => {
-
-
       const dataTypes = Object.values(JiraDataType);
 
       const jiraDataPromises = dataTypes.map((dataType) => {
@@ -120,11 +125,10 @@ export class AiService {
       });
 
       const jiraDataResults = await Promise.all(jiraDataPromises);
-   
 
       const reduced = jiraDataResults.reduce((acc, curr, index) => {
         const dataType = dataTypes[index];
-        
+
         acc[dataType] = curr;
         return acc;
       }, {} as Record<JiraDataType, any>);

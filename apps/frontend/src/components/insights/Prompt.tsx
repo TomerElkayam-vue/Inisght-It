@@ -25,28 +25,70 @@ export const Prompt = ({ target, type }: PromptProps) => {
   const handleSend = async () => {
     if (!inputValue.trim() || !currentProject) return;
 
+    const currentInput = inputValue; // capture value before clearing
+    setInputValue(''); // clear input immediately
+
     if (editingMessageId) {
-      // Update existing message
-      setMessages(
-        messages.map((msg) =>
-          msg.id === editingMessageId ? { ...msg, question: inputValue } : msg
+      setEditingMessageId(null);
+
+      // Update existing message: reset answer and mark as loading
+      setMessages((prevMessages) =>
+        prevMessages.map((msg) =>
+          msg.id === editingMessageId
+            ? {
+                ...msg,
+                question: currentInput,
+                answer: '',
+                isLoading: true,
+                timestamp: new Date(),
+              }
+            : msg
         )
       );
-      setEditingMessageId(null);
+
+      try {
+        const response = await getQuestionAnswer(
+          currentInput,
+          currentProject.id,
+          type === 'worker' ? target : undefined,
+          type
+        );
+        setMessages((prevMessages) =>
+          prevMessages.map((msg) =>
+            msg.id === editingMessageId
+              ? { ...msg, answer: response.answer, isLoading: false }
+              : msg
+          )
+        );
+      } catch (error) {
+        console.error('Error getting answer:', error);
+        setMessages((prevMessages) =>
+          prevMessages.map((msg) =>
+            msg.id === editingMessageId
+              ? {
+                  ...msg,
+                  answer:
+                    'Sorry, there was an error getting the answer. Please try again.',
+                  isLoading: false,
+                }
+              : msg
+          )
+        );
+      }
     } else {
       // Add new message
       const newMessage: Message = {
         id: Date.now().toString(),
-        question: inputValue,
+        question: currentInput,
         answer: '',
         timestamp: new Date(),
         isLoading: true,
       };
-      setMessages([...messages, newMessage]);
+      setMessages((prevMessages) => [...prevMessages, newMessage]);
 
       try {
         const response = await getQuestionAnswer(
-          inputValue,
+          currentInput,
           currentProject.id,
           type === 'worker' ? target : undefined,
           type
@@ -54,11 +96,7 @@ export const Prompt = ({ target, type }: PromptProps) => {
         setMessages((prevMessages) =>
           prevMessages.map((msg) =>
             msg.id === newMessage.id
-              ? {
-                  ...msg,
-                  answer: response.answer,
-                  isLoading: false,
-                }
+              ? { ...msg, answer: response.answer, isLoading: false }
               : msg
           )
         );
@@ -78,7 +116,6 @@ export const Prompt = ({ target, type }: PromptProps) => {
         );
       }
     }
-    setInputValue('');
   };
 
   const handleRegenerate = async (messageId: string) => {
@@ -87,8 +124,8 @@ export const Prompt = ({ target, type }: PromptProps) => {
     const message = messages.find((msg) => msg.id === messageId);
     if (!message) return;
 
-    setMessages(
-      messages.map((msg) =>
+    setMessages((prevMessages) =>
+      prevMessages.map((msg) =>
         msg.id === messageId ? { ...msg, isLoading: true } : msg
       )
     );
@@ -103,11 +140,7 @@ export const Prompt = ({ target, type }: PromptProps) => {
       setMessages((prevMessages) =>
         prevMessages.map((msg) =>
           msg.id === messageId
-            ? {
-                ...msg,
-                answer: response.answer,
-                isLoading: false,
-              }
+            ? { ...msg, answer: response.answer, isLoading: false }
             : msg
         )
       );
@@ -220,7 +253,12 @@ export const Prompt = ({ target, type }: PromptProps) => {
               onChange={(e) =>
                 setInputValue(e.target.value.slice(0, MAX_INPUT_LENGTH))
               }
-              onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  handleSend();
+                }
+              }}
               placeholder={
                 editingMessageId ? 'ערוך את השאלה שלך...' : 'שאל שאלה...'
               }

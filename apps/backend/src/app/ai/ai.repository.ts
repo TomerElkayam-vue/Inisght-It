@@ -34,24 +34,30 @@ export class AiRepository {
     tokens: { input: number; output: number },
     prompt: string
   ): Promise<string> {
-    const callCost =
-      (tokens.input * this.modelPrice.input) / 1_000_000 +
-      (tokens.output * this.modelPrice.output) / 1_000_000;
+    try {
+      const callCost =
+        (tokens.input * this.modelPrice.input) / 1_000_000 +
+        (tokens.output * this.modelPrice.output) / 1_000_000;
 
-    if (this.estimatedCost + callCost > this.monthlyBudget) {
-      console.warn('Monthly budget exceeded, skipping AI call.');
+      if (this.estimatedCost + callCost > this.monthlyBudget) {
+        console.warn('Monthly budget exceeded, skipping AI call.');
+        return 'There was a problem with the AI service.';
+      }
+
+      this.estimatedCost += callCost;
+
+      const result = await this.model.generateContent({
+        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        generationConfig: { responseMimeType: 'application/json' },
+      });
+
+      const rawText = result.response.text();
+      const cleanedText = rawText.replace(/```json|```/g, '').trim();
+      return JSON.parse(cleanedText).text;
+    } catch (err) {
+      console.error('Error in safeCallModel:', err);
       return 'There was a problem with the AI service.';
     }
-
-    this.estimatedCost += callCost;
-
-    const result = await this.model.generateContent({
-      contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      generationConfig: { responseMimeType: 'application/json' },
-    });
-
-
-    return JSON.parse(result.response.text()).text;
   }
 
   private estimateTokens(prompt: string): { input: number; output: number } {
@@ -67,7 +73,6 @@ export class AiRepository {
 
   async getWorkerRecommendation(info: any): Promise<string> {
     const prompt = `You are a development team manager AI assistant. You are given detailed data for a single employee in a software development team.
-    When generating the content, consider that the company has both male and female employees. Ensure that the wording is gender-inclusive or neutral so that it appropriately addresses all employees
 
 Your task is to generate a *Recommendations* section of the employee’s profile page.  
 The output must be written in **Hebrew** and concise (4-5 sentences total). 
@@ -142,7 +147,6 @@ data: ${JSON.stringify(info)}
 
   async getWorkerSummary(info: any): Promise<string> {
     const prompt = `You are a development team manager AI assistant. You are given detailed data for a single employee in a software development team.
-When generating the content, consider that the company has both male and female employees. Ensure that the wording is gender-inclusive or neutral so that it appropriately addresses all employees
 
 Your task is to generate a *Summary* section of the employee’s profile page.  
 The output must be written in **Hebrew** and concise (5-6 sentences total).  
@@ -189,7 +193,6 @@ data: ${JSON.stringify(info)}
     const prompt = `
     You are a development team manager AI assistant. You are given detailed data for a software development team.
 
-
 Your task is to generate a Recommendations section of the team’s profile page.
  The output must be written in Hebrew and concise (8-11 sentences total).
  Use the following structure with bold section titles and line breaks (\\n):
@@ -224,9 +227,10 @@ data: ${JSON.stringify(info)}
   async getWorkerQuestionAnswer(question: string, info: any): Promise<string> {
     const prompt = `
     Answer the question based on the context below. Keep the answer short and concise. Respond "אין ודאות לגבי התשובה" if not sure about the answer.
-Context: The following data represents a software development team across multiple sprints.  ${JSON.stringify(
-      info
+Context: The following data represents a software development team across multiple sprints. The emphasis is on employee ${JSON.stringify(
+      info.employee
     )}
+${JSON.stringify(info)}
 Requirements:  
 - Write in **plain Hebrew**.
 -Always use gender-neutral or gender-inclusive phrasing for all employees. For example, instead of saying ravid ביצע, write ravid ביצע.ה to reflect that employees may be of any gender.

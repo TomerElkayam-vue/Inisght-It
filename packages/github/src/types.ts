@@ -52,7 +52,7 @@ export type GitHubPullRequest = {
   closed_at?: string;
   user?: GitHubUser;
   userName?: string;
-  review_comments: number;
+  comments: number;
   commits: number;
   additions: number;
   deletions: number;
